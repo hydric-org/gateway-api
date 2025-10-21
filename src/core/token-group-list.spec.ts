@@ -71,6 +71,7 @@ describe('TokenGroupList', () => {
             '44', // 21BTC
             '72', // UBTC
             '83', // hbBTC
+            '119', // Unichain Bridged WBTC
           ]).has(token.id!),
         ),
       },

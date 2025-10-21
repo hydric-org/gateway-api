@@ -9,12 +9,6 @@ describe('NetworksEnumTest', () => {
     expect(NetworksUtils.isValidChainId(11155111)).toBe(true);
   });
 
-  it('should return the correct indexer url getting it from the env variable', () => {
-    const indexer = (process.env.INDEXER_URL = 'https://test');
-
-    expect(NetworksUtils.getIndexerUrl()).toBe(indexer);
-  });
-
   it("should return true if the passed chainId is in the enum's values", () => {
     expect(NetworksUtils.isValidChainId(11155111)).toBe(true);
     expect(NetworksUtils.isValidChainId(534352)).toBe(true);

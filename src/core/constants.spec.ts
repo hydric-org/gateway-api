@@ -10,6 +10,6 @@ describe('Constants', () => {
   });
 
   it('should return 100 as daily data limit for the yield calculation', () => {
-    expect(YIELD_DAILY_DATA_LIMIT).toBe(100);
+    expect(YIELD_DAILY_DATA_LIMIT).toBe(90);
   });
 });

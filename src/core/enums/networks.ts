@@ -23,10 +23,6 @@ export class NetworksUtils {
     }
   }
 
-  static getIndexerUrl(): string {
-    return process.env.INDEXER_URL!;
-  }
-
   static isValidChainId(chainId: number): boolean {
     return this.values().includes(chainId);
   }

@@ -46,7 +46,7 @@ export const tokenGroupList: TokenGroupDTO[] = [
         '116', // XUSD
         '117', // reUSD
         '118', // USDA
-      ]).has(token.id!),
+      ]).has(token.id),
     ),
   },
   {
@@ -70,7 +70,7 @@ export const tokenGroupList: TokenGroupDTO[] = [
         '72', // UBTC
         '83', // hbBTC
         '119', // Unichain Bridged WBTC
-      ]).has(token.id!),
+      ]).has(token.id),
     ),
   },
   {
@@ -104,7 +104,7 @@ export const tokenGroupList: TokenGroupDTO[] = [
         '66', // pzETH
         '67', // ankrETH
         '73', // UETH
-      ]).has(token.id!),
+      ]).has(token.id),
     ),
   },
   {
@@ -124,7 +124,7 @@ export const tokenGroupList: TokenGroupDTO[] = [
         '107', // mHYPE
         '108', // liquidHYPE
         '109', // hbHYPE
-      ]).has(token.id!),
+      ]).has(token.id),
     ),
   },
 ];

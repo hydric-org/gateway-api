@@ -1,4 +1,6 @@
-import { any } from 'jest-mock-extended';
+import 'reflect-metadata';
+import sinon from 'sinon';
+import { PoolSearchConfigDTO } from 'src/core/dtos/pool-search-config.dto';
 import { PoolSearchFiltersDTO } from 'src/core/dtos/pool-search-filters.dto';
 import { Networks } from 'src/core/enums/networks';
 import { tokenGroupList } from 'src/core/token-group-list';
@@ -7,15 +9,10 @@ import { PoolsService } from './pools.service';
 
 describe('PoolsController', () => {
   let sut: PoolsController;
-  let poolsService: PoolsService;
+  let poolsService: sinon.SinonStubbedInstance<PoolsService>;
 
   beforeEach(() => {
-    poolsService = {
-      searchPoolsCrossChain: jest.fn(),
-      searchPoolsInChain: jest.fn(),
-      getPoolData: jest.fn(),
-    } as unknown as PoolsService;
-
+    poolsService = sinon.createStubInstance(PoolsService);
     sut = new PoolsController(poolsService);
   });
 
@@ -25,49 +22,51 @@ describe('PoolsController', () => {
     const group0Id = undefined;
     const group1Id = undefined;
     const filters = new PoolSearchFiltersDTO();
+    const config = new PoolSearchConfigDTO();
 
-    await sut.searchPoolsAcrossNetworks(token0Id, token1Id, group0Id, group1Id, filters);
+    // @ts-expect-error testing that the uses didn't pass any group id
+    await sut.searchPoolsAcrossNetworks(token0Id, token1Id, group0Id, group1Id, filters, config);
 
-    expect(poolsService.searchPoolsCrossChain).toHaveBeenCalledWith({
+    sinon.assert.calledOnceWithExactly(poolsService.searchPoolsCrossChain, {
+      searchFilters: filters,
+      searchConfig: new PoolSearchConfigDTO(),
       token0Ids: [token0Id],
       token1Ids: [token1Id],
-      filters: filters,
     });
   });
 
-  it('Should call the service to get pools across networks when calling the /pools/all with testnet mode true if filter is true', async () => {
+  it('Should call the service to get pools across networks when calling the /pools/all with testnet mode true if config is true', async () => {
     const token0Id = '12';
     const token1Id = '34';
     const group0Id = undefined;
     const group1Id = undefined;
-    const filters = <PoolSearchFiltersDTO>{
-      testnetMode: true,
-      minTvlUsd: 12132876.43,
-    };
+    const filters = new PoolSearchFiltersDTO();
+    const config: PoolSearchConfigDTO = { testnetMode: true };
 
-    await sut.searchPoolsAcrossNetworks(token0Id, token1Id, group0Id, group1Id, filters);
+    // @ts-expect-error testing that the uses didn't pass any group id
+    await sut.searchPoolsAcrossNetworks(token0Id, token1Id, group0Id, group1Id, filters, config);
 
-    expect(poolsService.searchPoolsCrossChain).toHaveBeenCalledWith({
-      token0Ids: [token0Id],
-      token1Ids: [token1Id],
-      filters: filters,
+    sinon.assert.calledOnceWithMatch(poolsService.searchPoolsCrossChain, {
+      searchConfig: {
+        testnetMode: true,
+      },
     });
   });
 
   it('Should call the service to get pools in a specific network when calling the /pools/:chainId endpoint with the correct params', async () => {
     const token0 = '0x0000000000000000000000000000000000000000';
     const token1 = '0x1111111111111111111111111111111111111111';
-    const group0Id = undefined;
-    const group1Id = undefined;
-    const chainId = 98765;
+    const chainId = Networks.ETHEREUM;
 
-    await sut.searchPoolsInChain(chainId, token0, token1, group0Id, group1Id);
+    // @ts-expect-error testing that the user pass only token0 and token1
+    await sut.searchPoolsInChain(chainId, token0, token1);
 
-    expect(poolsService.searchPoolsInChain).toHaveBeenCalledWith({
+    sinon.assert.calledOnceWithExactly(poolsService.searchPoolsInChain, {
       token0Addresses: [token0],
       token1Addresses: [token1],
       network: chainId,
-      filters: new PoolSearchFiltersDTO(),
+      searchConfig: new PoolSearchConfigDTO(),
+      searchFilters: new PoolSearchFiltersDTO(),
     });
   });
 
@@ -88,13 +87,12 @@ describe('PoolsController', () => {
       .tokens.map((token) => token.addresses[chainId])
       .filter((tokenAddress) => tokenAddress !== null);
 
+    // @ts-expect-error testing that the user doesn't pass token0 and token1
     await sut.searchPoolsInChain(chainId, token0, token1, group0Id, group1Id);
 
-    expect(poolsService.searchPoolsInChain).toHaveBeenCalledWith({
+    sinon.assert.calledOnceWithMatch(poolsService.searchPoolsInChain, {
       token0Addresses: expectedTokens0,
       token1Addresses: expectedTokens1,
-      network: chainId,
-      filters: new PoolSearchFiltersDTO(),
     });
   });
 
@@ -112,13 +110,12 @@ describe('PoolsController', () => {
 
     const expectedTokens1 = [token1];
 
+    // @ts-expect-error testing that the user doesn't pass token0 and group1Id
     await sut.searchPoolsInChain(chainId, token0, token1, group0Id, group1Id);
 
-    expect(poolsService.searchPoolsInChain).toHaveBeenCalledWith({
+    sinon.assert.calledOnceWithMatch(poolsService.searchPoolsInChain, {
       token0Addresses: expectedTokens0,
       token1Addresses: expectedTokens1,
-      network: chainId,
-      filters: new PoolSearchFiltersDTO(),
     });
   });
 
@@ -136,13 +133,12 @@ describe('PoolsController', () => {
       .tokens.map((token) => token.addresses[chainId])
       .filter((tokenAddress) => tokenAddress !== null);
 
+    // @ts-expect-error testing that the user doesn't pass token1 and group0Id
     await sut.searchPoolsInChain(chainId, token0, token1, group0Id, group1Id);
 
-    expect(poolsService.searchPoolsInChain).toHaveBeenCalledWith({
+    sinon.assert.calledOnceWithMatch(poolsService.searchPoolsInChain, {
       token0Addresses: expectedTokens0,
       token1Addresses: expectedTokens1,
-      network: chainId,
-      filters: new PoolSearchFiltersDTO(),
     });
   });
 
@@ -153,15 +149,14 @@ describe('PoolsController', () => {
     const group1Id = 'group-2';
 
     const expectedTokens0 = tokenGroupList.find((group) => group.id === group0Id)!.tokens.map((token) => token.id);
-
     const expectedTokens1 = tokenGroupList.find((group) => group.id === group1Id)!.tokens.map((token) => token.id);
 
+    // @ts-expect-error testing that the user doesn't pass token0 and token1
     await sut.searchPoolsAcrossNetworks(token0, token1, group0Id, group1Id);
 
-    expect(poolsService.searchPoolsCrossChain).toHaveBeenCalledWith({
+    sinon.assert.calledOnceWithMatch(poolsService.searchPoolsCrossChain, {
       token0Ids: expectedTokens0,
       token1Ids: expectedTokens1,
-      filters: new PoolSearchFiltersDTO(),
     });
   });
 
@@ -175,12 +170,12 @@ describe('PoolsController', () => {
 
     const expectedTokens1 = [token1];
 
+    // @ts-expect-error testing that the user doesn't pass token0 and group1Id
     await sut.searchPoolsAcrossNetworks(token0, token1, group0Id, group1Id);
 
-    expect(poolsService.searchPoolsCrossChain).toHaveBeenCalledWith({
+    sinon.assert.calledOnceWithMatch(poolsService.searchPoolsCrossChain, {
       token0Ids: expectedTokens0,
       token1Ids: expectedTokens1,
-      filters: new PoolSearchFiltersDTO(),
     });
   });
 
@@ -191,15 +186,14 @@ describe('PoolsController', () => {
     const group1Id = 'group-3';
 
     const expectedTokens0 = [token0];
-
     const expectedTokens1 = tokenGroupList.find((group) => group.id === group1Id)!.tokens.map((token) => token.id);
 
+    // @ts-expect-error testing that the user doesn't pass token1 and group0Id
     await sut.searchPoolsAcrossNetworks(token0, token1, group0Id, group1Id);
 
-    expect(poolsService.searchPoolsCrossChain).toHaveBeenCalledWith({
+    sinon.assert.calledOnceWithMatch(poolsService.searchPoolsCrossChain, {
       token0Ids: expectedTokens0,
       token1Ids: expectedTokens1,
-      filters: new PoolSearchFiltersDTO(),
     });
   });
 
@@ -210,7 +204,7 @@ describe('PoolsController', () => {
 
     await sut.getPoolData(poolAddress, chainId, parseWrappedToNative);
 
-    expect(poolsService.getPoolData).toHaveBeenCalledWith(poolAddress, chainId, parseWrappedToNative);
+    sinon.assert.calledOnceWithExactly(poolsService.getPoolData, poolAddress, chainId, parseWrappedToNative);
   });
 
   it(`Should pass the parse wrapped native as native true to pool service when calling
@@ -220,7 +214,7 @@ describe('PoolsController', () => {
 
     await sut.getPoolData(poolAddress, chainId, true);
 
-    expect(poolsService.getPoolData).toHaveBeenCalledWith(any(), any(), true);
+    sinon.assert.calledOnceWithMatch(poolsService.getPoolData, sinon.match.any, sinon.match.any, true);
   });
 
   it(`Should pass the parse wrapped native as native false to pool service when calling
@@ -230,6 +224,6 @@ describe('PoolsController', () => {
 
     await sut.getPoolData(poolAddress, chainId, false);
 
-    expect(poolsService.getPoolData).toHaveBeenCalledWith(any(), any(), false);
+    sinon.assert.calledOnceWithMatch(poolsService.getPoolData, sinon.match.any, sinon.match.any, false);
   });
 });

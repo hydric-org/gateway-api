@@ -1,11 +1,13 @@
-import { BadRequestException, Controller, Get, ParseIntPipe, Query } from '@nestjs/common';
-
+import { BadRequestException, Controller, Get, Param, Query } from '@nestjs/common';
 import { ZERO_ETHEREUM_ADDRESS } from 'src/core/constants';
-import { TokenGroupDTO } from 'src/core/dtos/token-group.dto';
+import { MultichainTokenDTO } from 'src/core/dtos/multi-chain-token.dto';
+import { SingleChainTokenDTO } from 'src/core/dtos/single-chain-token-dto';
 import { TokenListDTO } from 'src/core/dtos/token-list.dto';
 import { TokenPriceDTO } from 'src/core/dtos/token-price-dto';
-import { TokenDTO } from 'src/core/dtos/token.dto';
 import { Networks, NetworksUtils } from 'src/core/enums/networks';
+import { ParseAddressPipe } from 'src/core/pipes/address.pipe';
+import { ParseChainIdPipe, ParseOptionalChainIdPipe } from 'src/core/pipes/chain-id.pipe';
+import { ParseSearchQueryPipe } from 'src/core/pipes/search-query.pipe';
 import { isEthereumAddress } from 'src/core/utils/string-utils';
 import { TokensService } from './tokens.service';
 
@@ -13,18 +15,8 @@ import { TokensService } from './tokens.service';
 export class TokensController {
   constructor(private readonly tokensService: TokensService) {}
 
-  @Get('/popular')
-  getPopularTokens(@Query('chainId') chainId?: Networks): TokenDTO[] {
-    return this.tokensService.getPopularTokens(chainId);
-  }
-
-  @Get('/groups')
-  getTokenGroups(@Query('chainId') chainId?: Networks): TokenGroupDTO[] {
-    return this.tokensService.getTokenGroups(chainId);
-  }
-
   @Get('/list')
-  getTokenList(@Query('chainId') chainId?: Networks): TokenListDTO {
+  getTokenList(@Query('chainId', ParseOptionalChainIdPipe) chainId: Networks): TokenListDTO {
     const tokens = this.tokensService.getPopularTokens(chainId);
     const groups = this.tokensService.getTokenGroups(chainId);
 
@@ -34,57 +26,49 @@ export class TokensController {
     };
   }
 
-  @Get('/search')
-  async searchTokens(
-    @Query('query') query: string,
-    @Query(
-      'chainId',
-      new ParseIntPipe({
-        optional: true,
-      }),
-    )
-    network?: number,
-  ): Promise<TokenDTO[]> {
-    const isSearchByAddress = isEthereumAddress(query);
-
-    if (network !== undefined && !NetworksUtils.isValidChainId(network)) {
-      throw new BadRequestException(
-        `The provided chain id (${network}) is not supported. Please provide a valid chain id`,
-      );
+  @Get('/search/all')
+  async searchTokensCrosschain(@Query('query', ParseSearchQueryPipe) query: string): Promise<MultichainTokenDTO[]> {
+    if (isEthereumAddress(query)) {
+      throw new BadRequestException(`Searching Cross Chain Tokens by address is not supported`);
     }
 
-    if (!query) {
-      throw new BadRequestException('A query string should be provided in order to perform a search');
-    }
-
-    if (!network && isSearchByAddress) {
-      throw new BadRequestException('A chain id should be provided to get a token by address');
-    }
-
-    if (!isSearchByAddress) return this.tokensService.searchTokensByNameOrSymbol(query, network);
-
-    try {
-      return [await this.tokensService.getTokenByAddress(network!, query)];
-    } catch {
-      return [];
-    }
+    return Promise.resolve(this.tokensService.searchTokensByNameOrSymbol(query));
   }
 
-  @Get('/price')
+  @Get('/search/:chainId')
+  async searchTokensSingleChain(
+    @Query('query', ParseSearchQueryPipe) query: string,
+    @Param('chainId', ParseChainIdPipe)
+    chainId: Networks,
+  ): Promise<SingleChainTokenDTO[]> {
+    if (isEthereumAddress(query)) return [await this.getTokenByAddress(query, chainId)];
+
+    const tokens = this.tokensService.searchTokensByNameOrSymbol(query, chainId);
+
+    const tokensAsSingleChainTokens: SingleChainTokenDTO[] = tokens.map((token) => ({
+      address: token.addresses[chainId]!,
+      decimals: token.decimals[chainId]!,
+      name: token.name,
+      symbol: token.symbol,
+      logoUrl: token.logoUrl,
+    }));
+
+    return Promise.resolve(tokensAsSingleChainTokens);
+  }
+
+  @Get('/:address/:chainId')
+  async getTokenByAddress(
+    @Param('address', ParseAddressPipe) address: string,
+    @Param('chainId', ParseChainIdPipe) chainId: number,
+  ): Promise<SingleChainTokenDTO> {
+    return this.tokensService.getTokenByAddress(chainId, address);
+  }
+
+  @Get('/:address/:chainId/price')
   async getTokenPrice(
-    @Query('address') address: string,
-    @Query('chainId', ParseIntPipe) chainId: number,
+    @Param('address', ParseAddressPipe) address: string,
+    @Param('chainId', ParseChainIdPipe) chainId: number,
   ): Promise<TokenPriceDTO> {
-    if (!isEthereumAddress(address)) {
-      throw new BadRequestException('A valid address should be provided');
-    }
-
-    if (!NetworksUtils.isValidChainId(chainId)) {
-      throw new BadRequestException(
-        `The provided chain id (${chainId}) is not supported. Please provide a valid chain id`,
-      );
-    }
-
     const tokenPrice = await this.tokensService.getTokenPrice(address, chainId);
 
     if (tokenPrice.usdPrice === 0 && address.lowercasedEquals(ZERO_ETHEREUM_ADDRESS)) {

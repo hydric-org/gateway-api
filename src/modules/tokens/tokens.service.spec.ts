@@ -1,23 +1,27 @@
 import { GraphQLClient } from 'graphql-request';
 import { mock } from 'jest-mock-extended';
-import { _MockProxy } from 'jest-mock-extended/lib/Mock';
-import { ZERO_ETHEREUM_ADDRESS } from 'src/core/constants';
-import { TokenDTO } from 'src/core/dtos/token.dto';
+import sinon from 'sinon';
+import { MultichainTokenDTO } from 'src/core/dtos/multi-chain-token.dto';
+import { SingleChainTokenDTO } from 'src/core/dtos/single-chain-token-dto';
+import { TokenPriceDTO } from 'src/core/dtos/token-price-dto';
 import { Networks } from 'src/core/enums/networks';
+import { IndexerClient } from 'src/core/indexer-client';
+import { TokenRepository } from 'src/core/repositories/token-repository';
 import { tokenGroupList } from 'src/core/token-group-list';
 import { tokenList } from 'src/core/token-list';
-import { GetTokenDocument, GetTokenQueryVariables } from 'src/gen/graphql.gen';
 import { TokensService } from './tokens.service';
 
 describe('TokensService', () => {
   let tokensService: TokensService;
-  let graphQlClient: _MockProxy<GraphQLClient> & GraphQLClient;
+  let indexerClient: sinon.SinonStubbedInstance<IndexerClient>;
+  let tokenRepository: sinon.SinonStubbedInstance<TokenRepository>;
 
   beforeEach(() => {
     const mockGraphQlClient = mock<GraphQLClient>();
     mockGraphQlClient.request.mockResolvedValue({
       Token: [
-        <TokenDTO>{
+        <MultichainTokenDTO>{
+          id: '1',
           addresses: { [Networks.SEPOLIA]: '0x1234567890123456789012345678901234567890' } as Record<Networks, string>,
           decimals: { [Networks.SEPOLIA]: 18 } as Record<Networks, number>,
           symbol: 'TEST',
@@ -28,9 +32,10 @@ describe('TokensService', () => {
       ],
     });
 
-    graphQlClient = mockGraphQlClient;
+    indexerClient = sinon.createStubInstance(IndexerClient);
+    tokenRepository = sinon.createStubInstance(TokenRepository);
 
-    tokensService = new TokensService(graphQlClient);
+    tokensService = new TokensService(indexerClient, tokenRepository);
   });
 
   it('should return the token list if no network is provided to the getPopularTokens method', () => {
@@ -80,10 +85,11 @@ describe('TokensService', () => {
     );
   });
 
-  it('should use the indexer to get the token metadata when calling getTokenByAddress method', async () => {
+  it(`should use the token repository to get the token metadata without using cache value
+    when calling getTokenByAddress method`, async () => {
     const address = '0x1234567890123456789012345678901234567890';
     const network = Networks.SEPOLIA;
-    const expectedToken = {
+    const expectedToken: SingleChainTokenDTO = {
       address: address,
       decimals: 18,
       symbol: 'TEST',
@@ -91,108 +97,38 @@ describe('TokensService', () => {
       logoUrl: '',
     };
 
-    const expectedRequestDocument = GetTokenDocument;
-    graphQlClient.request.mockResolvedValue({
-      Token: [expectedToken],
-    });
+    tokenRepository.getTokenByAddress.resolves(expectedToken);
 
     const receivedToken = await tokensService.getTokenByAddress(network, address);
 
-    expect(receivedToken).toEqual(<TokenDTO>{
-      addresses: { [network]: address } as Record<Networks, string>,
-      decimals: { [network]: expectedToken.decimals } as Record<Networks, number>,
-      name: expectedToken.name,
-      symbol: expectedToken.symbol,
-      logoUrl: '',
-    });
-    expect(graphQlClient.request).toHaveBeenCalledWith(expectedRequestDocument, <GetTokenQueryVariables>{
-      tokenFilter: {
-        id: {
-          _eq: `${network}-${address}`.toLowerCase(),
-        },
-      },
+    expect(receivedToken).toEqual(expectedToken);
+    sinon.assert.calledOnceWithExactly(tokenRepository.getTokenByAddress, network, address, {
+      useCache: false,
     });
   });
 
-  it('should request the right query to the GraphQL client when calling getTokenPrice method and return the token price from the response', async () => {
+  it('should use the indexer to get the token price when calling getTokenPrice method', async () => {
     const tokenAddress = '0x1234567890123456AAAA12345678901234567890';
     const network = Networks.SEPOLIA;
     const expectedPrice = 120.312;
 
-    const graphqlClient = {
-      request: jest.fn(),
-    } as unknown as { request: jest.Mock };
-
-    tokensService = new TokensService(graphqlClient as unknown as GraphQLClient);
-
-    const expectedQuery = GetTokenDocument;
-
-    const expectedVariables = <GetTokenQueryVariables>{
-      tokenFilter: {
-        id: {
-          _eq: `${network}-${tokenAddress}`.toLowerCase(),
-        },
-      },
-    };
-
-    graphqlClient.request.mockResolvedValue({
-      Token: [
-        {
-          address: tokenAddress,
-          decimals: 18,
-          symbol: 'TEST',
-          name: 'Test Token',
-          usdPrice: expectedPrice,
-        },
-      ],
+    indexerClient.querySingleToken.resolves({
+      decimals: 18,
+      id: tokenAddress,
+      name: 'Test Token',
+      symbol: 'TEST',
+      usdPrice: expectedPrice.toString(),
     });
+
     const result = await tokensService.getTokenPrice(tokenAddress, network);
-
-    expect(graphqlClient.request).toHaveBeenCalledWith(expectedQuery, expectedVariables);
-
-    expect(result).toEqual({
+    const expectedResult: TokenPriceDTO = {
       address: tokenAddress,
       usdPrice: expectedPrice,
-    });
-  });
+    };
 
-  it('should return the native token metadata when calling getTokenByAddress method passing the zero address', async () => {
-    const address = ZERO_ETHEREUM_ADDRESS;
-    const network = Networks.UNICHAIN;
+    expect(result).toEqual(expectedResult);
 
-    const result = await tokensService.getTokenByAddress(network, address);
-
-    expect(result).toEqual(tokenList.find((token) => token.addresses[network] === address));
-  });
-
-  it('should return the internal token metadata (if available) before indexer fetch when calling getTokenByAddress method', async () => {
-    const address = '0x779877A7B0D9E8603169DdbD7836e478b4624789';
-    const network = Networks.SEPOLIA;
-    const tokenInList = tokenList.find((token) => token.addresses[network] === address);
-
-    const result = await tokensService.getTokenByAddress(network, address);
-
-    expect(result).toEqual(tokenInList);
-
-    expect(graphQlClient.request).not.toHaveBeenCalled();
-  });
-
-  it(`should return the native token of the network as the
-    first token when calling 'getPopularTokens
-    with a specified network (HyperEVM Case)`, () => {
-    const network = Networks.HYPER_EVM;
-    const tokens = tokensService.getPopularTokens(network);
-
-    expect(tokens[0]).toEqual(tokensService._getNativeTokenData(network));
-  });
-
-  it(`should return the native token of the network as the
-    first token when calling 'getPopularTokens
-    with a specified network (ETH Case)`, () => {
-    const network = Networks.ETHEREUM;
-    const tokens = tokensService.getPopularTokens(network);
-
-    expect(tokens[0]).toEqual(tokensService._getNativeTokenData(network));
+    sinon.assert.calledOnceWithExactly(indexerClient.querySingleToken, network, tokenAddress);
   });
 
   it('should return the whole token group list when calling getTokenGroups method without passing a chainId', () => {

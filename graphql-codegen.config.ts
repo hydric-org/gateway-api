@@ -11,6 +11,7 @@ const config: CodegenConfig = {
     },
   },
   config: {
+    extractAllFieldsToTypes: true,
     scalars: {
       pooltype: 'string',
       Bytes: 'string',

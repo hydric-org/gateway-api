@@ -1,190 +1,179 @@
-import { BadRequestException } from '@nestjs/common';
+import sinon from 'sinon';
 
-import { mock } from 'jest-mock-extended';
-import { _MockProxy } from 'jest-mock-extended/lib/Mock';
+import { BadRequestException } from '@nestjs/common';
 import { ZERO_ETHEREUM_ADDRESS } from 'src/core/constants';
+import { MultichainTokenDTO } from 'src/core/dtos/multi-chain-token.dto';
+import { SingleChainTokenDTO } from 'src/core/dtos/single-chain-token-dto';
+import { TokenGroupDTO } from 'src/core/dtos/token-group.dto';
 import { TokenListDTO } from 'src/core/dtos/token-list.dto';
 import { TokenPriceDTO } from 'src/core/dtos/token-price-dto';
-import { Networks, NetworksUtils } from 'src/core/enums/networks';
-import { tokenGroupList } from 'src/core/token-group-list';
-import { tokenList } from 'src/core/token-list';
+import { Networks } from 'src/core/enums/networks';
 import { TokensController } from './tokens.controller';
 import { TokensService } from './tokens.service';
 
 describe('TokensController', () => {
   let sut: TokensController;
-  let tokensService: _MockProxy<TokensService> & TokensService;
+  let tokensService: sinon.SinonStubbedInstance<TokensService>;
 
   beforeEach(() => {
-    tokensService = mock<TokensService>();
-
-    tokensService.getTokenPrice.mockResolvedValue(<TokenPriceDTO>{
-      address: '0x1234567890123456789012345678901234567890',
-      usdPrice: 120.312,
-    });
-
+    tokensService = sinon.createStubInstance(TokensService);
     sut = new TokensController(tokensService);
   });
 
-  it('should call the service method to get popular tokens when calling the /popular endpoint without a chain id', () => {
-    sut.getPopularTokens();
-    expect(tokensService.getPopularTokens).toHaveBeenCalledWith(undefined);
-  });
+  it(`should return the popular tokens and token groups gotten from the token service passing undefined as the chain id
+    when calling /list with no chain id`, () => {
+    const expectedPopularTokens: MultichainTokenDTO[] = [
+      {
+        addresses: {
+          [Networks.ETHEREUM]: '0x1',
+          [Networks.UNICHAIN]: '0x2',
+        } as Record<Networks, string>,
+        decimals: {
+          [Networks.ETHEREUM]: 18,
+          [Networks.UNICHAIN]: 18,
+        } as Record<Networks, number>,
+        id: '0x1',
+        name: '',
+        symbol: '',
+      },
+    ];
+    const expectedTokenGroups: TokenGroupDTO[] = [
+      {
+        id: '0x1',
+        name: '',
+        tokens: [expectedPopularTokens[0]],
+      },
+    ];
 
-  it('should call the service method to get popular tokens when calling the /popular passing the chain id from the query', () => {
-    sut.getPopularTokens(11155111);
+    tokensService.getPopularTokens.returns(expectedPopularTokens);
+    tokensService.getTokenGroups.returns(expectedTokenGroups);
 
-    expect(tokensService.getPopularTokens).toHaveBeenCalledWith(Networks.SEPOLIA);
-  });
+    const result = sut.getTokenList(undefined as unknown as number);
 
-  it('should throw 400 if a chain id is provided to /search and it is not any of the supported chain ids', async () => {
-    const invalidChainId = 99999999;
-
-    await expect(sut.searchTokens('query', invalidChainId)).rejects.toThrow(
-      new BadRequestException(
-        `The provided chain id (${invalidChainId}) is not supported. Please provide a valid chain id`,
-      ),
-    );
-  });
-
-  it('should throw 400 if no query is provided to /search', async () => {
-    await expect(sut.searchTokens('', undefined)).rejects.toThrow(
-      new BadRequestException('A query string should be provided in order to perform a search'),
-    );
-  });
-
-  it('should throw 400 if no chain id is provided to /search and the query is an address', async () => {
-    await expect(sut.searchTokens('0x1234567890123456789012345678901234567890', undefined)).rejects.toThrow(
-      new BadRequestException('A chain id should be provided to get a token by address'),
-    );
-  });
-
-  it("should call the correct service method to search tokens by name or symbol if the query isn't an address", async () => {
-    const query = 'query';
-    const network = 11155111;
-
-    await sut.searchTokens(query, network);
-
-    expect(tokensService.searchTokensByNameOrSymbol).toHaveBeenCalledWith(query, network);
-  });
-
-  it('should call the correct service method to search tokens by address if the query is an address', async () => {
-    const query = '0x1234567890123456789012345678901234567890';
-    const network = 11155111;
-
-    await sut.searchTokens(query, network);
-
-    expect(tokensService.getTokenByAddress).toHaveBeenCalledWith(network, query);
-  });
-
-  it('should throw 400 if an invalid address is provided to /price', async () => {
-    const invalidAddress = 'invalid_address';
-    const chainId = Networks.SEPOLIA;
-
-    await expect(sut.getTokenPrice(invalidAddress, chainId)).rejects.toThrow(
-      new BadRequestException('A valid address should be provided'),
-    );
-  });
-
-  it('should throw 400 if an invalid chain id is provided to /price', async () => {
-    const address = '0x1234567890123456789012345678901234567890';
-    const invalidChainId = 99999999;
-
-    await expect(sut.getTokenPrice(address, invalidChainId)).rejects.toThrow(
-      new BadRequestException(
-        `The provided chain id (${invalidChainId}) is not supported. Please provide a valid chain id`,
-      ),
-    );
-  });
-
-  it('should call the service method to get token price with the provided address and chain id', async () => {
-    const address = '0x1234567890123456789012345678901234567890';
-    const chainId = Networks.SEPOLIA;
-
-    await sut.getTokenPrice(address, chainId);
-
-    expect(tokensService.getTokenPrice).toHaveBeenCalledWith(address, chainId);
-  });
-
-  it('should call the service method to get token price with the provided address and chain id', async () => {
-    const address = '0x1234567890123456789012345678901234567890';
-    const chainId = Networks.SEPOLIA;
-
-    await sut.getTokenPrice(address, chainId);
-
-    expect(tokensService.getTokenPrice).toHaveBeenCalledWith(address, chainId);
-  });
-
-  it(`should call the service with the wrapped native address to get the price
-    when searching for the zero address and returning zero`, async () => {
-    const _tokensService = mock<TokensService>();
-    const _sut = new TokensController(_tokensService);
-
-    const searchAddress = ZERO_ETHEREUM_ADDRESS;
-    const chainId = Networks.SEPOLIA;
-    const wrappedNativeAddress = NetworksUtils.wrappedNativeAddress(chainId);
-    const expectedReturnedValue = <TokenPriceDTO>{
-      address: wrappedNativeAddress,
-      usdPrice: 328769.43,
-    };
-
-    _tokensService.getTokenPrice.calledWith(wrappedNativeAddress, chainId).mockResolvedValue(expectedReturnedValue);
-
-    _tokensService.getTokenPrice.calledWith(searchAddress, chainId).mockResolvedValue(<TokenPriceDTO>{
-      address: searchAddress,
-      usdPrice: 0,
+    expect(result).toEqual(<TokenListDTO>{
+      popularTokens: expectedPopularTokens,
+      tokenGroups: expectedTokenGroups,
     });
 
-    const returnedValue = await _sut.getTokenPrice(searchAddress, chainId);
-
-    expect(returnedValue).toEqual(expectedReturnedValue);
-
-    expect(_tokensService.getTokenPrice).toHaveBeenCalledWith(wrappedNativeAddress, chainId);
-
-    expect(_tokensService.getTokenPrice).toHaveBeenCalledWith(ZERO_ETHEREUM_ADDRESS, chainId);
+    sinon.assert.calledOnceWithExactly(tokensService.getPopularTokens, undefined);
+    sinon.assert.calledOnceWithExactly(tokensService.getTokenGroups, undefined);
   });
 
-  it('should call the service method with the passed chainId to get the tokens groups when calling the /groups endpoint', () => {
-    const chainId = Networks.SEPOLIA;
-    sut.getTokenGroups(chainId);
-
-    expect(tokensService.getTokenGroups).toHaveBeenCalledWith(chainId);
+  it('Should throw when searching cross chain tokens with an address', async () => {
+    await expect(async () => await sut.searchTokensCrosschain(ZERO_ETHEREUM_ADDRESS)).rejects.toThrow(
+      new BadRequestException(`Searching Cross Chain Tokens by address is not supported`),
+    );
   });
 
-  it('should call the service method without a chainId to get the tokens groups when calling the /groups endpoint not passing a chainId', () => {
-    sut.getTokenGroups();
+  it('should return the tokens got from the tokens service when calling /search/all', async () => {
+    const expectedTokens: MultichainTokenDTO[] = [
+      {
+        addresses: {
+          [Networks.ETHEREUM]: '0x1',
+          [Networks.UNICHAIN]: '0x2',
+        } as Record<Networks, string>,
+        decimals: {
+          [Networks.ETHEREUM]: 18,
+          [Networks.UNICHAIN]: 18,
+        } as Record<Networks, number>,
+        id: '0x1',
+        name: '',
+        symbol: '',
+      },
+    ];
 
-    expect(tokensService.getTokenGroups).toHaveBeenCalledWith(undefined);
+    tokensService.searchTokensByNameOrSymbol.resolves(expectedTokens);
+
+    const result = await sut.searchTokensCrosschain('test');
+
+    expect(result).toEqual(expectedTokens);
   });
-
-  it('should call the service method with the chainid passed to get the popular tokens and tokens groups when calling the /list endpoint', () => {
-    const chainId = Networks.SEPOLIA;
-    sut.getTokenList(chainId);
-
-    expect(tokensService.getPopularTokens).toHaveBeenCalledWith(chainId);
-    expect(tokensService.getTokenGroups).toHaveBeenCalledWith(chainId);
-  });
-
-  it(`should call the service method without the chainid to get
-    the popular tokens and tokens groups when calling the
-    /list endpoint not passing a chainId`, () => {
-    sut.getTokenList();
-
-    expect(tokensService.getPopularTokens).toHaveBeenCalledWith(undefined);
-    expect(tokensService.getTokenGroups).toHaveBeenCalledWith(undefined);
-  });
-
-  it(`should return the popular tokens and tokens groups when calling the /list endpoint, got from the service`, () => {
-    tokensService.getPopularTokens.mockReturnValue(tokenList);
-    tokensService.getTokenGroups.mockReturnValue(tokenGroupList);
-
-    const expectedResult: TokenListDTO = {
-      popularTokens: tokenList,
-      tokenGroups: tokenGroupList,
+  it('should return a single chain token when searching by address on /search/:chainId', async () => {
+    const chainId = Networks.ETHEREUM;
+    const address = ZERO_ETHEREUM_ADDRESS;
+    const expectedToken: SingleChainTokenDTO = {
+      address,
+      decimals: 18,
+      name: 'ETH',
+      symbol: 'ETH',
+      logoUrl: 'https://logo.url',
     };
 
-    const result = sut.getTokenList();
+    sinon.stub(sut, 'getTokenByAddress').resolves(expectedToken);
 
-    expect(result).toEqual(expectedResult);
+    const result = await sut.searchTokensSingleChain(address, chainId);
+
+    expect(result).toEqual([expectedToken]);
+    sinon.assert.calledOnceWithExactly(sut.getTokenByAddress as sinon.SinonStub, address, chainId);
+  });
+
+  it('should map multichain tokens to single chain tokens when searching by name on /search/:chainId', async () => {
+    const chainId = Networks.ETHEREUM;
+    const query = 'ETH';
+    const multiTokens: MultichainTokenDTO[] = [
+      {
+        addresses: { [chainId]: '0x1' } as Record<Networks, string>,
+        decimals: { [chainId]: 18 } as Record<Networks, number>,
+        name: 'Ethereum',
+        id: '0x1',
+        symbol: 'ETH',
+        logoUrl: 'logo',
+      },
+    ];
+
+    tokensService.searchTokensByNameOrSymbol.returns(multiTokens);
+
+    const result = await sut.searchTokensSingleChain(query, chainId);
+
+    expect(result).toEqual([
+      {
+        address: '0x1',
+        decimals: 18,
+        name: 'Ethereum',
+        symbol: 'ETH',
+        logoUrl: 'logo',
+      },
+    ]);
+    sinon.assert.calledOnceWithExactly(tokensService.searchTokensByNameOrSymbol, query, chainId);
+  });
+
+  it('should call tokensService.getTokenByAddress with chainId and address when calling /:address/:chainId', async () => {
+    const address = '0xabc';
+    const chainId = Networks.UNICHAIN;
+    const expectedToken = { address, name: 'TOKEN', symbol: 'TK', decimals: 18 };
+
+    tokensService.getTokenByAddress.resolves(expectedToken);
+
+    const result = await sut.getTokenByAddress(address, chainId);
+
+    expect(result).toEqual(expectedToken);
+    sinon.assert.calledOnceWithExactly(tokensService.getTokenByAddress, chainId, address);
+  });
+
+  it('should return wrapped native price when usdPrice is 0 and address is zero ethereum address', async () => {
+    const address = ZERO_ETHEREUM_ADDRESS;
+    const chainId = Networks.ETHEREUM;
+    const zeroPrice: TokenPriceDTO = { usdPrice: 0, address };
+    const wrappedPrice: TokenPriceDTO = { usdPrice: 123, address };
+
+    tokensService.getTokenPrice.onFirstCall().resolves(zeroPrice).onSecondCall().resolves(wrappedPrice);
+
+    const result = await sut.getTokenPrice(address, chainId);
+
+    expect(result).toEqual(wrappedPrice);
+    sinon.assert.calledTwice(tokensService.getTokenPrice);
+  });
+
+  it('should return token price directly when usdPrice is not zero', async () => {
+    const address = '0xdef';
+    const chainId = Networks.ETHEREUM;
+    const expectedPrice: TokenPriceDTO = { usdPrice: 100, address };
+
+    tokensService.getTokenPrice.resolves(expectedPrice);
+
+    const result = await sut.getTokenPrice(address, chainId);
+
+    expect(result).toEqual(expectedPrice);
+    sinon.assert.calledOnceWithExactly(tokensService.getTokenPrice, address, chainId);
   });
 });

@@ -1,7 +1,7 @@
 import { Networks } from '../enums/networks';
 
-export interface TokenDTO {
-  id?: string;
+export interface MultichainTokenDTO {
+  id: string;
   name: string;
   symbol: string;
   decimals: Record<Networks, number | null>;

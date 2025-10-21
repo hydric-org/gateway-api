@@ -4,7 +4,7 @@ query GetPools(
   $hourlyDataFilter: PoolHourlyData_bool_exp
 ) {
   Pool(where: $poolsFilter) {
-    id
+    createdAtTimestamp
     poolAddress
     poolType
     totalValueLockedUSD
@@ -36,26 +36,23 @@ query GetPools(
       id
     }
     token0 {
-      id
       tokenAddress
-      name
-      symbol
-      decimals
     }
     token1 {
-      id
       tokenAddress
-      name
-      symbol
-      decimals
     }
     dailyData(order_by: { dayStartTimestamp: desc }, where: $dailyDataFilter) {
+      liquidityNetInflowUSD
       dayStartTimestamp
+      feesUSD
+      swapVolumeUSD
       feesUSD
       totalValueLockedUSD
     }
     hourlyData(order_by: { hourStartTimestamp: desc }, where: $hourlyDataFilter) {
+      liquidityNetInflowUSD
       hourStartTimestamp
+      swapVolumeUSD
       feesUSD
     }
   }

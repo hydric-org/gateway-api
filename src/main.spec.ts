@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import * as request from 'supertest';
+import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './app.module';
 import { bootstrap } from './main';
@@ -20,6 +20,10 @@ describe('Main ', () => {
 
     bootstrap(app);
     await app.init();
+  });
+
+  afterEach(async () => {
+    await app.close();
   });
 
   it('Should allow requests from any domain if the environment is development', async () => {

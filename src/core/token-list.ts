@@ -1,8 +1,8 @@
 import { ZERO_ETHEREUM_ADDRESS } from './constants';
-import { TokenDTO } from './dtos/token.dto';
+import { MultichainTokenDTO } from './dtos/multi-chain-token.dto';
 import { Networks } from './enums/networks';
 
-export const tokenList: TokenDTO[] = [
+export const tokenList: MultichainTokenDTO[] = [
   {
     id: '1',
     name: 'Ethereum',

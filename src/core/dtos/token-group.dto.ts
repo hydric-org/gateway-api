@@ -1,7 +1,7 @@
-import { TokenDTO } from './token.dto';
+import { MultichainTokenDTO } from './multi-chain-token.dto';
 
 export interface TokenGroupDTO {
   id: string;
   name: string;
-  tokens: TokenDTO[];
+  tokens: MultichainTokenDTO[];
 }

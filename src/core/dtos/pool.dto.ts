@@ -1,20 +1,21 @@
 import { Networks } from '../enums/networks';
+import { PoolTotalStatsDTO } from './pool-total-stats.dto';
 import { ProtocolDTO } from './protocol.dto';
-import { TokenDTO } from './token.dto';
+import { SingleChainTokenDTO } from './single-chain-token-dto';
 
 export interface PoolDTO {
   poolAddress: string;
-  token0: TokenDTO;
-  token1: TokenDTO;
+  token0: SingleChainTokenDTO;
+  token1: SingleChainTokenDTO;
   protocol: ProtocolDTO;
-  yield24h: number;
-  yield7d: number;
-  yield30d: number;
-  yield90d: number;
+  total24hStats: PoolTotalStatsDTO;
+  total7dStats: PoolTotalStatsDTO;
+  total30dStats: PoolTotalStatsDTO;
+  total90dStats: PoolTotalStatsDTO;
+  createdAtTimestamp: number;
   chainId: Networks;
   totalValueLockedUSD: number;
   poolType: string;
-  permit2Address?: string | null;
   positionManagerAddress: string;
   initialFeeTier: number;
   currentFeeTier: number;
