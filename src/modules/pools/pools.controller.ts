@@ -1,4 +1,4 @@
-import { Body, Controller, DefaultValuePipe, Get, Param, ParseBoolPipe, Post, Query } from '@nestjs/common';
+import { Body, Controller, DefaultValuePipe, Get, HttpCode, Param, ParseBoolPipe, Post, Query } from '@nestjs/common';
 import { PoolSearchConfigDTO } from 'src/core/dtos/pool-search-config.dto';
 import { PoolSearchFiltersDTO } from 'src/core/dtos/pool-search-filters.dto';
 import { PoolDTO } from 'src/core/dtos/pool.dto';
@@ -31,6 +31,7 @@ export class PoolsController {
   }
 
   @Post('/search/all')
+  @HttpCode(200)
   async searchPoolsAcrossNetworks(
     @Query('token0Id')
     token0Id: string,
@@ -65,6 +66,7 @@ export class PoolsController {
   }
 
   @Post('/search/:chainId')
+  @HttpCode(200)
   async searchPoolsInChain(
     @Param('chainId', ParseChainIdPipe)
     chainId: number,
