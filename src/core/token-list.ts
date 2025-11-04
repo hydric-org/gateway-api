@@ -2317,7 +2317,7 @@ export const tokenList: MultichainTokenDTO[] = [
       [Networks.SEPOLIA]: null,
       [Networks.UNICHAIN]: null,
       [Networks.HYPER_EVM]: null,
-      [Networks.PLASMA]: null,
+      [Networks.PLASMA]: '0x29ad7fe4516909b9e498b5a65339e54791293234',
     },
     decimals: {
       [Networks.ETHEREUM]: 18,
@@ -2327,7 +2327,7 @@ export const tokenList: MultichainTokenDTO[] = [
       [Networks.SEPOLIA]: null,
       [Networks.UNICHAIN]: null,
       [Networks.HYPER_EVM]: null,
-      [Networks.PLASMA]: null,
+      [Networks.PLASMA]: 18,
     },
   },
   {
