@@ -12,8 +12,9 @@ import {
   GetTokenQuery,
   GetTokenQuery_query_root_Token_Token,
 } from 'src/gen/graphql.gen';
+
 import { PoolSearchFiltersDTO } from './dtos/pool-search-filters.dto';
-import { Networks } from './enums/networks';
+import { Networks, NetworksUtils } from './enums/networks';
 import { PoolType } from './enums/pool-type';
 import { IndexerClient } from './indexer-client';
 import { getPoolIntervalQueryFilters } from './utils/query-utils';
@@ -74,6 +75,45 @@ describe('IndexerClient', () => {
      the chain id and the token address when calling 'querySingleToken' and return
      the first token from the response`, async () => {
     const chainId = 1;
+    const tokenAddress = '0x2121';
+    const expectedToken: GetTokenQuery_query_root_Token_Token = {
+      id: `${chainId}-${tokenAddress}`,
+      name: 'Xabas',
+      symbol: 'Sabax',
+      usdPrice: '2121',
+      decimals: 18,
+    };
+
+    const tokensResponse: GetTokenQuery = {
+      Token: [
+        expectedToken,
+        {
+          id: 'Lulala',
+          decimals: 16,
+          name: '111',
+          symbol: '111',
+          usdPrice: '9999',
+        },
+      ],
+    };
+
+    indexerClient.request.resolves(tokensResponse);
+
+    const queryResponse = await sut.querySingleToken(chainId, tokenAddress);
+    expect(queryResponse).toEqual(expectedToken);
+
+    sinon.assert.calledOnceWithExactly(indexerClient.request, GetTokenDocument, {
+      tokenFilter: {
+        id: {
+          _in: [`${chainId}-${tokenAddress}`.toLowerCase()],
+        },
+      },
+    });
+  });
+
+  it(`should request to query single token adding the wrapped native address also
+    when calling 'querySingleToken' with zero address`, async () => {
+    const chainId = 1;
     const tokenAddress = '0x0000000000000000000000000000000000000000';
     const expectedToken: GetTokenQuery_query_root_Token_Token = {
       id: `${chainId}-${tokenAddress}`,
@@ -104,7 +144,10 @@ describe('IndexerClient', () => {
     sinon.assert.calledOnceWithExactly(indexerClient.request, GetTokenDocument, {
       tokenFilter: {
         id: {
-          _eq: `${chainId}-${tokenAddress}`.toLowerCase(),
+          _in: [
+            `${chainId}-${tokenAddress}`.toLowerCase(),
+            `${chainId}-${NetworksUtils.wrappedNativeAddress(chainId)}`,
+          ],
         },
       },
     });

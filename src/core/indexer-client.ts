@@ -13,8 +13,9 @@ import {
   GetTokenQuery_query_root_Token_Token,
   GetTokenQueryVariables,
 } from 'src/gen/graphql.gen';
+import { ZERO_ETHEREUM_ADDRESS } from './constants';
 import { PoolSearchFiltersDTO } from './dtos/pool-search-filters.dto';
-import { Networks } from './enums/networks';
+import { Networks, NetworksUtils } from './enums/networks';
 import { GraphQLClients } from './graphql-clients';
 import { getPoolIntervalQueryFilters } from './utils/query-utils';
 
@@ -36,7 +37,12 @@ export class IndexerClient {
       {
         tokenFilter: {
           id: {
-            _eq: `${chainId}-${tokenAddress}`.toLowerCase(),
+            _in: [
+              `${chainId}-${tokenAddress}`.toLowerCase(),
+              ...(tokenAddress === ZERO_ETHEREUM_ADDRESS
+                ? [`${chainId}-${NetworksUtils.wrappedNativeAddress(chainId)}`]
+                : []),
+            ],
           },
         },
       },
