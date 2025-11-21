@@ -14,7 +14,10 @@ describe('PoolsController (Integration)', () => {
       providers: [
         {
           provide: PoolsService,
-          useValue: { searchPoolsInChain: jest.fn().mockResolvedValue([]) },
+          useValue: {
+            searchPoolsInChain: jest.fn().mockResolvedValue([]),
+            searchPoolsCrossChain: jest.fn().mockResolvedValue([]),
+          },
         },
       ],
     }).compile();

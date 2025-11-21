@@ -84,63 +84,48 @@ export class IndexerClient {
     token1AddressesPerChainId: Record<number, Set<string>>;
     searchFilters: PoolSearchFiltersDTO;
   }): Promise<GetPoolsQuery_query_root_Pool_Pool[]> {
-    const token0AddressesChains = Object.keys(params.token0AddressesPerChainId);
-    const token1AddressesChains = Object.keys(params.token1AddressesPerChainId);
+    const chains = Object.keys(params.token0AddressesPerChainId).map(Number);
 
-    const indexerIdsToken0: string[] = token0AddressesChains
-      .map((network) => {
-        const addresses = Array.from(params.token0AddressesPerChainId[Number(network)]);
-        return addresses.map((address) => `${network}-${address.toLowerCase()}`);
-      })
-      .flat();
+    const requestPromises: Promise<GetPoolsQuery>[] = [];
 
-    const indexerIdsToken1: string[] = token1AddressesChains
-      .map((network) => {
-        const addresses = Array.from(params.token1AddressesPerChainId[Number(network)]);
-        return addresses.map((address) => `${network}-${address.toLowerCase()}`);
-      })
-      .flat();
+    for (const chainId of chains) {
+      const ids0 = Array.from(params.token0AddressesPerChainId[chainId] || []).map(
+        (addr) => `${chainId}-${addr.toLowerCase()}`,
+      );
 
-    const poolsFilter: GetPoolsQueryVariables['poolsFilter'] = {
-      protocol_id: {
-        _nin: params.searchFilters.blockedProtocols,
-      },
-      poolType: {
-        _nin: params.searchFilters.blockedPoolTypes,
-      },
-      totalValueLockedUSD: {
-        _gt: params.searchFilters.minimumTvlUsd.toString(),
-      },
-      _or: [
-        {
-          token0_id: {
-            _in: indexerIdsToken0,
-          },
-          token1_id: {
-            _in: indexerIdsToken1,
-          },
-        },
-        {
-          token0_id: {
-            _in: indexerIdsToken1,
-          },
-          token1_id: {
-            _in: indexerIdsToken0,
-          },
-        },
-      ],
-    };
+      const ids1 = Array.from(params.token1AddressesPerChainId[chainId] || []).map(
+        (addr) => `${chainId}-${addr.toLowerCase()}`,
+      );
 
-    const response = await this.graphQLClients.indexerClient.request<GetPoolsQuery, GetPoolsQueryVariables>(
-      GetPoolsDocument,
-      {
-        poolsFilter: poolsFilter,
-        ...getPoolIntervalQueryFilters({
-          minIntervalTVL: params.searchFilters.minimumTvlUsd,
+      if (ids0.length === 0 || ids1.length === 0) continue;
+
+      const poolsFilter: GetPoolsQueryVariables['poolsFilter'] = {
+        protocol_id: { _nin: params.searchFilters.blockedProtocols },
+        poolType: { _nin: params.searchFilters.blockedPoolTypes },
+        totalValueLockedUSD: { _gt: params.searchFilters.minimumTvlUsd.toString() },
+        _or: [
+          {
+            token0_id: { _in: ids0 },
+            token1_id: { _in: ids1 },
+          },
+          {
+            token0_id: { _in: ids1 },
+            token1_id: { _in: ids0 },
+          },
+        ],
+      };
+
+      requestPromises.push(
+        this.graphQLClients.indexerClient.request<GetPoolsQuery, GetPoolsQueryVariables>(GetPoolsDocument, {
+          poolsFilter: poolsFilter,
+          ...getPoolIntervalQueryFilters({ minIntervalTVL: params.searchFilters.minimumTvlUsd }),
         }),
-      },
-    );
+      );
+    }
 
-    return response.Pool;
+    const allResponses = await Promise.all(requestPromises);
+    const allPools = allResponses.flatMap((response) => response.Pool || []);
+
+    return allPools;
   }
 }

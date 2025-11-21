@@ -245,8 +245,12 @@ describe('IndexerClient', () => {
     };
 
     await sut.queryPoolsForPairs({
-      token0AddressesPerChainId: {},
-      token1AddressesPerChainId: {},
+      token0AddressesPerChainId: {
+        1: new Set(['0x0000000000000000000000000000000000000000']),
+      },
+      token1AddressesPerChainId: {
+        1: new Set(['0x0000000000000000000000000000000000000000']),
+      },
       searchFilters,
     });
 
@@ -267,8 +271,12 @@ describe('IndexerClient', () => {
     };
 
     await sut.queryPoolsForPairs({
-      token0AddressesPerChainId: {},
-      token1AddressesPerChainId: {},
+      token0AddressesPerChainId: {
+        1: new Set(['0x0000000000000000000000000000000000000000']),
+      },
+      token1AddressesPerChainId: {
+        1: new Set(['0x0000000000000000000000000000000000000000']),
+      },
       searchFilters,
     });
 
@@ -288,8 +296,12 @@ describe('IndexerClient', () => {
     };
 
     await sut.queryPoolsForPairs({
-      token0AddressesPerChainId: {},
-      token1AddressesPerChainId: {},
+      token0AddressesPerChainId: {
+        1: new Set(['0x0000000000000000000000000000000000000000']),
+      },
+      token1AddressesPerChainId: {
+        1: new Set(['0x0000000000000000000000000000000000000000']),
+      },
       searchFilters,
     });
 
@@ -310,8 +322,12 @@ describe('IndexerClient', () => {
     };
 
     await sut.queryPoolsForPairs({
-      token0AddressesPerChainId: {},
-      token1AddressesPerChainId: {},
+      token0AddressesPerChainId: {
+        1: new Set(['0x0000000000000000000000000000000000000000']),
+      },
+      token1AddressesPerChainId: {
+        1: new Set(['0x0000000000000000000000000000000000000000']),
+      },
       searchFilters,
     });
 
@@ -331,8 +347,12 @@ describe('IndexerClient', () => {
     };
 
     await sut.queryPoolsForPairs({
-      token0AddressesPerChainId: {},
-      token1AddressesPerChainId: {},
+      token0AddressesPerChainId: {
+        1: new Set(['0x0000000000000000000000000000000000000000']),
+      },
+      token1AddressesPerChainId: {
+        1: new Set(['0x0000000000000000000000000000000000000000']),
+      },
       searchFilters,
     });
 
@@ -345,9 +365,8 @@ describe('IndexerClient', () => {
     });
   });
 
-  it(`Should build the token0 ids and token1 ids derived from the passed tokens at chain ids
-    and pass it to the the indexer request and matching tokens zero with ones and ones with zeros
-    to not exclude pools with a different order when calling 'queryPoolsForPair'`, async () => {
+  it(`Should build the token0 ids and token1 ids derived from the passed tokens per chain id
+    and pass them to separate indexer requests (one per chain) matching tokens zero with ones and ones with zeros`, async () => {
     const tokens0AddressesPerChainId: Record<number, Set<string>> = {
       [Networks.ETHEREUM]: new Set(['0xEth1', '0xEth2']),
       [Networks.UNICHAIN]: new Set(['0xUni1', '0xUni2']),
@@ -360,23 +379,14 @@ describe('IndexerClient', () => {
       [Networks.BASE]: new Set(['0xBase3', '0xBase4']),
     };
 
-    const expectedTokens0Ids = [
-      `${Networks.ETHEREUM}-0xEth1`.toLowerCase(),
-      `${Networks.ETHEREUM}-0xEth2`.toLowerCase(),
-      `${Networks.UNICHAIN}-0xUni1`.toLowerCase(),
-      `${Networks.UNICHAIN}-0xUni2`.toLowerCase(),
-      `${Networks.BASE}-0xBase1`.toLowerCase(),
-      `${Networks.BASE}-0xBase2`.toLowerCase(),
-    ];
+    const expectedEthIds0 = [`${Networks.ETHEREUM}-0xeth1`, `${Networks.ETHEREUM}-0xeth2`];
+    const expectedEthIds1 = [`${Networks.ETHEREUM}-0xeth3`, `${Networks.ETHEREUM}-0xeth4`];
 
-    const expectedTokens1Ids = [
-      `${Networks.ETHEREUM}-0xEth3`.toLowerCase(),
-      `${Networks.ETHEREUM}-0xEth4`.toLowerCase(),
-      `${Networks.UNICHAIN}-0xUni3`.toLowerCase(),
-      `${Networks.UNICHAIN}-0xUni4`.toLowerCase(),
-      `${Networks.BASE}-0xBase3`.toLowerCase(),
-      `${Networks.BASE}-0xBase4`.toLowerCase(),
-    ];
+    const expectedUniIds0 = [`${Networks.UNICHAIN}-0xuni1`, `${Networks.UNICHAIN}-0xuni2`];
+    const expectedUniIds1 = [`${Networks.UNICHAIN}-0xuni3`, `${Networks.UNICHAIN}-0xuni4`];
+
+    const expectedBaseIds0 = [`${Networks.BASE}-0xbase1`, `${Networks.BASE}-0xbase2`];
+    const expectedBaseIds1 = [`${Networks.BASE}-0xbase3`, `${Networks.BASE}-0xbase4`];
 
     await sut.queryPoolsForPairs({
       token0AddressesPerChainId: tokens0AddressesPerChainId,
@@ -384,24 +394,49 @@ describe('IndexerClient', () => {
       searchFilters: new PoolSearchFiltersDTO(),
     });
 
-    sinon.assert.calledOnceWithMatch(indexerClient.request, GetPoolsDocument, <GetPoolsQueryVariables>{
+    // Check Ethereum Call
+    sinon.assert.calledWithMatch(indexerClient.request, GetPoolsDocument, {
       poolsFilter: {
         _or: [
           {
-            token0_id: {
-              _in: expectedTokens0Ids,
-            },
-            token1_id: {
-              _in: expectedTokens1Ids,
-            },
+            token0_id: { _in: expectedEthIds0 },
+            token1_id: { _in: expectedEthIds1 },
           },
           {
-            token1_id: {
-              _in: expectedTokens0Ids,
-            },
-            token0_id: {
-              _in: expectedTokens1Ids,
-            },
+            token0_id: { _in: expectedEthIds1 },
+            token1_id: { _in: expectedEthIds0 },
+          },
+        ],
+      },
+    });
+
+    // Check Unichain Call
+    sinon.assert.calledWithMatch(indexerClient.request, GetPoolsDocument, {
+      poolsFilter: {
+        _or: [
+          {
+            token0_id: { _in: expectedUniIds0 },
+            token1_id: { _in: expectedUniIds1 },
+          },
+          {
+            token0_id: { _in: expectedUniIds1 },
+            token1_id: { _in: expectedUniIds0 },
+          },
+        ],
+      },
+    });
+
+    // Check Base Call
+    sinon.assert.calledWithMatch(indexerClient.request, GetPoolsDocument, {
+      poolsFilter: {
+        _or: [
+          {
+            token0_id: { _in: expectedBaseIds0 },
+            token1_id: { _in: expectedBaseIds1 },
+          },
+          {
+            token0_id: { _in: expectedBaseIds1 },
+            token1_id: { _in: expectedBaseIds0 },
           },
         ],
       },
@@ -416,8 +451,12 @@ describe('IndexerClient', () => {
     };
 
     await sut.queryPoolsForPairs({
-      token0AddressesPerChainId: {},
-      token1AddressesPerChainId: {},
+      token0AddressesPerChainId: {
+        1: new Set(['0x0000000000000000000000000000000000000000']),
+      },
+      token1AddressesPerChainId: {
+        1: new Set(['0x0000000000000000000000000000000000000000']),
+      },
       searchFilters,
     });
 
@@ -438,8 +477,12 @@ describe('IndexerClient', () => {
     });
 
     const poolsQueryResponse = await sut.queryPoolsForPairs({
-      token0AddressesPerChainId: {},
-      token1AddressesPerChainId: {},
+      token0AddressesPerChainId: {
+        1: new Set(['0x0000000000000000000000000000000000000000']),
+      },
+      token1AddressesPerChainId: {
+        1: new Set(['0x0000000000000000000000000000000000000000']),
+      },
       searchFilters: new PoolSearchFiltersDTO(),
     });
 
