@@ -25,29 +25,29 @@ RUN yarn gen
 # Build the application
 RUN yarn build
 
-# Stage 2: Production stage with dev dependencies for codegen
+# Stage 2
 FROM node:20-alpine AS production
 
-# Enable Yarn 4
 RUN corepack enable && corepack prepare yarn@4 --activate
 
 WORKDIR /app
 
-# Copy the built application from the builder stage
+# Copy built app
 COPY --from=builder /app/dist ./dist
 
-# Copy the source code and package files
+# Copy package files
 COPY --from=builder /app/package.json .
 COPY --from=builder /app/yarn.lock .
+
+# Copy node_modules and Yarn install state
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.yarn ./.yarn
+COPY --from=builder /app/.yarn-state.yml ./.yarn-state.yml
+
+# Copy sources needed for runtime
 COPY --from=builder /app/src ./src
 COPY --from=builder /app/graphql-codegen.config.ts ./graphql-codegen.config.ts
 COPY --from=builder /app/static ./static
 
-# Install all dependencies (including dev dependencies)
-RUN yarn install --frozen-lockfile
-
-# Expose the application port
 EXPOSE 3000
-
-# Start the application
 CMD ["yarn", "start:prod"]
