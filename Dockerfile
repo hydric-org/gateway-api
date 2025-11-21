@@ -1,6 +1,9 @@
 # Stage 1: Build stage
 FROM node:20-alpine AS builder
 
+# Enable Yarn 4
+RUN corepack enable && corepack prepare yarn@4 --activate
+
 WORKDIR /app
 
 ARG INDEXER_URL
@@ -24,6 +27,9 @@ RUN yarn build
 
 # Stage 2: Production stage with dev dependencies for codegen
 FROM node:20-alpine AS production
+
+# Enable Yarn 4
+RUN corepack enable && corepack prepare yarn@4 --activate
 
 WORKDIR /app
 
