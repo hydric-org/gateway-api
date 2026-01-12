@@ -1,12 +1,12 @@
+import { IProtocol } from '@core/interfaces/protocol.interface';
+import { PoolsIndexerClient } from '@infrastructure/indexer/clients/pools-indexer-client';
 import { Injectable } from '@nestjs/common';
-import { ProtocolDTO } from 'src/core/dtos/protocol.dto';
-import { IndexerClient } from 'src/core/indexer-client';
 
 @Injectable()
 export class ProtocolsService {
-  constructor(private readonly indexerClient: IndexerClient) {}
+  constructor(private readonly indexerClient: PoolsIndexerClient) {}
 
-  async getAllSupportedProtocols(): Promise<ProtocolDTO[]> {
-    return await this.indexerClient.queryAllProtocols();
+  async getAllSupportedProtocols(): Promise<IProtocol[]> {
+    return await this.indexerClient.getAllSupportedDexs();
   }
 }

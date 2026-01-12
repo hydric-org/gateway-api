@@ -1,0 +1,96 @@
+query GetPools($poolsFilter: Pool_bool_exp, $limit: Int, $offset: Int, $orderBy: [Pool_order_by!]) {
+  Pool(where: $poolsFilter, order_by: $orderBy, limit: $limit, offset: $offset) {
+    createdAtTimestamp
+    poolAddress
+    poolType
+    totalValueLockedUsd
+    currentFeeTier
+    initialFeeTier
+    chainId
+    positionManager
+    totalStats24h {
+      dataPointTimestamp
+      lastRefreshTimestamp
+      liquidityNetInflowUsd
+      swapVolumeUsd
+      liquidityVolumeUsd
+      feesUsd
+      yearlyYield
+    }
+    totalStats7d {
+      dataPointTimestamp
+      lastRefreshTimestamp
+      liquidityNetInflowUsd
+      swapVolumeUsd
+      liquidityVolumeUsd
+      feesUsd
+      yearlyYield
+    }
+    totalStats30d {
+      dataPointTimestamp
+      lastRefreshTimestamp
+      liquidityNetInflowUsd
+      swapVolumeUsd
+      liquidityVolumeUsd
+      feesUsd
+      yearlyYield
+    }
+    totalStats90d {
+      dataPointTimestamp
+      lastRefreshTimestamp
+      liquidityNetInflowUsd
+      swapVolumeUsd
+      liquidityVolumeUsd
+      feesUsd
+      yearlyYield
+    }
+    isDynamicFee
+    algebraPoolData {
+      deployer
+      tickSpacing
+      sqrtPriceX96
+      tick
+      communityFee
+      plugin
+      pluginConfig
+      version
+    }
+    slipstreamPoolData {
+      tickSpacing
+      sqrtPriceX96
+      tick
+    }
+    v3PoolData {
+      tickSpacing
+      sqrtPriceX96
+      tick
+    }
+    v4PoolData {
+      tickSpacing
+      tick
+      hooks
+      permit2
+      stateView
+      sqrtPriceX96
+      poolManager
+    }
+    protocol {
+      name
+      logo
+      url
+      id
+    }
+    token0 {
+      tokenAddress
+      symbol
+      name
+      decimals
+    }
+    token1 {
+      tokenAddress
+      symbol
+      name
+      decimals
+    }
+  }
+}

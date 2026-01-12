@@ -1,9 +1,0 @@
-query GetToken($tokenFilter: Token_bool_exp) {
-  Token(where: $tokenFilter) {
-    id
-    decimals
-    name
-    symbol
-    usdPrice
-  }
-}

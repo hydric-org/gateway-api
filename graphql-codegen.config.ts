@@ -4,7 +4,7 @@ import 'dotenv/config';
 const config: CodegenConfig = {
   schema: process.env.INDEXER_URL,
   overwrite: true,
-  documents: ['./src/graphql/*.graphql'],
+  documents: ['./src/infrastructure/graphql/queries/*.graphql'],
   generates: {
     './src/gen/graphql.gen.ts': {
       plugins: ['typescript', 'typescript-graphql-request', 'typescript-operations'],
@@ -13,7 +13,7 @@ const config: CodegenConfig = {
   config: {
     extractAllFieldsToTypes: true,
     scalars: {
-      pooltype: 'string',
+      pooltype: '@core/enums/pool/pool-type#PoolType',
       Bytes: 'string',
       numeric: 'string',
       BigInt: 'string',

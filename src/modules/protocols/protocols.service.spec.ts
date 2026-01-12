@@ -1,14 +1,14 @@
+import { PoolsIndexerClient } from '@infrastructure/indexer/clients/pools-indexer-client';
 import sinon from 'sinon';
-import { IndexerClient } from 'src/core/indexer-client';
 import { ProtocolsService } from './protocols.service';
 
 describe('ProtocolsService', () => {
-  let indexerClient: sinon.SinonStubbedInstance<IndexerClient>;
+  let indexerClient: sinon.SinonStubbedInstance<PoolsIndexerClient>;
   let sut: ProtocolsService;
 
   beforeEach(() => {
-    indexerClient = sinon.createStubInstance(IndexerClient);
-    indexerClient.queryAllProtocols.resolves([
+    indexerClient = sinon.createStubInstance(PoolsIndexerClient);
+    indexerClient.getAllSupportedDexs.resolves([
       {
         id: 'protocol-1',
         name: 'name-1',
@@ -48,10 +48,10 @@ describe('ProtocolsService', () => {
       },
     ];
 
-    indexerClient.queryAllProtocols.resolves(protocols);
+    indexerClient.getAllSupportedDexs.resolves(protocols);
     const result = await sut.getAllSupportedProtocols();
 
     expect(result).toEqual(protocols);
-    sinon.assert.calledOnce(indexerClient.queryAllProtocols);
+    sinon.assert.calledOnce(indexerClient.getAllSupportedDexs);
   });
 });
