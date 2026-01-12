@@ -3,9 +3,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import * as Joi from 'joi';
+import Joi from 'joi';
+import { LoggerModule } from 'nestjs-pino';
 import { join } from 'path';
 import { CommonModule } from '../common.module';
+import { HealthModule } from '../health/health.module';
 import { PoolsModule } from '../pools/pools.module';
 import { ProtocolsModule } from '../protocols/protocols.module';
 import { AppController } from './app.controller';
@@ -50,6 +52,7 @@ import { AppController } from './app.controller';
     PoolsModule,
     ProtocolsModule,
     CommonModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [
