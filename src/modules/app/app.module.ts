@@ -12,6 +12,13 @@ import { AppController } from './app.controller';
 
 @Module({
   imports: [
+    LoggerModule.forRoot({
+      pinoHttp: {
+        redact: ['req.headers.authorization', 'req.headers["x-api-key"]'],
+        transport: process.env.NODE_ENV !== 'production' ? { target: 'pino-pretty' } : undefined,
+      },
+    }),
+
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
