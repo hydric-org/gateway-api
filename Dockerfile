@@ -55,8 +55,9 @@ COPY --from=builder --chown=node:node /app/static ./static
 
 EXPOSE 3000
 
+# Change this:
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/health || exit 1
 
 # Use 'node' directly instead of 'yarn' to save memory and handle OS signals correctly
 CMD ["node", "dist/main.js"]
