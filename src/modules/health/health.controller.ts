@@ -37,9 +37,15 @@ export class HealthController {
     type: HealthCheckResponseDto,
   })
   async check(): Promise<HealthCheckResult> {
+    const graphqlUrl = this.config.getOrThrow<string>('INDEXER_URL');
+    const healthUrl = graphqlUrl.replace('/v1/graphql', '/healthz'.trim());
+
     return this.health.check([
       () => this.memory.checkHeap('memory_heap', 256 * 1024 * 1024),
-      () => this.http.pingCheck('indexer', this.config.getOrThrow('INDEXER_URL')),
+      () =>
+        this.http.pingCheck('indexer', healthUrl, {
+          timeout: 5000,
+        }),
     ]);
   }
 }

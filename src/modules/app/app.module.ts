@@ -14,11 +14,15 @@ import { AppController } from './app.controller';
 
 @Module({
   imports: [
-    LoggerModule.forRoot({
-      pinoHttp: {
-        redact: ['req.headers.authorization', 'req.headers["x-api-key"]'],
-        transport: process.env.NODE_ENV !== 'production' ? { target: 'pino-pretty' } : undefined,
-      },
+    LoggerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        pinoHttp: {
+          redact: ['req.headers.authorization', 'req.headers["x-api-key"]'],
+          transport: config.get('ENVIRONMENT') !== 'production' ? { target: 'pino-pretty' } : undefined,
+        },
+      }),
     }),
 
     ConfigModule.forRoot({
@@ -28,7 +32,12 @@ import { AppController } from './app.controller';
         ENVIRONMENT: Joi.string().valid('development', 'production', 'test').default('development'),
         PORT: Joi.number().default(3000),
         ALLOWED_DOMAINS: Joi.string().required(),
-        INDEXER_URL: Joi.string().required(),
+        INDEXER_URL: Joi.string()
+          .required()
+          .custom((value) => {
+            if (typeof value === 'string') return value.replace(/^["']|["']$/g, '');
+            return value;
+          }),
       }),
     }),
 

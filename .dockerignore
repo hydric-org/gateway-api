@@ -15,3 +15,7 @@ test
 *.gen.ts
 *.gen.js
 !graphql-codegen.config.ts
+.yarn/cache
+.yarn/install-state.gz
+README.md
+LICENSE

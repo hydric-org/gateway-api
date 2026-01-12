@@ -1,61 +1,63 @@
-# Stage 1: Build stage
+# ==========================================
+# STAGE 1: Dependency & Build
+# ==========================================
 FROM node:20-alpine AS builder
 
-# Enable Yarn 4
-RUN corepack enable && corepack prepare yarn@4 --activate
+# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec9ee063c5aaafaf3#nodealpine 
+# to understand why libc6-compat might be needed.
+RUN apk add --no-cache libc6-compat python3 make g++ git
+RUN corepack enable && corepack prepare yarn@4.12.0 --activate
 
 WORKDIR /app
 
-# Native build deps for packages like @swc/core
-RUN apk add --no-cache python3 make g++ git
+# Copy configuration files first (Optimizes layer caching)
+COPY .yarnrc.yml package.json yarn.lock ./
+COPY .yarn ./.yarn
 
-# Copy Yarn config first so install uses node_modules
-COPY .yarnrc.yml ./
+# Install ALL dependencies (including devDeps for the build)
+RUN yarn install --immutable
 
 ARG INDEXER_URL
 ENV INDEXER_URL=$INDEXER_URL
 
-# Copy package files
-COPY package.json .
-COPY yarn.lock .
-
-# Yarn 4 immutable install (replacement for --frozen-lockfile)
-RUN yarn install --immutable
-
-# Copy the rest of the source code
+# Copy source and build
 COPY . .
-
-# Run code generation
 RUN yarn gen
-
-# Build the application
 RUN yarn build
 
-# Stage 2
-FROM node:20-alpine AS production
+# Create a separate directory for production-only dependencies
+RUN mkdir /prod_node_modules
+WORKDIR /prod_node_modules
+COPY .yarnrc.yml package.json yarn.lock ./
+COPY .yarn ./.yarn
+RUN corepack enable && corepack prepare yarn@4.12.0 --activate && \
+    yarn workspaces focus --all --production
 
-RUN corepack enable && corepack prepare yarn@4 --activate
+
+# ==========================================
+# STAGE 2: Final Production Image
+# ==========================================
+FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# If native modules need runtime tools, keep minimal
-RUN apk add --no-cache git
+# Set production environment
+ENV ENVIRONMENT=production
 
-# Copy built app
-COPY --from=builder /app/dist ./dist
+# Running as 'node' (pre-existing in alpine) is a security best practice
+USER node
 
-# Copy package files and config
-COPY --from=builder /app/package.json .
-COPY --from=builder /app/yarn.lock .
-COPY --from=builder /app/.yarnrc.yml ./.yarnrc.yml
-
-# Copy node_modules produced by nodeLinker=node-modules
-COPY --from=builder /app/node_modules ./node_modules
-
-# Copy sources needed for runtime (if your app requires them at runtime)
-COPY --from=builder /app/src ./src
-COPY --from=builder /app/graphql-codegen.config.ts ./graphql-codegen.config.ts
-COPY --from=builder /app/static ./static
+# We omit the source code, TS files, and devDependencies
+COPY --from=builder --chown=node:node /app/dist ./dist
+COPY --from=builder --chown=node:node /prod_node_modules/node_modules ./node_modules
+COPY --from=builder --chown=node:node /app/package.json ./package.json
+COPY --from=builder --chown=node:node /app/static ./static
 
 EXPOSE 3000
-CMD ["yarn", "start:prod"]
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
+
+# Use 'node' directly instead of 'yarn' to save memory and handle OS signals correctly
+CMD ["node", "dist/main.js"]
+
