@@ -5,7 +5,7 @@ import { OrderDirection } from 'src/core/enums/order-direction';
 import { PoolOrderField } from 'src/core/enums/pool/pool-order-field';
 import { PoolStatsTimeframe } from 'src/core/enums/pool/pool-stats-timeframe';
 
-export class PoolOrderInputDTO implements IPoolOrder {
+export class PoolOrder implements IPoolOrder {
   @ApiPropertyOptional({
     enum: PoolOrderField,
     default: PoolOrderField.TVL,

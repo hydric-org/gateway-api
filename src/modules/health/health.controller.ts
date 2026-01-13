@@ -1,4 +1,4 @@
-import { HealthCheckResponseDto } from '@lib/api/health/dtos/health-response-dto';
+import { HealthStatus } from '@lib/api/health/dtos/health-response-dto';
 import { Controller, Get } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -29,12 +29,12 @@ export class HealthController {
   @ApiResponse({
     status: 200,
     description: 'The system is fully operational.',
-    type: HealthCheckResponseDto,
+    type: HealthStatus,
   })
   @ApiResponse({
     status: 503,
     description: 'The system is unhealthy (High memory or Indexer down).',
-    type: HealthCheckResponseDto,
+    type: HealthStatus,
   })
   async check(): Promise<HealthCheckResult> {
     const graphqlUrl = this.config.getOrThrow<string>('INDEXER_URL');

@@ -55,7 +55,7 @@ import { AppController } from './app.controller';
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'static'),
       serveRoot: '/static/',
-      exclude: ['/api/(.*)', '/docs'],
+      exclude: ['/api/(.*)', '/swagger'],
     }),
 
     PoolsModule,

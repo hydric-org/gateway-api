@@ -8,7 +8,7 @@ import { InvalidTokenIdError } from '../token/errors/invalid-token-id.error';
 export enum ValidatorKey {
   IS_SUPPORTED_CHAIN_ID = 'isSupportedChainId',
   IS_POOL_ADDRESS = 'isPoolAddress',
-  IS_SEARCH_POOLS_CURSOR = 'isSearchPoolsCursor',
+  IS_POOL_SEARCH_CURSOR = 'isPoolSearchCursor',
   IS_VALID_TOKEN_ID = 'isValidTokenId',
   IS_PROTOCOL_ID = 'isProtocolId',
 }
@@ -27,7 +27,7 @@ export class ValidatorKeyUtils {
         return new UnsupportedChainIdError({ chainId: value });
       case ValidatorKey.IS_POOL_ADDRESS:
         return new InvalidPoolAddressError({ poolAddress: value });
-      case ValidatorKey.IS_SEARCH_POOLS_CURSOR:
+      case ValidatorKey.IS_POOL_SEARCH_CURSOR:
         return new InvalidPaginationCursorError({ cursor: value });
       case ValidatorKey.IS_VALID_TOKEN_ID:
         return new InvalidTokenIdError({ tokenId: value });

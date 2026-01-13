@@ -1,5 +1,5 @@
 import { ValidatorKey } from '@lib/api/common/validator-key';
-import { SearchPoolsCursor } from '@lib/api/pool/search-pools-cursor.dto';
+import { PoolSearchCursor } from '@lib/api/pool/search-pools-cursor.dto';
 import {
   registerDecorator,
   ValidationOptions,
@@ -7,27 +7,27 @@ import {
   ValidatorConstraintInterface,
 } from 'class-validator';
 
-export function IsSearchPoolsCursor(validationOptions?: ValidationOptions) {
+export function IsPoolSearchCursor(validationOptions?: ValidationOptions) {
   return function (object: object, propertyName: string) {
     registerDecorator({
-      name: ValidatorKey.IS_SEARCH_POOLS_CURSOR,
+      name: ValidatorKey.IS_POOL_SEARCH_CURSOR,
       target: object.constructor,
       propertyName,
       options: validationOptions,
-      validator: IsSearchPoolsCursorConstraint,
+      validator: IsPoolSearchCursorConstraint,
     });
   };
 }
 
-@ValidatorConstraint({ name: ValidatorKey.IS_SEARCH_POOLS_CURSOR, async: false })
-export class IsSearchPoolsCursorConstraint implements ValidatorConstraintInterface {
+@ValidatorConstraint({ name: ValidatorKey.IS_POOL_SEARCH_CURSOR, async: false })
+export class IsPoolSearchCursorConstraint implements ValidatorConstraintInterface {
   validate(value: unknown): boolean {
     if (value == null || value === '') return true;
     if (typeof value !== 'string') return false;
 
     try {
       const parsed = JSON.parse(Buffer.from(value, 'base64url').toString()) as Record<string, unknown>;
-      const instance = new SearchPoolsCursor();
+      const instance = new PoolSearchCursor();
 
       const typeOf = (v: unknown) => (v === null ? 'null' : Array.isArray(v) ? 'array' : typeof v);
 

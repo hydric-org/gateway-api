@@ -3,7 +3,7 @@ import { isSupportedChainId } from '@lib/api/network/validators/is-supported-cha
 import { ApiProperty } from '@nestjs/swagger';
 import { IsPoolAddress } from '../../validators/is-pool-address.validator';
 
-export class GetPoolDataParamsRequestDTO {
+export class PoolDataParams {
   @ApiProperty({
     description: `
 The address of the pool:

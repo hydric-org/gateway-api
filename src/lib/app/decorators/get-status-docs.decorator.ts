@@ -1,3 +1,4 @@
+import { HealthStatus } from '@lib/api/health/dtos/health-response-dto';
 import { applyDecorators } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
@@ -10,6 +11,7 @@ export function ApiGetStatusDocs() {
     ApiResponse({
       status: 200,
       description: 'The service is healthy and reachable.',
+      type: HealthStatus,
       schema: {
         example: {
           status: 'OK',

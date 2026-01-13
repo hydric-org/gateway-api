@@ -1,11 +1,11 @@
 import { BaseError } from '@core/errors/base-core-error';
 import { ApiErrorCode, ApiErrorCodeUtils } from '@lib/api/error/api-error-codes';
-import { ApiErrorResponseDTO } from '@lib/api/error/dtos/api-error.dto';
+import { ErrorResponse } from '@lib/api/error/dtos/api-error.dto';
 import { HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
 import { Request } from 'express';
 
 export class ErrorMapper {
-  static map(exception: Error, request: Request, traceId: string): ApiErrorResponseDTO {
+  static map(exception: Error, request: Request, traceId: string): ErrorResponse {
     const timestamp = new Date().toISOString();
     const requestUrl = request.originalUrl;
 

@@ -1,10 +1,10 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsInt, IsOptional, IsString, Max, Min, ValidateNested } from 'class-validator';
-import { IsSearchPoolsCursor } from '../../validators/is-search-pools-cursor.validator';
-import { PoolOrderInputDTO } from './pool-order-input.dto';
+import { IsPoolSearchCursor } from '../../validators/is-search-pools-cursor.validator';
+import { PoolOrder } from './pool-order-input.dto';
 
-export class PoolSearchConfigInputDTO {
+export class PoolSearchConfig {
   @ApiPropertyOptional({
     description: 'The number of items to return.',
     minimum: 1,
@@ -23,8 +23,8 @@ export class PoolSearchConfigInputDTO {
   })
   @IsOptional()
   @ValidateNested()
-  @Type(() => PoolOrderInputDTO)
-  readonly orderBy: PoolOrderInputDTO = new PoolOrderInputDTO();
+  @Type(() => PoolOrder)
+  readonly orderBy: PoolOrder = new PoolOrder();
 
   @ApiPropertyOptional({
     description:
@@ -33,6 +33,6 @@ export class PoolSearchConfigInputDTO {
   })
   @IsOptional()
   @IsString()
-  @IsSearchPoolsCursor()
+  @IsPoolSearchCursor()
   readonly cursor?: string;
 }

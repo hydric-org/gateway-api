@@ -1,18 +1,17 @@
-import { AlgebraPoolOutputDTO, AlgebraPoolOutputDTOExample } from './dtos/output/algebra-pool-output.dto';
-import { SlipstreamPoolOutputDTO, SlipstreamPoolOutputDTOExample } from './dtos/output/slipstream-pool-output.dto';
-import { V3PoolOutputDTO, V3PoolOutputDTOExample } from './dtos/output/v3-pool-output.dto';
-import { V4PoolOutputDTO, V4PoolOutputDTOExample } from './dtos/output/v4-pool-output.dto';
+import { AlgebraPool, AlgebraPoolExample } from './dtos/output/algebra-pool-output.dto';
+import { SlipstreamPool, SlipstreamPoolExample } from './dtos/output/slipstream-pool-output.dto';
+import { V3Pool, V3PoolExample } from './dtos/output/v3-pool-output.dto';
+import { V4Pool, V4PoolExample } from './dtos/output/v4-pool-output.dto';
 
 export const POOL_OUTPUT_SUBTYPE_ENTRIES = [
-  { model: V4PoolOutputDTO, example: V4PoolOutputDTOExample },
-  { model: V3PoolOutputDTO, example: V3PoolOutputDTOExample },
-  { model: AlgebraPoolOutputDTO, example: AlgebraPoolOutputDTOExample },
-  { model: SlipstreamPoolOutputDTO, example: SlipstreamPoolOutputDTOExample },
+  { model: V4Pool, example: V4PoolExample },
+  { model: V3Pool, example: V3PoolExample },
+  { model: AlgebraPool, example: AlgebraPoolExample },
+  { model: SlipstreamPool, example: SlipstreamPoolExample },
 ];
 
-export const POOL_OUTPUT_SUBTYPES: Array<
-  typeof V4PoolOutputDTO | typeof V3PoolOutputDTO | typeof AlgebraPoolOutputDTO | typeof SlipstreamPoolOutputDTO
-> = POOL_OUTPUT_SUBTYPE_ENTRIES.map((e) => e.model);
+export const POOL_OUTPUT_SUBTYPES: Array<typeof V4Pool | typeof V3Pool | typeof AlgebraPool | typeof SlipstreamPool> =
+  POOL_OUTPUT_SUBTYPE_ENTRIES.map((e) => e.model);
 
 export const POOL_OUTPUT_SUBTYPES_EXAMPLES: PoolOutputSubtypesExample[] = POOL_OUTPUT_SUBTYPE_ENTRIES.map(
   (e) => e.example,

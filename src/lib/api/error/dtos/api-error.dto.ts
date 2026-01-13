@@ -3,7 +3,7 @@ import { HttpStatus } from '@nestjs/common';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ApiErrorCode, ApiErrorCodeUtils } from '../api-error-codes';
 
-export class ApiErrorContentDTO {
+export class ErrorContent {
   @ApiProperty({
     description: 'A stable machine-readable code for programmatic handling.',
     enum: ApiErrorCode,
@@ -36,7 +36,7 @@ export class ApiErrorContentDTO {
   meta?: Record<string, any>;
 }
 
-export class ApiErrorResponseDTO {
+export class ErrorResponse {
   @ApiProperty({ description: 'HTTP status code.', example: 400, enum: HttpStatus })
   statusCode!: HttpStatus;
 
@@ -49,10 +49,10 @@ export class ApiErrorResponseDTO {
   @ApiProperty({ description: 'Unique Trace ID for observability.', example: 'req_123abc' })
   traceId!: string;
 
-  @ApiProperty({ type: ApiErrorContentDTO })
-  error!: ApiErrorContentDTO;
+  @ApiProperty({ type: ErrorContent })
+  error!: ErrorContent;
 
-  static from(error: BaseError, path = '/example/path'): ApiErrorResponseDTO {
+  static from(error: BaseError, path = '/example/path'): ErrorResponse {
     const code = error.params.errorCode;
 
     const statusCode = ApiErrorCodeUtils.toStatusCode[code] || HttpStatus.BAD_REQUEST;

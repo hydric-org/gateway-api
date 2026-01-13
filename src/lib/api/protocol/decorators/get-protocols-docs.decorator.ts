@@ -1,4 +1,4 @@
-import { ProtocolOutputDTO } from '@lib/api/protocol/dtos/protocol-output.dto';
+import { Protocol } from '@lib/api/protocol/dtos/protocol-output.dto';
 import { applyDecorators } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
@@ -20,7 +20,7 @@ Each protocol includes but is not limited to:
       status: 200,
       description: 'List of supported protocols retrieved successfully.',
       isArray: true,
-      type: ProtocolOutputDTO,
+      type: Protocol,
     }),
   );
 }

@@ -15,7 +15,7 @@ export class HealthCheckDetails {
   indexer?: HealthCheckInfo;
 }
 
-export class HealthCheckResponseDto {
+export class HealthStatus {
   @ApiProperty({ example: 'ok', enum: ['ok', 'error', 'shutting_down'] })
   status!: string;
 

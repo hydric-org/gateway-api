@@ -3,8 +3,8 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { ArrayNotEmpty, IsArray, IsDefined, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { PoolType } from 'src/core/enums/pool/pool-type';
-import { PoolFilterInputDTO } from '../input/pool-filter-input.dto';
-import { PoolSearchConfigInputDTO } from '../input/pool-search-config-input.dto';
+import { PoolFilter } from '../input/pool-filter-input.dto';
+import { PoolSearchConfig } from '../input/pool-search-config-input.dto';
 
 const POOL_FILTER_DEFAULT_EXAMPLE = {
   blockedPoolTypes: [PoolType.ALGEBRA],
@@ -12,7 +12,7 @@ const POOL_FILTER_DEFAULT_EXAMPLE = {
   minimumTvlUsd: 10000,
 };
 
-export class SearchPoolsRequestDTO {
+export class PoolSearchRequest {
   @ApiProperty({
     description: `
 Primary set of token identifiers. The search engine returns pools containing at least one of these tokens.
@@ -57,20 +57,20 @@ Secondary set of token identifiers used to narrow the search to specific pairs.
 
   @ApiPropertyOptional({
     description: 'Filters based on pool attributes like TVL and protocol types.',
-    type: PoolFilterInputDTO,
+    type: PoolFilter,
     example: POOL_FILTER_DEFAULT_EXAMPLE,
   })
   @IsOptional()
   @ValidateNested()
-  @Type(() => PoolFilterInputDTO)
-  readonly filters: PoolFilterInputDTO = new PoolFilterInputDTO();
+  @Type(() => PoolFilter)
+  readonly filters: PoolFilter = new PoolFilter();
 
   @ApiPropertyOptional({
     description: 'Configuration for the search such as limit, cursor, etc.',
-    type: PoolSearchConfigInputDTO,
+    type: PoolSearchConfig,
   })
   @IsOptional()
   @ValidateNested()
-  @Type(() => PoolSearchConfigInputDTO)
-  readonly config: PoolSearchConfigInputDTO = new PoolSearchConfigInputDTO();
+  @Type(() => PoolSearchConfig)
+  readonly config: PoolSearchConfig = new PoolSearchConfig();
 }

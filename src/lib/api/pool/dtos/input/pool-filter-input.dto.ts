@@ -5,7 +5,7 @@ import { Transform, Type } from 'class-transformer';
 import { IsArray, IsEnum, IsNumber, IsOptional, Min } from 'class-validator';
 import { PoolType, PoolTypeUtils } from 'src/core/enums/pool/pool-type';
 
-export class PoolFilterInputDTO implements IPoolFilter {
+export class PoolFilter implements IPoolFilter {
   @ApiPropertyOptional({
     description: 'Minimum total value locked (TVL) in USD that a pool must have to be included in the results.',
     example: 1000,

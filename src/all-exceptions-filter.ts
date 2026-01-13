@@ -1,6 +1,6 @@
 import { BaseError } from '@core/errors/base-core-error';
 import { ApiErrorCode } from '@lib/api/error/api-error-codes';
-import { ApiErrorResponseDTO } from '@lib/api/error/dtos/api-error.dto';
+import { ErrorResponse } from '@lib/api/error/dtos/api-error.dto';
 import { ErrorMapper } from '@lib/api/error/error-mapper';
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { Request, Response } from 'express';
@@ -29,7 +29,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     return response.status(payload.statusCode).json(payload);
   }
 
-  private logException(exception: Error, payload: ApiErrorResponseDTO, request: TimedRequest) {
+  private logException(exception: Error, payload: ErrorResponse, request: TimedRequest) {
     const { traceId, path, statusCode } = payload;
     const { code, message } = payload.error;
 

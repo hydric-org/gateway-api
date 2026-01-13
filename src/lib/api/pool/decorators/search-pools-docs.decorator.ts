@@ -1,14 +1,14 @@
-import { ApiErrorResponseDTO } from '@lib/api/error/dtos/api-error.dto';
+import { ErrorResponse } from '@lib/api/error/dtos/api-error.dto';
 import { InvalidTokenIdError } from '@lib/api/token/errors/invalid-token-id.error';
 import { applyDecorators } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiBody, ApiOkResponse, ApiOperation, getSchemaPath } from '@nestjs/swagger';
 import { POOL_OUTPUT_SUBTYPES } from '../../pool/pool_output_subtypes';
-import { SearchPoolsRequestDTO } from '../dtos/request/search-pools-request.dto';
-import { SearchPoolsResponseDTO } from '../dtos/response/search-pools-response.dto';
+import { PoolSearchRequest } from '../dtos/request/search-pools-request.dto';
+import { PoolSearchResponse } from '../dtos/response/search-pools-response.dto';
 
 const poolMapping = POOL_OUTPUT_SUBTYPES.reduce(
   (acc, model) => {
-    const key = model.name.replace('PoolOutputDTO', '').toUpperCase();
+    const key = model.name.toUpperCase();
     acc[key] = getSchemaPath(model);
     return acc;
   },
@@ -34,7 +34,7 @@ Uses **Cursor-based pagination**. Pass the \`nextCursor\` received from a previo
     }),
 
     ApiBody({
-      type: SearchPoolsRequestDTO,
+      type: PoolSearchRequest,
       description: 'Search criteria and pagination config.',
     }),
 
@@ -43,11 +43,11 @@ Uses **Cursor-based pagination**. Pass the \`nextCursor\` received from a previo
       description: `
 Successfully retrieved a list of matching pools. 
 The \`pools\` array contains polymorphic objects. Use the \`poolType\` field to distinguish between architectures:
-${POOL_OUTPUT_SUBTYPES.map((model) => `* **${model.name.replace('PoolOutputDTO', '')}**: [${model.name}](#/definitions/${model.name})`).join('\n')}
+${POOL_OUTPUT_SUBTYPES.map((model) => `* **${model.name}**: [${model.name}](#/components/schemas/${model.name})`).join('\n')}
   `,
       schema: {
         allOf: [
-          { $ref: getSchemaPath(SearchPoolsResponseDTO) },
+          { $ref: getSchemaPath(PoolSearchResponse) },
           {
             properties: {
               pools: {
@@ -72,8 +72,8 @@ ${POOL_OUTPUT_SUBTYPES.map((model) => `* **${model.name.replace('PoolOutputDTO',
       description: 'One or more search parameters are invalid.',
       content: {
         'application/json': {
-          schema: { $ref: getSchemaPath(ApiErrorResponseDTO) },
-          example: ApiErrorResponseDTO.from(new InvalidTokenIdError({ tokenId: 'bad-id' }), '/pools/search'),
+          schema: { $ref: getSchemaPath(ErrorResponse) },
+          example: ErrorResponse.from(new InvalidTokenIdError({ tokenId: 'bad-id' }), '/pools/search'),
         },
       },
     }),
