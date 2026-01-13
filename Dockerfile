@@ -12,16 +12,18 @@ WORKDIR /app
 # Copy configuration files first
 COPY .yarnrc.yml package.json yarn.lock ./
 
-# Install ALL dependencies
-RUN yarn install --immutable
+# Install ALL dependencies WITHOUT running scripts (caching layer)
+RUN YARN_ENABLE_SCRIPTS=false yarn install --immutable
 
 # Set build-time variables
 ARG INDEXER_URL
 ENV INDEXER_URL=$INDEXER_URL
 
-# Copy source and build
+# Copy source
 COPY . .
-RUN yarn gen
+
+# Run full install to trigger postinstall (codegen) and build native modules
+RUN yarn install --immutable
 RUN yarn build
 
 # Create production-only dependencies in a clean step
@@ -30,7 +32,7 @@ WORKDIR /prod_node_modules
 COPY .yarnrc.yml package.json yarn.lock ./
 # Note: We do NOT COPY .yarn here. Corepack uses the global cache or fetches the binary.
 RUN corepack enable && corepack prepare yarn@4.12.0 --activate && \
-    yarn workspaces focus --all --production
+    YARN_ENABLE_SCRIPTS=false yarn workspaces focus --all --production
 
 
 # ==========================================
