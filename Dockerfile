@@ -40,8 +40,8 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
-ENV ENVIRONMENT=production
-ENV NODE_ENV=production
+ARG ENVIRONMENT
+ENV ENVIRONMENT=$ENVIRONMENT
 
 # Security: Use the non-root node user
 USER node
