@@ -48,7 +48,7 @@ Documentation must explain the _behavior_, not just the _type_.
 
 Before submitting a Pull Request, the developer must verify:
 
-1.  **Does the Swagger UI (`/docs`) look professional?**
+1.  **Does the Swagger UI (`/swagger`) look professional?**
 2.  **Are there any "Undefined" or "Object" types in the response examples?**
 3.  **Are all enums listed with their possible values?**
 4.  **If I were a third-party dev, could I use this endpoint using _only_ these docs?**

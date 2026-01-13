@@ -64,3 +64,29 @@ To maintain professional consistency, all files must follow the kebab-case patte
 2.  **No Direct Process Env:** Never use `process.env`. Use the validated `ConfigService`.
 3.  **The Adapter Mandate:** Every Infrastructure Client _must_ use an Adapter to return a Core Interface. Raw GraphQL objects are **prohibited** from reaching Services or Controllers.
 4.  **Type Safety:** `any` is a breaking violation. Every external response must be typed via GraphQL Codegen or custom interfaces.
+
+## 4. Absolute Consistency
+
+Predictability is a core requirement of the codebase. You must maintain strict consistency across all abstractions, including class names, file naming conventions, function signatures, and directory structures.
+
+### 4.1 Pattern Adherence
+
+Existing patterns in the codebase override external "best practices" or personal preferences.
+
+- **Example:** If the protocol uses the naming scheme `[Asset]V4` (e.g., `PoolV4`), do not generate `AlgebraPool`. You must either generate `AlgebraV4`, or change both if it make the code better.
+- **Standardization:** Before generating new code, scan the relevant directory to identify the established naming convention and replicate it exactly.
+
+### 4.2 Refactoring Protocol
+
+When tasked with refactoring, your primary goal is the restoration of consistency.
+
+- **Scope:** If a refactor is requested for a specific component, identify all related instances across the codebase and align them to the new, consistent standard.
+- **Zero Deviance:** Introducing a new naming style without migrating the old ones is strictly prohibited.
+
+### 4.3 Hierarchy of Truth
+
+If you encounter conflicting patterns within the codebase, follow this priority:
+
+1. **Core Protocol Files:** Match the naming used in the most critical, central contracts or modules.
+2. **Most Recent Files:** Match the conventions used in the most recently updated files.
+3. **The Scout Rule:** If you must choose between two patterns, choose the more descriptive one, but apply it globally to the task at hand.
