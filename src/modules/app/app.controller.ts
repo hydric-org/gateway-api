@@ -1,4 +1,4 @@
-import { ApiGetStatusDocs } from '@lib/api/app/decorators/get-status-docs.decorator';
+import { ApiGetStatusDocs } from '@lib/app/decorators/get-status-docs.decorator';
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 

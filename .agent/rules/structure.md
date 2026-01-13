@@ -2,7 +2,7 @@
 trigger: always_on
 ---
 
-# Zup Protocol: API Structural Architecture
+# Hydric: API Structural Architecture
 
 ## 1. Directory Hierarchy & Core Philosophy
 

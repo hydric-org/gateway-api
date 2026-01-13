@@ -2,11 +2,11 @@
 trigger: always_on
 ---
 
-# Zup Protocol: API Documentation & Transparency Standards
+# Hydric: API Documentation & Transparency Standards
 
 ## 1. The Documentation Mandate
 
-Documentation is not an "extra"—it is a core feature of the Zup Protocol. Every element exposed to an API consumer must be fully documented via **Swagger (OpenAPI)**. A feature is not considered "done" until its public contract is perfectly described.
+Documentation is not an "extra"—it is a core feature of Hydric. Every element exposed to an API consumer must be fully documented via **Swagger (OpenAPI)**. A feature is not considered "done" until its public contract is perfectly described.
 
 - **Rule of Zero Ambiguity:** An external developer must be able to integrate any endpoint without asking a single question to our team.
 - **The "Broke Rule":** Exposing a variable, endpoint, or error code without Swagger documentation is a high-severity violation of our quality standards.
@@ -57,4 +57,4 @@ Before submitting a Pull Request, the developer must verify:
 
 ### Why this rule?
 
-By enforcing these standards, we ensure the **Zup Protocol** is synonymous with reliability. High-quality documentation reduces support overhead, builds trust with partners, and accelerates the adoption of our liquidity layer.
+By enforcing these standards, we ensure **Hydric** is synonymous with reliability. High-quality documentation reduces support overhead, builds trust with partners, and accelerates the adoption of our liquidity layer.

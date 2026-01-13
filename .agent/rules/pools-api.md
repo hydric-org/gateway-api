@@ -4,7 +4,7 @@ trigger: always_on
 
 # 1. Strategic Identity & Mission
 
-The **Pools API** is the definitive "Liquidity Intelligence Layer" for the Zup Protocol. Its mission is to transform raw, fragmented blockchain events into a unified, institutional-grade data feed.
+The **Pools API** is the definitive "Liquidity Pools Intelligence Layer" for Hydric. Its mission is to transform raw, fragmented blockchain events into a unified, institutional-grade data feed.
 
 - **B2B Mandate:** This is a professional-first infrastructure. Every response must be treated as a financial contract: deterministic, accurate, and structured for automated consumption by third-party protocols, dashboards, and institutional investors.
 

@@ -1,7 +1,7 @@
-import { setupCors } from '@lib/api/app/bootstrap/setup-cors';
-import { setupPipes } from '@lib/api/app/bootstrap/setup-pipes';
-import { setupSecurity } from '@lib/api/app/bootstrap/setup-security';
-import { setupSwagger } from '@lib/api/app/bootstrap/setup-swagger';
+import { setupCors } from '@lib/app/bootstrap/setup-cors';
+import { setupPipes } from '@lib/app/bootstrap/setup-pipes';
+import { setupSecurity } from '@lib/app/bootstrap/setup-security';
+import { setupSwagger } from '@lib/app/bootstrap/setup-swagger';
 import { NestFactory } from '@nestjs/core';
 import { Logger } from 'nestjs-pino';
 import 'src/core/extensions/string.extension';

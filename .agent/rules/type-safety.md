@@ -2,7 +2,7 @@
 trigger: always_on
 ---
 
-# Zup Protocol: Type Safety & Data Transformation Standards
+# Hydric: Type Safety & Data Transformation Standards
 
 ## 1. The "No-Leak" Policy
 
@@ -29,7 +29,7 @@ As a liquidity aggregator, mathematical precision is non-negotiable.
 
 ## 4. Custom Identifiers & Formatters
 
-The Zup Protocol uses specific formats for identifying assets across chains.
+Hydric uses specific formats for identifying assets across chains.
 
 - **Address Checksumming:** All `poolAddress` and `tokenAddress` inputs must be validated using the `IsPoolAddress` or `IsValidTokenId` validators.
 - **Case Sensitivity:** The API should be case-insensitive on input but strictly consistent (typically lowercased or checksummed) on output. Use the `StringExtension` to normalize strings at the entry point.

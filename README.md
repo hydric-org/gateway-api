@@ -1,3 +1,5 @@
-# Zup Protocol Backend
+# Hydric Pools API
 
-The backend that power all the Zup Protocol App services.
+The backend that power all the Hydric App services.
+
+...(under construction)
