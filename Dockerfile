@@ -21,9 +21,7 @@ ENV INDEXER_URL=$INDEXER_URL
 
 # Copy source
 COPY . .
-
-# Run full install to trigger postinstall (codegen) and build native modules
-RUN yarn install --immutable
+RUN yarn gen
 RUN yarn build
 
 # Create production-only dependencies in a clean step
@@ -32,7 +30,7 @@ WORKDIR /prod_node_modules
 COPY .yarnrc.yml package.json yarn.lock ./
 # Note: We do NOT COPY .yarn here. Corepack uses the global cache or fetches the binary.
 RUN corepack enable && corepack prepare yarn@4.12.0 --activate && \
-    YARN_ENABLE_SCRIPTS=false yarn workspaces focus --all --production
+    yarn workspaces focus --all --production
 
 
 # ==========================================
