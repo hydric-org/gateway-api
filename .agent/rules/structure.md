@@ -90,3 +90,19 @@ If you encounter conflicting patterns within the codebase, follow this priority:
 1. **Core Protocol Files:** Match the naming used in the most critical, central contracts or modules.
 2. **Most Recent Files:** Match the conventions used in the most recently updated files.
 3. **The Scout Rule:** If you must choose between two patterns, choose the more descriptive one, but apply it globally to the task at hand.
+
+### 4.4 Searchability: File and Class Alignment
+
+To ensure the codebase is instantly searchable via global search or "Go to File" shortcuts, there must be an explicit, symmetrical relationship between file names and their contents.
+
+- **Explicit Mapping:** The filename must explicitly follow the primary class, interface, or contract name and vice versa.
+- **Direct Correspondence:** If you are looking for a class named `LiquidityProvider`, it must be located in a file named `liquidity-provider` (e.g., `liquidity-provider.sol` or `liquidity-provider.ts`).
+- **File name case:** The file name should be always kebab-case
+
+### 4.5 Explicit File Naming
+
+Files must be named so that their purpose is clear without opening them.
+
+- **No "Magic" Names:** Avoid generic names like `helper.ts`, `data.json`, or `script.js`. If a file contains price calculation logic for an Algebra pool, it should be `AlgebraPriceCalculator.ts`.
+- **Contextual Suffixes:** If the codebase uses suffixes for organization (e.g., `user-service.ts`, `user-store.ts`, `user-component.tsx`), you must follow this pattern for all new files in that module.
+- **Predictable Paths:** The file name should represent the "leaf" of its directory tree. If it is inside `/pools/algebra/`, the file should be `algebra-pool.ts`, not just `pool.ts`, to avoid having ten different files named `pool.ts` open in your editor tabs.
