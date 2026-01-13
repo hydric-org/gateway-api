@@ -1,37 +1,28 @@
-import { INestApplication, UnauthorizedException } from '@nestjs/common';
-import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
+import { setupCors } from '@lib/api/app/bootstrap/setup-cors';
+import { setupPipes } from '@lib/api/app/bootstrap/setup-pipes';
+import { setupSecurity } from '@lib/api/app/bootstrap/setup-security';
+import { setupSwagger } from '@lib/api/app/bootstrap/setup-swagger';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { Logger } from 'nestjs-pino';
+import 'src/core/extensions/string.extension';
+import { AllExceptionsFilter } from './all-exceptions-filter';
+import { AppModule } from './modules/app/app.module';
 
-export function bootstrap(app: INestApplication) {
-  const environment = process.env.ENVIRONMENT;
-  const allowedDomains = process.env.ALLOWED_DOMAINS?.split(',') ?? [];
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.useLogger(app.get(Logger));
 
-  const corsOptions: CorsOptions = {
-    origin: (origin, callback) => {
-      if (allowedDomains.some((domain) => origin?.endsWith(domain))) {
-        return callback(null, true);
-      }
+  setupSecurity(app);
+  setupCors(app);
+  setupPipes(app);
 
-      return callback(
-        new UnauthorizedException(
-          'Origin domain is not allowed to access the API',
-        ),
-        false,
-      );
-    },
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: 'Content-Type, Accept',
-  };
+  app.useGlobalFilters(new AllExceptionsFilter());
+  setupSwagger(app);
 
-  if (environment != 'development') app.enableCors(corsOptions);
+  const port = process.env.PORT ?? 3000;
+  await app.listen(port, '0.0.0.0');
+
+  console.log(`API is live on port ${port} (Env: ${process.env.ENVIRONMENT})`);
 }
 
-async function startApplication() {
-  const app = await NestFactory.create(AppModule, { cors: true });
-  bootstrap(app);
-
-  await app.listen(process.env.PORT ?? 3000);
-}
-
-if (require.main === module) void startApplication();
+void bootstrap();

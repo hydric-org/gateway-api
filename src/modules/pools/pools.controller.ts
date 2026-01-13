@@ -1,105 +1,46 @@
-import {
-  Body,
-  Controller,
-  DefaultValuePipe,
-  Get,
-  Param,
-  ParseBoolPipe,
-  ParseIntPipe,
-  Post,
-  Query,
-  ValidationPipe,
-} from '@nestjs/common';
-import { MatchedPoolsDTO } from 'src/core/dtos/matched-pools.dto';
-import { PoolSearchFiltersDTO } from 'src/core/dtos/pool-search-filters.dto';
-import { PoolDTO } from 'src/core/dtos/pool.dto';
-import { tokenGroupList } from 'src/core/token-group-list';
+import { LiquidityPool } from '@core/types';
+import { ApiGetSinglePoolDocs } from '@lib/api/pool/decorators/get-pool-data-docs.decorator';
+import { ApiSearchPoolsDocs } from '@lib/api/pool/decorators/search-pools-docs.decorator';
+import { PoolOutputDTO } from '@lib/api/pool/dtos/output/pool-output.dto';
+import { GetPoolDataParamsRequestDTO } from '@lib/api/pool/dtos/request/get-pool-data-params-request.dto';
+import { SearchPoolsRequestDTO } from '@lib/api/pool/dtos/request/search-pools-request.dto';
+import { SearchPoolsResponseDTO } from '@lib/api/pool/dtos/response/search-pools-response.dto';
+import { POOL_OUTPUT_SUBTYPES } from '@lib/api/pool/pool_output_subtypes';
+import { SearchPoolsCursor } from '@lib/api/pool/search-pools-cursor.dto';
+import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
+import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
 import { PoolsService } from './pools.service';
 
 @Controller('pools')
+@ApiTags('Liquidity Pools')
+@ApiExtraModels(PoolOutputDTO, SearchPoolsResponseDTO, ...POOL_OUTPUT_SUBTYPES)
 export class PoolsController {
   constructor(private readonly poolsService: PoolsService) {}
-  @Get(':poolAddress/:chainId')
+
+  @Get('/:chainId/:poolAddress')
+  @ApiGetSinglePoolDocs()
   async getPoolData(
-    @Param('poolAddress') poolAddress: string,
-    @Param('chainId', ParseIntPipe) chainId: number,
-    @Query('parseWrappedToNative', new DefaultValuePipe(true), ParseBoolPipe) parseWrappedToNative: boolean,
-  ): Promise<PoolDTO> {
-    return await this.poolsService.getPoolData(poolAddress, chainId, parseWrappedToNative);
+    @Param()
+    params: GetPoolDataParamsRequestDTO,
+  ): Promise<LiquidityPool> {
+    return await this.poolsService.getPool(params.poolAddress, params.chainId);
   }
 
-  @Post('/search/all')
-  async searchPoolsAcrossNetworks(
-    @Query('token0Id') token0Id?: string,
-    @Query('token1Id') token1Id?: string,
-    @Query('group0Id') group0Id?: string,
-    @Query('group1Id') group1Id?: string,
-    @Body('filters', new ValidationPipe({ transform: true }))
-    filters: PoolSearchFiltersDTO = new PoolSearchFiltersDTO(),
-  ): Promise<MatchedPoolsDTO> {
-    const tokens0: string[] = [...(token0Id !== undefined ? [token0Id] : [])];
-    const tokens1: string[] = [...(token1Id !== undefined ? [token1Id] : [])];
-
-    if (group0Id !== undefined) {
-      tokens0.push(...this._resolveTokensFromGroupIds(group0Id));
-    }
-
-    if (group1Id !== undefined) {
-      tokens1.push(...this._resolveTokensFromGroupIds(group1Id));
-    }
-
-    return await this.poolsService.searchPoolsCrossChain({
-      token0Ids: tokens0,
-      token1Ids: tokens1,
-      filters,
-    });
-  }
-
-  @Post('/search/:chainId')
-  async searchPoolsInChain(
-    @Param('chainId', ParseIntPipe) chainId: number,
-    @Query('token0Address') token0Address?: string,
-    @Query('token1Address') token1Address?: string,
-    @Query('group0Id') group0Id?: string,
-    @Query('group1Id') group1Id?: string,
-    @Body('filters', new ValidationPipe({ transform: true }))
-    filters: PoolSearchFiltersDTO = new PoolSearchFiltersDTO(),
-  ): Promise<MatchedPoolsDTO> {
-    const tokens0: string[] = [...(token0Address !== undefined ? [token0Address] : [])];
-    const tokens1: string[] = [...(token1Address !== undefined ? [token1Address] : [])];
-
-    if (group0Id !== undefined) {
-      tokens0.push(...this._resolveTokensFromGroupIds(group0Id, chainId));
-    }
-
-    if (group1Id !== undefined) {
-      tokens1.push(...this._resolveTokensFromGroupIds(group1Id, chainId));
-    }
-
-    return await this.poolsService.searchPoolsInChain({
-      token0Addresses: tokens0,
-      token1Addresses: tokens1,
-      network: chainId,
-      filters,
-    });
-  }
-
-  private _resolveTokensFromGroupIds(groupId: string, chainId?: number): string[] {
-    const tokens: string[] = [];
-    const groupTokens = tokenGroupList.find((group) => {
-      return group.id === groupId;
-    })?.tokens;
-
-    groupTokens?.forEach((token) => {
-      if (chainId === undefined) return tokens.push(token.id!);
-
-      const tokenAddressInNetwork = token.addresses[chainId];
-
-      if (typeof tokenAddressInNetwork === 'string') {
-        return tokens.push(tokenAddressInNetwork);
-      }
+  @Post('/search')
+  @HttpCode(200)
+  @ApiSearchPoolsDocs()
+  async searchPools(@Body() requestBody: SearchPoolsRequestDTO): Promise<SearchPoolsResponseDTO> {
+    const result = await this.poolsService.searchPools({
+      tokensA: requestBody.tokensA,
+      tokensB: requestBody.tokensB,
+      searchFilters: requestBody.filters,
+      searchConfig: requestBody.config,
     });
 
-    return tokens;
+    return {
+      pools: result.pools,
+      filters: requestBody.filters,
+      nextCursor: SearchPoolsCursor.encode(result.nextCursor),
+    };
   }
 }

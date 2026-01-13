@@ -1,47 +1,62 @@
-# Stage 1: Build stage
+# ==========================================
+# STAGE 1: Dependency & Build
+# ==========================================
 FROM node:20-alpine AS builder
+
+# Install system dependencies
+RUN apk add --no-cache libc6-compat python3 make g++ git
+RUN corepack enable && corepack prepare yarn@4.12.0 --activate
 
 WORKDIR /app
 
+# Copy configuration files first
+COPY .yarnrc.yml package.json yarn.lock ./
+
+# Install ALL dependencies
+RUN yarn install --immutable
+
+# Set build-time variables
 ARG INDEXER_URL
 ENV INDEXER_URL=$INDEXER_URL
 
-# Copy package files
-COPY package.json .
-COPY yarn.lock .
-
-# Install all dependencies (including dev dependencies)
-RUN yarn install --frozen-lockfile
-
-# Copy the rest of the source code
+# Copy source and build
 COPY . .
-
-# Run code generation
 RUN yarn gen
-
-# Build the application
 RUN yarn build
 
-# Stage 2: Production stage with dev dependencies for codegen
+# Create production-only dependencies in a clean step
+RUN mkdir /prod_node_modules
+WORKDIR /prod_node_modules
+COPY .yarnrc.yml package.json yarn.lock ./
+# Note: We do NOT COPY .yarn here. Corepack uses the global cache or fetches the binary.
+RUN corepack enable && corepack prepare yarn@4.12.0 --activate && \
+    yarn workspaces focus --all --production
+
+
+# ==========================================
+# STAGE 2: Final Production Image
+# ==========================================
 FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# Copy the built application from the builder stage
-COPY --from=builder /app/dist ./dist
+ARG ENVIRONMENT
+ENV ENVIRONMENT=$ENVIRONMENT
 
-# Copy the source code and package files
-COPY --from=builder /app/package.json .
-COPY --from=builder /app/yarn.lock .
-COPY --from=builder /app/src ./src
-COPY --from=builder /app/graphql-codegen.config.ts ./graphql-codegen.config.ts
-COPY --from=builder /app/static ./static
+# Security: Use the non-root node user
+USER node
 
-# Install all dependencies (including dev dependencies)
-RUN yarn install --frozen-lockfile
+# Copy only what is strictly necessary for runtime
+COPY --from=builder --chown=node:node /app/dist ./dist
+COPY --from=builder --chown=node:node /prod_node_modules/node_modules ./node_modules
+COPY --from=builder --chown=node:node /app/package.json ./package.json
+COPY --from=builder --chown=node:node /app/static ./static
 
-# Expose the application port
 EXPOSE 3000
 
+# Healthcheck using 127.0.0.1 (Fixed for Alpine/Docker networking)
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/health || exit 1
+
 # Start the application
-CMD ["yarn", "start:prod"]
+CMD ["node", "dist/main.js"]

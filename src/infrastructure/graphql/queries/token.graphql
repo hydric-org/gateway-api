@@ -1,0 +1,10 @@
+query GetToken($tokenFilter: Token_bool_exp) {
+  Token(where: $tokenFilter) {
+    id
+    tokenAddress
+    decimals
+    name
+    symbol
+    usdPrice
+  }
+}
