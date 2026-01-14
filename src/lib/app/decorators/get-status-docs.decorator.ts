@@ -1,4 +1,4 @@
-import { HealthStatus } from '@lib/api/health/dtos/health-response-dto';
+import { SystemStatusDto } from '@lib/api/health/dtos/system-status-output.dto';
 import { applyDecorators } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
@@ -11,17 +11,7 @@ export function ApiGetStatusDocs() {
     ApiResponse({
       status: 200,
       description: 'The service is healthy and reachable.',
-      type: HealthStatus,
-      schema: {
-        example: {
-          status: 'OK',
-          uptimeSeconds: 12450,
-          env: 'production',
-          host: 'api-primary-01',
-          version: '1.2.0',
-          timestamp: '2026-01-12T16:22:54Z',
-        },
-      },
+      type: SystemStatusDto,
     }),
   );
 }
