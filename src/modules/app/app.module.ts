@@ -1,3 +1,4 @@
+import { EnvKey } from '@lib/app/env-key.enum';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
@@ -18,10 +19,11 @@ import { AppController } from './app.controller';
       isGlobal: true,
       cache: true,
       validationSchema: Joi.object({
-        ENVIRONMENT: Joi.string().valid('development', 'production', 'staging').default('development'),
-        PORT: Joi.number().default(3000),
-        ALLOWED_DOMAINS: Joi.string().required(),
-        INDEXER_URL: Joi.string()
+        [EnvKey.ENVIRONMENT]: Joi.string().valid('development', 'production', 'staging').default('development'),
+        [EnvKey.PORT]: Joi.number().default(3000),
+        [EnvKey.ALLOWED_DOMAINS]: Joi.string().required(),
+        [EnvKey.API_URL]: Joi.string().required(),
+        [EnvKey.INDEXER_URL]: Joi.string()
           .required()
           .custom((value) => {
             if (typeof value === 'string') return value.replace(/^["']|["']$/g, '');
@@ -36,7 +38,7 @@ import { AppController } from './app.controller';
       useFactory: (config: ConfigService) => ({
         pinoHttp: {
           redact: ['req.headers.authorization', 'req.headers["x-api-key"]'],
-          transport: config.get('ENVIRONMENT') === 'development' ? { target: 'pino-pretty' } : undefined,
+          transport: config.get(EnvKey.ENVIRONMENT) === 'development' ? { target: 'pino-pretty' } : undefined,
         },
       }),
     }),
