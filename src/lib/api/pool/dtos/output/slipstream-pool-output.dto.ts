@@ -1,7 +1,6 @@
 import { PoolType } from '@core/enums/pool/pool-type';
 import { ISlipstreamPool } from '@core/interfaces/pool/slipstream-pool.interface';
-import { ApiSchema, getSchemaPath } from '@nestjs/swagger';
-import { Pool } from './pool-output.dto';
+import { ApiSchema } from '@nestjs/swagger';
 import { V3Pool, V3PoolExample } from './v3-pool-output.dto';
 
 export const SlipstreamPoolExample = {
@@ -14,7 +13,7 @@ export const SlipstreamPoolExample = {
 **Slipstream Pool Output Model**
 
 Represents a concentrated liquidity pool following the Slipstream architecture. 
-This model extends the [Pool](${getSchemaPath(Pool)}) by providing 
+This model extends the **Base Pool Model** by providing 
 specific state variables and additional metadata for Slipstream pools.
 `,
 })

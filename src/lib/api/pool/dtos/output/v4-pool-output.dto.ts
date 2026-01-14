@@ -1,6 +1,6 @@
 import { PoolType } from '@core/enums/pool/pool-type';
 import { IV4Pool } from '@core/interfaces/pool/v4-pool.interface';
-import { ApiProperty, ApiSchema, getSchemaPath } from '@nestjs/swagger';
+import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { PoolHook, PoolHookExample } from './pool-hook-output';
 import { Pool, PoolExample } from './pool-output.dto';
 
@@ -21,7 +21,7 @@ export const V4PoolExample = {
 **V4 Pool Output Model**
 
 Represents a concentrated liquidity pool following the Uniswap V4 architecture. 
-This model extends the [Pool](${getSchemaPath(Pool)}) by providing 
+This model extends the **Base Pool Model** by providing 
 specific state variables and additional metadata for V4 pools, such as hooks.
   `,
 })

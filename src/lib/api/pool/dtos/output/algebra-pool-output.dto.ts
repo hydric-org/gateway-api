@@ -1,8 +1,7 @@
 import { PoolType } from '@core/enums/pool/pool-type';
 import { IAlgebraPool } from '@core/interfaces/pool/algebra-pool.interface';
-import { ApiProperty, ApiSchema, getSchemaPath } from '@nestjs/swagger';
+import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { AlgebraPoolPlugin, AlgebraPoolPluginExample } from './algebra-pool-plugin-output.dto';
-import { Pool } from './pool-output.dto';
 import { V3Pool, V3PoolExample } from './v3-pool-output.dto';
 
 export const AlgebraPoolExample = {
@@ -19,7 +18,7 @@ export const AlgebraPoolExample = {
 **Algebra Pool Output Model**
 
 Represents a concentrated liquidity pool following the Algebra architecture. 
-This model extends the [Pool](${getSchemaPath(Pool)}) by providing 
+This model extends the **Base Pool Model** by providing 
 specific state variables and additional metadata for Algebra pools, such as plugin data,
 version, etc...
   `,
