@@ -6,6 +6,7 @@ export function setupSwagger(app: INestApplication) {
     .setTitle(`Hydric Pools API`)
     .setDescription(`Access liquidity pools from DEXs easily. One plug. Every pool. Every network.`)
     .setVersion(process.env.npm_package_version || '1.0.0')
+    .setOpenAPIVersion('3.1.0')
     .addTag('System', 'Core infrastructure and health checks')
     .build();
 
