@@ -1,5 +1,5 @@
+import { ChainId } from '@core/enums/chain-id';
 import { LiquidityPoolType } from '@core/enums/liquidity-pool/liquidity-pool-type';
-import { Network } from '@core/enums/network';
 import { ILiquidityPool } from '@core/interfaces/liquidity-pool/liquidity-pool.interface';
 import { ISingleChainToken } from '@core/interfaces/token/single-chain-token.interface';
 import { LiquidityPoolMetadata } from '@core/types/liquidity-pool-metadata';
@@ -43,7 +43,7 @@ export const V3LiquidityPoolExample = {
       },
     ],
   },
-  chainId: Network.ETHEREUM,
+  chainId: ChainId.ETHEREUM,
   createdAtTimestamp: 1768429616,
   feeTier: {
     feeTierPercentage: 0.4,
@@ -147,9 +147,9 @@ export class LiquidityPool implements ILiquidityPool {
     description:
       'The chain id where the liquidity pool is deployed. Following EIP-155 standards. Check out [Chainlist](https://chainlist.org) to discover the chain id of any EVM Blockchain',
     example: V3LiquidityPoolExample.chainId,
-    enum: Network,
+    enum: ChainId,
   })
-  readonly chainId!: Network;
+  readonly chainId!: ChainId;
 
   @ApiProperty({
     description:

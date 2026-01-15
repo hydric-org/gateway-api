@@ -1,4 +1,4 @@
-import { NetworkUtils } from '@core/enums/network';
+import { NetworkUtils } from '@core/enums/chain-id';
 import { isEthereumAddress } from 'class-validator';
 
 export const BlockchainAddressUtils = {

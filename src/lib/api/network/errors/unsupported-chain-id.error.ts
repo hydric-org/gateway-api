@@ -1,4 +1,4 @@
-import { NetworkUtils } from '@core/enums/network';
+import { NetworkUtils } from '@core/enums/chain-id';
 import { BaseApiError } from '../../error/errors/base-api-error';
 import { ValidationErrorCode } from '../../error/validation-error-codes';
 

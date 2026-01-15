@@ -1,5 +1,5 @@
+import { ChainId } from '@core/enums/chain-id';
 import { LiquidityPoolType } from '@core/enums/liquidity-pool/liquidity-pool-type';
-import { Network } from '@core/enums/network';
 import { ILiquidityPoolFilter } from '@core/interfaces/liquidity-pool/liquidity-pool-filter.interface';
 import { BlockchainAddress } from '@lib/api/address/blockchain-address.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -25,9 +25,9 @@ Primary set of token addresses. The search engine returns pools containing at le
 - **Note:** Token ordering does not affect search results.
     `,
     example: [
-      new BlockchainAddress(Network.ETHEREUM, '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'),
-      new BlockchainAddress(Network.ETHEREUM, '0x6B175474E89094C44Da98b954EedeAC495271d0F'),
-      new BlockchainAddress(Network.BASE, '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'),
+      new BlockchainAddress(ChainId.ETHEREUM, '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'),
+      new BlockchainAddress(ChainId.ETHEREUM, '0x6B175474E89094C44Da98b954EedeAC495271d0F'),
+      new BlockchainAddress(ChainId.BASE, '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'),
     ],
     type: [BlockchainAddress],
   })
@@ -47,8 +47,8 @@ Secondary set of token identifiers used to narrow the search to specific pairs.
 - **Note:** Evaluation is order-independent.
     `,
     example: [
-      new BlockchainAddress(Network.ETHEREUM, '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'),
-      new BlockchainAddress(Network.BASE, '0x4200000000000000000000000000000000000006'),
+      new BlockchainAddress(ChainId.ETHEREUM, '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'),
+      new BlockchainAddress(ChainId.BASE, '0x4200000000000000000000000000000000000006'),
     ],
     type: [BlockchainAddress],
   })

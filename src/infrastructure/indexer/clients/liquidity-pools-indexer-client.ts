@@ -1,5 +1,5 @@
 import { ZERO_ETHEREUM_ADDRESS } from '@core/constants';
-import { Network, NetworkUtils } from '@core/enums/network';
+import { ChainId, NetworkUtils } from '@core/enums/chain-id';
 import { LiquidityPoolNotFoundError } from '@core/errors/liquidity-pool-not-found.error';
 import { TokenNotFoundError } from '@core/errors/token-not-found-error';
 import { IBlockchainAddress } from '@core/interfaces/blockchain-address.interface';
@@ -42,7 +42,7 @@ export class LiquidityPoolsIndexerClient {
     }));
   }
 
-  async getToken(chainId: Network, tokenAddress: string): Promise<ISingleChainToken> {
+  async getToken(chainId: ChainId, tokenAddress: string): Promise<ISingleChainToken> {
     const isSearchingForNative = tokenAddress === ZERO_ETHEREUM_ADDRESS;
 
     const tokens = await this.graphQLClients.liquidityPoolsIndexerClient.request<GetTokenQuery, GetTokenQueryVariables>(
@@ -82,7 +82,7 @@ export class LiquidityPoolsIndexerClient {
     };
   }
 
-  async getPool(poolAddress: string, chainId: Network): Promise<ILiquidityPool> {
+  async getPool(poolAddress: string, chainId: ChainId): Promise<ILiquidityPool> {
     const poolsMatching = await this.graphQLClients.liquidityPoolsIndexerClient.request<
       GetPoolsQuery,
       GetPoolsQueryVariables

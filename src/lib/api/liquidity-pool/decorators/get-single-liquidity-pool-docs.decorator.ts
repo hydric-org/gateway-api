@@ -1,4 +1,4 @@
-import { Network } from '@core/enums/network';
+import { ChainId } from '@core/enums/chain-id';
 import { LiquidityPoolNotFoundError } from '@core/errors/liquidity-pool-not-found.error';
 import { ErrorResponse } from '@lib/api/error/dtos/error-response.dto';
 import { UnsupportedChainIdError } from '@lib/api/network/errors/unsupported-chain-id.error';
@@ -72,7 +72,7 @@ export function GetSingleLiquidityPoolDocs() {
         'application/json': {
           schema: { $ref: getSchemaPath(ErrorResponse) },
           example: ErrorResponse.from(
-            new LiquidityPoolNotFoundError({ chainId: Network.BASE, poolAddress: '0x123' }),
+            new LiquidityPoolNotFoundError({ chainId: ChainId.BASE, poolAddress: '0x123' }),
             '/pools/v1/8453/0x123',
           ),
         },

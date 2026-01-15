@@ -1,4 +1,4 @@
-import { Network } from '@core/enums/network';
+import { ChainId } from '@core/enums/chain-id';
 import { BlockchainAddress } from '@lib/api/address/blockchain-address.dto';
 import { InvalidBlockchainAddressError } from '@lib/api/address/errors/invalid-blockchain-address.error';
 import { ErrorResponse } from '@lib/api/error/dtos/error-response.dto';
@@ -31,7 +31,7 @@ export function SearchLiquidityPoolsDocs() {
           schema: { $ref: getSchemaPath(ErrorResponse) },
           example: ErrorResponse.from(
             new InvalidBlockchainAddressError({
-              blockchainAddress: new BlockchainAddress(Network.ETHEREUM, '0xbad-address'),
+              blockchainAddress: new BlockchainAddress(ChainId.ETHEREUM, '0xbad-address'),
               property: 'tokensA',
             }),
             '/pools/search',

@@ -1,9 +1,9 @@
+import { ChainId } from '@core/enums/chain-id';
 import { CoreErrorCode } from '@core/enums/core-error-code';
-import { Network } from '@core/enums/network';
 import { BaseError } from './base-core-error';
 
 export class TokenNotFoundError extends BaseError {
-  constructor(params: { tokenAddress: string; chainId: Network }) {
+  constructor(params: { tokenAddress: string; chainId: ChainId }) {
     super({
       errorCode: CoreErrorCode.TOKEN_NOT_FOUND,
       message: "Couldn't find the specified token at the specified chain",

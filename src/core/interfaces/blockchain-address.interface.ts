@@ -1,6 +1,6 @@
-import { Network } from '@core/enums/network';
+import { ChainId } from '@core/enums/chain-id';
 
 export interface IBlockchainAddress {
-  chainId: Network;
+  chainId: ChainId;
   address: string;
 }

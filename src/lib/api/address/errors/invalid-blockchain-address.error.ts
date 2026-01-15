@@ -1,4 +1,4 @@
-import { NetworkUtils } from '@core/enums/network';
+import { NetworkUtils } from '@core/enums/chain-id';
 import { IBlockchainAddress } from '@core/interfaces/blockchain-address.interface';
 import { BaseApiError } from '../../error/errors/base-api-error';
 import { ValidationErrorCode } from '../../error/validation-error-codes';

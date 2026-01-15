@@ -1,4 +1,4 @@
-import { NetworkUtils } from '@core/enums/network';
+import { NetworkUtils } from '@core/enums/chain-id';
 import { ValidatorKey } from '@lib/api/common/validator-key';
 import {
   registerDecorator,

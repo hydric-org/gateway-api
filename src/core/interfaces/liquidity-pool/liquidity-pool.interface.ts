@@ -1,6 +1,6 @@
 import { LiquidityPoolType } from '@core/enums/liquidity-pool/liquidity-pool-type';
 import { LiquidityPoolMetadata } from '@core/types/liquidity-pool-metadata';
-import { Network } from '../../enums/network';
+import { ChainId } from '../../enums/chain-id';
 import { IProtocol } from '../protocol.interface';
 import { ISingleChainToken } from '../token/single-chain-token.interface';
 import { ILiquidityPoolBalance } from './balance/liquidity-pool-balance.interface';
@@ -12,7 +12,7 @@ export interface ILiquidityPool {
   tokens: ISingleChainToken[];
   protocol: IProtocol;
   createdAtTimestamp: number;
-  chainId: Network;
+  chainId: ChainId;
   balance: ILiquidityPoolBalance;
   type: LiquidityPoolType;
   feeTier: ILiquidityPoolFeeTier;
