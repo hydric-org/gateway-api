@@ -3,7 +3,7 @@ import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 @ApiSchema({
   description: 'Global Success Response that every endpoint returns.',
 })
-export class SuccessResponseDto<T> {
+export class SuccessResponse<T> {
   @ApiProperty({ description: 'HTTP status code.', example: 200 })
   statusCode!: number;
 
@@ -19,7 +19,7 @@ export class SuccessResponseDto<T> {
   @ApiProperty({ description: 'The data payload.', nullable: true })
   data!: T;
 
-  static from<T>(data: T, path = '/example/path'): SuccessResponseDto<T> {
+  static from<T>(data: T, path = '/example/path'): SuccessResponse<T> {
     return {
       statusCode: 200,
       timestamp: '2026-01-01T12:00:00.000Z',

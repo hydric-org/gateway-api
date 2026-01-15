@@ -1,6 +1,6 @@
 import { Type, applyDecorators } from '@nestjs/common';
 import { ApiExtraModels, ApiOkResponse, getSchemaPath } from '@nestjs/swagger';
-import { SuccessResponseDto } from '../dtos/success-response.dto';
+import { SuccessResponse } from '../dtos/success-response.dto';
 
 interface ApiSuccessResponseOptions {
   isArray?: boolean;
@@ -9,12 +9,12 @@ interface ApiSuccessResponseOptions {
 
 export const ApiSuccessResponse = <TModel extends Type<any>>(model: TModel, options?: ApiSuccessResponseOptions) => {
   return applyDecorators(
-    ApiExtraModels(SuccessResponseDto, model),
+    ApiExtraModels(SuccessResponse, model),
     ApiOkResponse({
       description: options?.description,
       schema: {
         allOf: [
-          { $ref: getSchemaPath(SuccessResponseDto) },
+          { $ref: getSchemaPath(SuccessResponse) },
           {
             properties: {
               data: options?.isArray

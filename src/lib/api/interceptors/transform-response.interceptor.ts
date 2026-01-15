@@ -2,11 +2,11 @@ import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nes
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
-import { SuccessResponseDto } from '../success/dtos/success-response.dto';
+import { SuccessResponse } from '../success/dtos/success-response.dto';
 
 @Injectable()
-export class TransformInterceptor<T> implements NestInterceptor<T, SuccessResponseDto<T>> {
-  intercept(context: ExecutionContext, next: CallHandler): Observable<SuccessResponseDto<T>> {
+export class TransformInterceptor<T> implements NestInterceptor<T, SuccessResponse<T>> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<SuccessResponse<T>> {
     const httpContext = context.switchToHttp();
     const request = httpContext.getRequest();
     const response = httpContext.getResponse();
