@@ -10,6 +10,7 @@ import { AppModule } from './modules/app/app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix('/v1');
   app.useLogger(app.get(Logger));
 
   setupSecurity(app);

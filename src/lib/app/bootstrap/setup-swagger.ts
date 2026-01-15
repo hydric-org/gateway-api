@@ -17,5 +17,9 @@ export function setupSwagger(app: INestApplication) {
   const config = configBuilder.build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('openapi', app, document);
+  SwaggerModule.setup('openapi', app, document, {
+    useGlobalPrefix: true,
+    jsonDocumentUrl: '/openapi.json',
+    yamlDocumentUrl: '/openapi.yaml',
+  });
 }
