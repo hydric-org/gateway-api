@@ -1,11 +1,11 @@
 import { BaseError } from '@core/errors/base-core-error';
 import { HttpStatus } from '@nestjs/common';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, ApiSchema } from '@nestjs/swagger';
 import { ApiErrorCode, ApiErrorCodeUtils } from '../api-error-codes';
 
 export class ErrorContent {
   @ApiProperty({
-    description: 'A stable machine-readable code for programmatic handling.',
+    description: 'A hydric error code for programmatic handling.',
     enum: ApiErrorCode,
     example: ApiErrorCode.INVALID_POOL_ADDRESS,
   })
@@ -37,6 +37,9 @@ export class ErrorContent {
   meta?: Record<string, any>;
 }
 
+@ApiSchema({
+  description: 'Default error response object that is returned when any error occurs.',
+})
 export class ErrorResponse {
   @ApiProperty({ description: 'HTTP status code.', example: 400, enum: HttpStatus })
   statusCode!: HttpStatus;
@@ -50,7 +53,7 @@ export class ErrorResponse {
   @ApiProperty({ description: 'Unique Trace ID for observability.', example: 'req_123abc' })
   traceId!: string;
 
-  @ApiProperty({ type: ErrorContent })
+  @ApiProperty({ type: ErrorContent, description: 'Error specifications.' })
   error!: ErrorContent;
 
   static from(error: BaseError, path = '/example/path'): ErrorResponse {
