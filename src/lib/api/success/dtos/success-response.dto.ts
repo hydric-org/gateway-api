@@ -1,7 +1,7 @@
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 
 @ApiSchema({
-  description: 'Global Success Response that every endpoint returns.',
+  description: 'Global Success Response that every endpoint returns if the request was successful (not errors).',
 })
 export class SuccessResponse<T> {
   @ApiProperty({ description: 'HTTP status code.', example: 200 })
