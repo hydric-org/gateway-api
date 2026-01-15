@@ -10,7 +10,7 @@ export class UnsupportedChainIdError extends BaseApiError {
       message: `Unsupported Chain ID: ${params.chainId}`,
       errorCode: ValidationErrorCode.UNSUPPORTED_CHAIN_ID,
       details: `The provided ID is not supported by this protocol. Supported IDs are: [${supportedChains}].`,
-      meta: {
+      metadata: {
         chainId: params.chainId,
         supportedIds: supportedChains,
       },

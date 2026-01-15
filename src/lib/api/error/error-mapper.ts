@@ -22,7 +22,7 @@ export class ErrorMapper {
           title: ApiErrorCodeUtils.toTitle[exception.params.errorCode],
           message: exception.message,
           details: exception.params.details,
-          meta: exception.params.meta,
+          metadata: exception.params.metadata,
         },
       };
     }
@@ -40,7 +40,7 @@ export class ErrorMapper {
           title: ApiErrorCodeUtils.toTitle[ApiErrorCode.ROUTE_NOT_FOUND],
           message: 'Route not found',
           details: 'The requested route does not exist',
-          meta: { method: request.method },
+          metadata: { method: request.method },
         },
       };
     }
@@ -82,7 +82,7 @@ export class ErrorMapper {
         title: ApiErrorCodeUtils.toTitle[ApiErrorCode.UNKNOWN_ERROR],
         message: 'An unexpected internal error occurred',
         details: 'The server encountered an unhandled exception',
-        meta: {
+        metadata: {
           exceptionName: exception.constructor.name,
         },
       },

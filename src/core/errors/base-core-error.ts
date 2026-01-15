@@ -6,17 +6,17 @@ export abstract class BaseError implements IBaseError {
       message: string;
       errorCode: string;
       details: string;
-      meta: Record<string, any>;
+      metadata: Record<string, any>;
     },
   ) {
     this.message = params.message;
     this.errorCode = params.errorCode;
     this.details = params.details;
-    this.meta = params.meta;
+    this.metadata = params.metadata;
   }
 
   message: string;
   errorCode: string;
   details: string;
-  meta: Record<string, any>;
+  metadata: Record<string, any>;
 }

@@ -23,7 +23,7 @@ export class InvalidProtocolIdError extends BaseApiError {
       details:
         "Protocol IDs must be strictly kebab-case (lowercase, hyphen-separated, no spaces). Example: 'uniswap-v3'",
 
-      meta: {
+      metadata: {
         received: rawValue,
         ...(isArray && {
           invalidCount: culprits.length,

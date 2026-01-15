@@ -7,7 +7,7 @@ export class GenericValidationError extends BaseError {
       message: params.validationErrorDescription,
       errorCode: ValidationErrorCode.VALIDATION_ERROR,
       details: "Check the 'meta' field for specific field-level violations.",
-      meta: params.meta,
+      metadata: params.meta,
     });
   }
 }

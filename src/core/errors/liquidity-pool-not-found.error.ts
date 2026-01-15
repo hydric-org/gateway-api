@@ -9,7 +9,7 @@ export class LiquidityPoolNotFoundError extends BaseError {
       errorCode: CoreErrorCode.LIQUIDITY_POOL_NOT_FOUND,
       details:
         'No liquidity pool exists for the given address and chain. Verify the liquidity pool address and chain ID are correct',
-      meta: { liquidityPoolAddress: params.poolAddress, chainId: params.chainId },
+      metadata: { liquidityPoolAddress: params.poolAddress, chainId: params.chainId },
     });
   }
 }

@@ -34,7 +34,7 @@ export class ErrorContent {
     description: 'Dynamic context data useful for debugging or UI handling.',
     example: { poolAddress: '0xInvalid' },
   })
-  meta?: Record<string, any>;
+  metadata?: Record<string, any>;
 }
 
 @ApiSchema({
@@ -71,7 +71,7 @@ export class ErrorResponse {
         title: ApiErrorCodeUtils.toTitle[code] || 'Error',
         message: error.message,
         details: error.params.details,
-        meta: error.params.meta,
+        metadata: error.params.metadata,
       },
     };
   }

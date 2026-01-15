@@ -7,7 +7,7 @@ export class BaseApiError extends BaseError {
       message: string;
       errorCode: ApiErrorCode;
       details: string;
-      meta: Record<string, any>;
+      metadata: Record<string, any>;
     },
   ) {
     super(params);

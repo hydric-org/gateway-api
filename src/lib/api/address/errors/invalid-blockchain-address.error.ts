@@ -29,7 +29,7 @@ export class InvalidBlockchainAddressError extends BaseApiError {
 
       details: `Blockchain Addresses must be an object containing a valid chainId and a valid address. Supported chain IDs: [${NetworkUtils.values().join(', ')}].`,
 
-      meta: {
+      metadata: {
         invalidAddresses: isArray ? culprits : culprits[0],
         receivedCount: allValues.length,
         ...(isArray && { totalInvalid: culprits.length }),

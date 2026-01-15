@@ -8,7 +8,7 @@ export class TokenNotFoundError extends BaseError {
       errorCode: CoreErrorCode.TOKEN_NOT_FOUND,
       message: "Couldn't find the specified token at the specified chain",
       details: `Token with address '${params.tokenAddress}' at chain id '${params.chainId}' not found`,
-      meta: { tokenAddress: params.tokenAddress, chainId: params.chainId },
+      metadata: { tokenAddress: params.tokenAddress, chainId: params.chainId },
     });
   }
 }
