@@ -1,4 +1,4 @@
-import { NetworkUtils } from '@core/enums/chain-id';
+import { ChainIdUtils } from '@core/enums/chain-id';
 import { ValidatorKey } from '@lib/api/common/validator-key';
 import {
   registerDecorator,
@@ -30,7 +30,7 @@ export class IsBlockchainAddressConstraint implements ValidatorConstraintInterfa
   }
 
   defaultMessage(args: ValidationArguments): string {
-    const validChainIds = NetworkUtils.values().join(', ');
+    const validChainIds = ChainIdUtils.values().join(', ');
     return `${args.property} must contain a valid chainId (supported: [${validChainIds}]) and a valid ethereum address.`;
   }
 }

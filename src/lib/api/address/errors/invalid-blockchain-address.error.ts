@@ -1,4 +1,4 @@
-import { NetworkUtils } from '@core/enums/chain-id';
+import { ChainIdUtils } from '@core/enums/chain-id';
 import { IBlockchainAddress } from '@core/interfaces/blockchain-address.interface';
 import { BaseApiError } from '../../error/errors/base-api-error';
 import { ValidationErrorCode } from '../../error/validation-error-codes';
@@ -27,7 +27,7 @@ export class InvalidBlockchainAddressError extends BaseApiError {
 
       errorCode: ValidationErrorCode.INVALID_BLOCKCHAIN_ADDRESS,
 
-      details: `Blockchain Addresses must be an object containing a valid chainId and a valid address. Supported chain IDs: [${NetworkUtils.values().join(', ')}].`,
+      details: `Blockchain Addresses must be an object containing a valid chainId and a valid address. Supported chain IDs: [${ChainIdUtils.values().join(', ')}].`,
 
       metadata: {
         invalidAddresses: isArray ? culprits : culprits[0],

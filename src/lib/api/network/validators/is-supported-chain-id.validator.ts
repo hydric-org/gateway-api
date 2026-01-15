@@ -1,4 +1,4 @@
-import { NetworkUtils } from '@core/enums/chain-id';
+import { ChainIdUtils } from '@core/enums/chain-id';
 import { ValidatorKey } from '@lib/api/common/validator-key';
 import { ValidationErrorCode } from '@lib/api/error/validation-error-codes';
 import {
@@ -29,17 +29,17 @@ export class IsSupportedChainIdConstraint implements ValidatorConstraintInterfac
 
   validate(value: any): boolean {
     if (typeof value === 'number' && Number.isInteger(value)) {
-      return NetworkUtils.isValidChainId(value);
+      return ChainIdUtils.includes(value);
     }
 
     if (typeof value === 'string' && /^\d+$/.test(value)) {
-      return NetworkUtils.isValidChainId(parseInt(value, 10));
+      return ChainIdUtils.includes(parseInt(value, 10));
     }
 
     return false;
   }
 
   defaultMessage(args: ValidationArguments): string {
-    return `${args.property} must be a supported network chain id: ${NetworkUtils.values().join(', ')}.`;
+    return `${args.property} must be a supported network chain id: ${ChainIdUtils.values().join(', ')}.`;
   }
 }

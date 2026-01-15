@@ -1,4 +1,4 @@
-import { NetworkUtils } from '@core/enums/chain-id';
+import { ChainIdUtils } from '@core/enums/chain-id';
 import { isEthereumAddress } from 'class-validator';
 
 export const BlockchainAddressUtils = {
@@ -15,8 +15,8 @@ export function getBlockchainAddressValidationError(value: any): string | null {
 
   const { chainId, address } = value;
 
-  if (!NetworkUtils.isValidChainId(chainId)) {
-    return `Invalid chainId: ${chainId}. Supported: [${NetworkUtils.values().join(', ')}]`;
+  if (!ChainIdUtils.includes(chainId)) {
+    return `Invalid chainId: ${chainId}. Supported: [${ChainIdUtils.values().join(', ')}]`;
   }
 
   if (!address) {

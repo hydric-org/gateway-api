@@ -1,5 +1,5 @@
 import { ZERO_ETHEREUM_ADDRESS } from '@core/constants';
-import { ChainId, NetworkUtils } from '@core/enums/chain-id';
+import { ChainId } from '@core/enums/chain-id';
 import { LiquidityPoolNotFoundError } from '@core/errors/liquidity-pool-not-found.error';
 import { TokenNotFoundError } from '@core/errors/token-not-found-error';
 import { IBlockchainAddress } from '@core/interfaces/blockchain-address.interface';
@@ -50,10 +50,7 @@ export class LiquidityPoolsIndexerClient {
       {
         tokenFilter: {
           id: {
-            _in: [
-              `${chainId}-${tokenAddress}`.toLowerCase(),
-              ...(isSearchingForNative ? [`${chainId}-${NetworkUtils.wrappedNativeAddress(chainId)}`] : []),
-            ],
+            _in: [`${chainId}-${tokenAddress}`.toLowerCase()],
           },
         },
       },
