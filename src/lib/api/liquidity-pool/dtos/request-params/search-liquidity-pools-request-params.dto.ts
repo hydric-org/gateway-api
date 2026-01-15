@@ -29,6 +29,7 @@ Primary set of token addresses. The search engine returns pools containing at le
       new BlockchainAddress(Network.ETHEREUM, '0x6B175474E89094C44Da98b954EedeAC495271d0F'),
       new BlockchainAddress(Network.BASE, '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'),
     ],
+    type: [BlockchainAddress],
   })
   @IsArray()
   @ArrayNotEmpty()
@@ -49,6 +50,7 @@ Secondary set of token identifiers used to narrow the search to specific pairs.
       new BlockchainAddress(Network.ETHEREUM, '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'),
       new BlockchainAddress(Network.BASE, '0x4200000000000000000000000000000000000006'),
     ],
+    type: [BlockchainAddress],
   })
   @IsArray()
   @IsOptional()
