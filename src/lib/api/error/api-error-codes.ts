@@ -14,27 +14,27 @@ export type ApiErrorCode = keyof typeof ApiErrorCode;
 
 export class ApiErrorCodeUtils {
   static toStatusCode: Record<Exclude<ApiErrorCode, 'HTTP_EXCEPTION'>, number> = {
-    POOL_NOT_FOUND: HttpStatus.NOT_FOUND,
+    LIQUIDITY_POOL_NOT_FOUND: HttpStatus.NOT_FOUND,
     TOKEN_NOT_FOUND: HttpStatus.NOT_FOUND,
     INVALID_POOL_ADDRESS: HttpStatus.BAD_REQUEST,
     VALIDATION_ERROR: HttpStatus.BAD_REQUEST,
     ROUTE_NOT_FOUND: HttpStatus.NOT_FOUND,
     UNSUPPORTED_CHAIN_ID: HttpStatus.BAD_REQUEST,
     INVALID_PAGINATION_CURSOR: HttpStatus.BAD_REQUEST,
-    INVALID_TOKEN_ID: HttpStatus.BAD_REQUEST,
+    INVALID_BLOCKCHAIN_ADDRESS: HttpStatus.BAD_REQUEST,
     UNKNOWN_ERROR: HttpStatus.INTERNAL_SERVER_ERROR,
     INVALID_PROTOCOL_ID: HttpStatus.BAD_REQUEST,
   };
 
   static toTitle: Record<Exclude<ApiErrorCode, 'HTTP_EXCEPTION'>, string> = {
-    POOL_NOT_FOUND: 'Not Found',
+    LIQUIDITY_POOL_NOT_FOUND: 'Not Found',
     TOKEN_NOT_FOUND: 'Not Found',
     INVALID_POOL_ADDRESS: 'Invalid Parameters',
     VALIDATION_ERROR: 'Invalid Parameters',
     ROUTE_NOT_FOUND: 'Route Not Found',
     UNSUPPORTED_CHAIN_ID: 'Invalid Parameters',
     INVALID_PAGINATION_CURSOR: 'Invalid Parameters',
-    INVALID_TOKEN_ID: 'Invalid Parameters',
+    INVALID_BLOCKCHAIN_ADDRESS: 'Invalid Parameters',
     UNKNOWN_ERROR: 'Unknown Error',
     INVALID_PROTOCOL_ID: 'Invalid Parameters',
   };
