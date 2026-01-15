@@ -9,7 +9,7 @@ export function ApiGetProtocolsDocs() {
       summary: 'List all supported protocols',
       description: `
 ### Overview
-Returns a comprehensive list of all decentralized exchanges supported by the API.
+Returns a comprehensive list of all protocols supported by the API across all blockchains.
 
 ### Response Data
 Each protocol includes but is not limited to:
