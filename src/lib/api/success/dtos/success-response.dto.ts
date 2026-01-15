@@ -16,7 +16,7 @@ export class SuccessResponse<T> {
   @ApiProperty({ description: 'Unique Trace ID for observability.', example: 'req_123abc' })
   traceId!: string;
 
-  @ApiProperty({ description: 'The data payload.', nullable: true })
+  @ApiProperty({ description: 'The requested data payload.', nullable: true })
   data!: T;
 
   static from<T>(data: T, path = '/example/path'): SuccessResponse<T> {
