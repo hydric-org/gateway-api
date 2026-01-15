@@ -1,5 +1,5 @@
-# Hydric Pools API
+# Hydric Gateway API
 
-The backend that power all the Hydric App services.
+The API Allowing connection between the Hydric Indexer Layer and External Applications.
 
 ...(under construction)

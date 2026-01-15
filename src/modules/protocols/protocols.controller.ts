@@ -1,5 +1,5 @@
 import { ApiGetProtocolsDocs } from '@lib/api/protocol/decorators/get-protocols-docs.decorator';
-import { Protocol } from '@lib/api/protocol/dtos/protocol-output.dto';
+import { Protocol } from '@lib/api/protocol/dtos/protocol.dto';
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ProtocolsService } from './protocols.service';

@@ -1,35 +1,34 @@
-import { LiquidityPool } from '@core/types';
-import { ApiGetSinglePoolDocs } from '@lib/api/pool/decorators/get-pool-data-docs.decorator';
-import { ApiSearchPoolsDocs } from '@lib/api/pool/decorators/search-pools-docs.decorator';
-import { Pool } from '@lib/api/pool/dtos/output/pool-output.dto';
-import { PoolDataParams } from '@lib/api/pool/dtos/request/get-pool-data-params-request.dto';
-import { PoolSearchRequest } from '@lib/api/pool/dtos/request/search-pools-request.dto';
-import { PoolSearchResponse } from '@lib/api/pool/dtos/response/search-pools-response.dto';
-import { POOL_OUTPUT_SUBTYPES } from '@lib/api/pool/pool_output_subtypes';
-import { PoolSearchCursor } from '@lib/api/pool/search-pools-cursor.dto';
+import { GetSingleLiquidityPoolDocs } from '@lib/api/liquidity-pool/decorators/get-single-liquidity-pool-docs.decorator';
+import { SearchLiquidityPoolsDocs } from '@lib/api/liquidity-pool/decorators/search-liquidity-pools-docs.decorator';
+import { LiquidityPool } from '@lib/api/liquidity-pool/dtos/liquidity-pool.dto';
+import { GetSingleLiquidityPoolRequestParams } from '@lib/api/liquidity-pool/dtos/request-params/get-single-liquidity-pool-request-params.dto';
+import { SearchLiquidityPoolsRequestParams } from '@lib/api/liquidity-pool/dtos/request-params/search-liquidity-pools-request-params.dto';
+import { SearchLiquidityPoolsResponse } from '@lib/api/liquidity-pool/dtos/response/search-liquidity-pools-response.dto';
+import { LIQUIDITY_POOL_METADATA_TYPES } from '@lib/api/liquidity-pool/liquidity-pool-metadata-types';
+import { SearchLiquidityPoolsCursor } from '@lib/api/liquidity-pool/search-liquidity-pools-cursor.dto';
 import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
 import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
 import { PoolsService } from './pools.service';
 
 @Controller('pools')
 @ApiTags('Liquidity Pools')
-@ApiExtraModels(Pool, PoolSearchResponse, ...POOL_OUTPUT_SUBTYPES)
+@ApiExtraModels(...LIQUIDITY_POOL_METADATA_TYPES)
 export class PoolsController {
   constructor(private readonly poolsService: PoolsService) {}
 
   @Get('/:chainId/:poolAddress')
-  @ApiGetSinglePoolDocs()
+  @GetSingleLiquidityPoolDocs()
   async getPoolData(
     @Param()
-    params: PoolDataParams,
+    params: GetSingleLiquidityPoolRequestParams,
   ): Promise<LiquidityPool> {
     return await this.poolsService.getPool(params.poolAddress, params.chainId);
   }
 
   @Post('/search')
   @HttpCode(200)
-  @ApiSearchPoolsDocs()
-  async searchPools(@Body() requestBody: PoolSearchRequest): Promise<PoolSearchResponse> {
+  @SearchLiquidityPoolsDocs()
+  async searchPools(@Body() requestBody: SearchLiquidityPoolsRequestParams): Promise<SearchLiquidityPoolsResponse> {
     const result = await this.poolsService.searchPools({
       tokensA: requestBody.tokensA,
       tokensB: requestBody.tokensB,
@@ -40,7 +39,7 @@ export class PoolsController {
     return {
       pools: result.pools,
       filters: requestBody.filters,
-      nextCursor: PoolSearchCursor.encode(result.nextCursor),
+      nextCursor: SearchLiquidityPoolsCursor.encode(result.nextCursor),
     };
   }
 }

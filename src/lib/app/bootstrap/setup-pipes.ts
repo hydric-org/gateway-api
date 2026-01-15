@@ -15,30 +15,39 @@ export function setupPipes(app: INestApplication) {
       },
 
       exceptionFactory: (errors: ValidationError[]) => {
-        const { leaf: leafError, path: fullPath } = findValidationError(errors[0]);
+        const { leaf: leafError, path: fullPropertyPath } = findValidationError(errors[0]);
 
         const constraints = leafError.constraints || {};
         const constraintKeys = Object.keys(constraints);
 
         if (constraintKeys.length === 0) {
           return new GenericValidationError({
-            validationErrorDescription: `Validation failed on property ${fullPath}`,
-            meta: { property: fullPath, value: leafError.value },
+            validationErrorDescription: `Validation failed on property ${fullPropertyPath}`,
+            meta: { property: fullPropertyPath, value: leafError.value },
           });
         }
 
         const constraint = constraintKeys[0];
 
+        if (constraint === 'whitelistValidation') {
+          return new GenericValidationError({
+            validationErrorDescription: `Property ${fullPropertyPath} does not exist and should not be passed.`,
+            meta: {
+              property: fullPropertyPath,
+              value: leafError.value,
+            },
+          });
+        }
+
         if (ValidatorKeyUtils.isValidatorKey(constraint)) {
-          return ValidatorKeyUtils.validationError(leafError.value, constraint as ValidatorKey);
+          return ValidatorKeyUtils.validationError(leafError.value, constraint as ValidatorKey, fullPropertyPath);
         }
 
         return new GenericValidationError({
           validationErrorDescription: constraints[constraint] || 'Unknown validation error',
           meta: {
-            property: fullPath,
+            property: fullPropertyPath,
             value: leafError.value,
-            constraint: constraint,
           },
         });
       },

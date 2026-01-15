@@ -4,13 +4,14 @@ query GetPools($poolsFilter: Pool_bool_exp, $limit: Int, $offset: Int, $orderBy:
     poolAddress
     poolType
     totalValueLockedUsd
+    totalValueLockedToken0
+    totalValueLockedToken0Usd
+    totalValueLockedToken1
+    totalValueLockedToken1Usd
     currentFeeTier
-    initialFeeTier
     chainId
     positionManager
     totalStats24h {
-      dataPointTimestamp
-      lastRefreshTimestamp
       liquidityNetInflowUsd
       swapVolumeUsd
       liquidityVolumeUsd
@@ -18,8 +19,6 @@ query GetPools($poolsFilter: Pool_bool_exp, $limit: Int, $offset: Int, $orderBy:
       yearlyYield
     }
     totalStats7d {
-      dataPointTimestamp
-      lastRefreshTimestamp
       liquidityNetInflowUsd
       swapVolumeUsd
       liquidityVolumeUsd
@@ -27,8 +26,6 @@ query GetPools($poolsFilter: Pool_bool_exp, $limit: Int, $offset: Int, $orderBy:
       yearlyYield
     }
     totalStats30d {
-      dataPointTimestamp
-      lastRefreshTimestamp
       liquidityNetInflowUsd
       swapVolumeUsd
       liquidityVolumeUsd
@@ -36,8 +33,6 @@ query GetPools($poolsFilter: Pool_bool_exp, $limit: Int, $offset: Int, $orderBy:
       yearlyYield
     }
     totalStats90d {
-      dataPointTimestamp
-      lastRefreshTimestamp
       liquidityNetInflowUsd
       swapVolumeUsd
       liquidityVolumeUsd

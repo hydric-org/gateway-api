@@ -1,15 +1,15 @@
 import { BaseError } from '@core/errors/base-core-error';
+import { InvalidBlockchainAddressError } from '../address/errors/invalid-blockchain-address.error';
 import { InvalidPaginationCursorError } from '../error/errors/invalid-pagination-cursor.error';
+import { InvalidLiquidityPoolAddressError } from '../liquidity-pool/errors/invalid-liquidity-pool-address.error';
 import { UnsupportedChainIdError } from '../network/errors/unsupported-chain-id.error';
-import { InvalidPoolAddressError } from '../pool/errors/invalid-pool-address.error';
 import { InvalidProtocolIdError } from '../protocol/errors/invalid-protocol-id.error';
-import { InvalidTokenIdError } from '../token/errors/invalid-token-id.error';
 
 export enum ValidatorKey {
   IS_SUPPORTED_CHAIN_ID = 'isSupportedChainId',
   IS_POOL_ADDRESS = 'isPoolAddress',
-  IS_POOL_SEARCH_CURSOR = 'isPoolSearchCursor',
-  IS_VALID_TOKEN_ID = 'isValidTokenId',
+  IS_SEARCH_LIQUIDITY_POOLS_CURSOR = 'isPoolSearchCursor',
+  IS_VALID_ADDRESS = 'isValidAddress',
   IS_PROTOCOL_ID = 'isProtocolId',
 }
 
@@ -21,16 +21,16 @@ export class ValidatorKeyUtils {
     );
   }
 
-  static validationError(value: any, key: ValidatorKey): BaseError {
+  static validationError(value: any, key: ValidatorKey, property: string): BaseError {
     switch (key) {
       case ValidatorKey.IS_SUPPORTED_CHAIN_ID:
         return new UnsupportedChainIdError({ chainId: value });
       case ValidatorKey.IS_POOL_ADDRESS:
-        return new InvalidPoolAddressError({ poolAddress: value });
-      case ValidatorKey.IS_POOL_SEARCH_CURSOR:
+        return new InvalidLiquidityPoolAddressError({ liquidityPoolAddress: value });
+      case ValidatorKey.IS_SEARCH_LIQUIDITY_POOLS_CURSOR:
         return new InvalidPaginationCursorError({ cursor: value });
-      case ValidatorKey.IS_VALID_TOKEN_ID:
-        return new InvalidTokenIdError({ tokenId: value });
+      case ValidatorKey.IS_VALID_ADDRESS:
+        return new InvalidBlockchainAddressError({ blockchainAddress: value, property });
       case ValidatorKey.IS_PROTOCOL_ID:
         return new InvalidProtocolIdError({ protocolId: value });
     }

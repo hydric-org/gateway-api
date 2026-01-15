@@ -1,6 +1,6 @@
 import { BaseError } from '@core/errors/base-core-error';
 import { ApiErrorCode, ApiErrorCodeUtils } from '@lib/api/error/api-error-codes';
-import { ErrorResponse } from '@lib/api/error/dtos/api-error.dto';
+import { ErrorResponse } from '@lib/api/error/dtos/error-response.dto';
 import { HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
 import { Request } from 'express';
 

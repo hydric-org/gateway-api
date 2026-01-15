@@ -2,11 +2,9 @@ import { EnvKey } from '@lib/app/env-key.enum';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
-import { ServeStaticModule } from '@nestjs/serve-static';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import Joi from 'joi';
 import { LoggerModule } from 'nestjs-pino';
-import { join } from 'path';
 import { CommonModule } from '../common.module';
 import { HealthModule } from '../health/health.module';
 import { PoolsModule } from '../pools/pools.module';
@@ -52,12 +50,6 @@ import { AppController } from './app.controller';
           limit: config.get('THROTTLE_LIMIT', 100),
         },
       ],
-    }),
-
-    ServeStaticModule.forRoot({
-      rootPath: join(process.cwd(), 'static'),
-      serveRoot: '/static/',
-      exclude: ['/api/(.*)', '/swagger'],
     }),
 
     PoolsModule,

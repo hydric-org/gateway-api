@@ -1,4 +1,4 @@
-import { Protocol } from '@lib/api/protocol/dtos/protocol-output.dto';
+import { Protocol } from '@lib/api/protocol/dtos/protocol.dto';
 import { applyDecorators } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 

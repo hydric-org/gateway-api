@@ -1,14 +1,9 @@
-import { SystemStatusDto } from '@lib/api/health/dtos/system-status-output.dto';
-import { ApiGetStatusDocs } from '@lib/app/decorators/get-status-docs.decorator';
 import { Controller, Get } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
 
 @Controller()
-@ApiTags('System')
 export class AppController {
   @Get('/status')
-  @ApiGetStatusDocs()
-  getStatus(): SystemStatusDto {
+  getStatus() {
     return {
       status: 'OK',
       info: {
