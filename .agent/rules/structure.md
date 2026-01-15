@@ -2,7 +2,7 @@
 trigger: always_on
 ---
 
-# Hydric: API Structural Architecture
+# Hydric Gateway API Structural Architecture
 
 ## 1. Directory Hierarchy & Core Philosophy
 
@@ -13,17 +13,17 @@ The codebase is organized into four distinct "Logical Zones." This structure enf
 - **Role:** The source of truth for business logic. Contains only pure TypeScript.
 - **Strict Rule:** **Zero dependencies** on NestJS, Axios, GraphQL, or external libraries.
 - **Sub-Directories:**
-  - `enums/`: Business-logic enums (e.g., `PoolType`, `Network`).
-  - `interfaces/`: Domain entities and data contracts (e.g., `pool.interface.ts`).
-  - `errors/`: Pure domain error classes (e.g., `pool-not-found.error.ts`).
+  - `enums/`: Business-logic enums (e.g., `LiquidityPoolType`, `Network`).
+  - `interfaces/`: Domain entities and data contracts (e.g., `liquidity-pool.interface.ts`).
+  - `errors/`: Pure domain error classes (e.g., `liquidity-pool-not-found.error.ts`).
   - `extensions/`: Shared TypeScript prototypes or native object extensions.
 
 ### B. Infrastructure (`src/infrastructure`) — The External Adapters
 
-- **Role:** Handles all communication with the [Pools Indexer](https://github.com/Zup-Protocol/pools-indexer) and external services.
+- **Role:** Handles all communication with the hydric indexing layer (hydric indexers) and external services.
 - **Components:**
   - `graphql/`: Contains `.graphql` queries and auto-generated TypeScript types.
-  - `indexer/clients/`: Wrapper classes (e.g., `PoolsIndexerClient`) for external requests.
+  - `indexer/clients/`: Wrapper classes (e.g., `LiquidityPoolsIndexerClient`) for external requests.
   - `indexer/adapters/`: Mapping logic that transforms Indexer-specific GQL objects into Core Interfaces.
 - **Rule:** If we switch indexer providers, _only_ this folder should be modified.
 
@@ -41,22 +41,21 @@ The codebase is organized into four distinct "Logical Zones." This structure enf
 - **Components:**
   - `api/common/`: Shared DTOs and Transformers (e.g., `round-usd-transformer.ts`).
   - `api/error/`: API-level error mapping and error codes.
-  - `identifiers/`: Logic for parsing and validating specific ID types (e.g., `pool-address.ts`).
+  - `identifiers/`: Logic for parsing and validating specific ID types (e.g., `liquidity-pool-address.ts`).
   - `app/bootstrap/`: Centralized NestJS configuration (Security, Swagger, CORS).
 
 ## 2. File Naming Conventions
 
 To maintain professional consistency, all files must follow the kebab-case pattern with descriptive suffixes:
 
-| File Type        | Suffix           | Example                             |
-| :--------------- | :--------------- | :---------------------------------- |
-| **Controller**   | `.controller.ts` | `pools.controller.ts`               |
-| **Service**      | `.service.ts`    | `pools.service.ts`                  |
-| **Interface**    | `.interface.ts`  | `pool.interface.ts`                 |
-| **DTO (Input)**  | `-input.dto.ts`  | `pool-filter-input.dto.ts`          |
-| **DTO (Output)** | `-output.dto.ts` | `pool-output.dto.ts`                |
-| **Error**        | `.error.ts`      | `pool-not-found.error.ts`           |
-| **Adapter**      | `-adapter.ts`    | `pools-indexer-response-adapter.ts` |
+| File Type      | Suffix           | Example                                       |
+| :------------- | :--------------- | :-------------------------------------------- |
+| **Controller** | `.controller.ts` | `pools.controller.ts`                         |
+| **Service**    | `.service.ts`    | `pools.service.ts`                            |
+| **Interface**  | `.interface.ts`  | `liquidity-pool.interface.ts`                 |
+| **DTO**        | `.dto.ts`        | `liquidity-pool-filter-input.dto.ts`          |
+| **Error**      | `.error.ts`      | `pool-not-found.error.ts`                     |
+| **Adapter**    | `.adapter.ts`    | `liquidity-pools-indexer-response.adapter.ts` |
 
 ## 3. Implementation Guardrails
 

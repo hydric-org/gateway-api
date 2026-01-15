@@ -2,7 +2,7 @@
 trigger: always_on
 ---
 
-# Hydric: Type Safety & Data Transformation Standards
+# Hydric Gateway API Type Safety & Data Transformation Standards
 
 ## 1. The "No-Leak" Policy
 
@@ -31,7 +31,7 @@ As a liquidity aggregator, mathematical precision is non-negotiable.
 
 Hydric uses specific formats for identifying assets across chains.
 
-- **Address Checksumming:** All `poolAddress` and `tokenAddress` inputs must be validated using the `IsPoolAddress` or `IsValidTokenId` validators.
+- **Address Checksumming:** All `poolAddress` or derivated inputs must be validated using the `IsPoolAddress` validator.
 - **Case Sensitivity:** The API should be case-insensitive on input but strictly consistent (typically lowercased or checksummed) on output. Use the `StringExtension` to normalize strings at the entry point.
 
 ## 5. The "Anti-Any" Mandate
@@ -54,4 +54,4 @@ When creating a new data field, ask:
 
 ### Why this rule?
 
-This rule prevents "Silent Failures" where the API returns a 200 OK but the data inside is null, wrongly formatted, or mathematically incorrect. It ensures the Zup Protocol remains a "Source of Truth" for every partner using it.
+This rule prevents "Silent Failures" where the API returns a 200 OK but the data inside is null, wrongly formatted, or mathematically incorrect. It ensures the Hydric Gateway API remains a "Source of Truth" for every partner using it.

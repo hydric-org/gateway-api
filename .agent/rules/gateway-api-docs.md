@@ -2,18 +2,18 @@
 trigger: always_on
 ---
 
-# Hydric: API Documentation & Transparency Standards
+# hydric Gatway API Documentation & Transparency Standards
 
 ## 1. The Documentation Mandate
 
-Documentation is not an "extra"—it is a core feature of Hydric. Every element exposed to an API consumer must be fully documented via **Swagger (OpenAPI)**. A feature is not considered "done" until its public contract is perfectly described.
+Documentation is not an "extra"—it is a core feature of hydric. Every element exposed to an API consumer must be fully documented via **Swagger (OpenAPI)**. A feature is not considered "done" until its public contract is perfectly described.
 
 - **Rule of Zero Ambiguity:** An external developer must be able to integrate any endpoint without asking a single question to our team.
-- **The "Broke Rule":** Exposing a variable, endpoint, or error code without Swagger documentation is a high-severity violation of our quality standards.
+- **The "Broke Rule":** Exposing a variable, endpoint, or error code to the end consumer without Swagger documentation is a high-severity violation of our quality standards.
 
 ## 2. DTO Documentation Standards
 
-Data Transfer Objects (DTOs) are the backbone of our communication. Every property in a DTO must be decorated with `@ApiProperty` or `@ApiPropertyOptional`.
+Data Transfer Objects (DTOs) are the backbone of our communication. Every property in a DTO must be decorated with `@ApiProperty` or `@ApiPropertyOptional`. Also, the DTO itself must be decorated with `@ApiSchema` and a clear description about it.
 
 - **Mandatory Fields:** Every `@ApiProperty` must include:
   - `description`: A clear, business-logic explanation of what the field represents.
@@ -27,15 +27,15 @@ Each controller method must be a "Single Source of Truth" for that endpoint's be
 
 - **Operation Identity:** Use `@ApiOperation` to summarize the business purpose of the endpoint.
 - **Success Contracts:** Use `@ApiOkResponse` or `@ApiCreatedResponse` with the specific `type` of the output DTO.
-- **Decorator Reuse:** For complex endpoints (like Pool Searches), use our "Elite" custom decorators (e.g., `@SearchPoolsDocs()`) to maintain clean controllers while providing rich documentation.
+- **Decorator Reuse:** For complex endpoints (like Pool Searches), use our "Elite" custom decorators (e.g., `@SearchLiquidityPoolsDocs()`) to maintain clean controllers while providing rich documentation.
 
 ## 4. Error Transparency (The B2B Failure Contract)
 
 In institutional DeFi, understanding _why_ a request failed is as important as the data itself.
 
 - **Explicit Error Codes:** All possible error responses (400, 401, 404) must be documented.
-- **Error Schemas:** Ensure the `ApiErrorDto` is used to document the structure of error responses, including the `code`, `message`, and `traceId`.
-- **Domain Specificity:** If an endpoint can return a `PoolNotFoundError` for example, the documentation must explicitly state the HTTP 404 condition and the specific Error Code associated with it.
+- **Error Schemas:** Ensure the `ErrorResponse` DTO is used to document the structure of error responses, including the `code`, `message`, and `traceId`.
+- **Domain Specificity:** If an endpoint can return a `LiquidityPoolNotFoundError` for example, the documentation must explicitly state the HTTP 404 condition and the specific Error Code associated with it.
 
 ## 5. Variable & Logic Nuance
 
