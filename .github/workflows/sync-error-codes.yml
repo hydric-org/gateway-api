@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'src/lib/api/error/api-error-codes.ts'
+    # paths:
+    #   - 'src/lib/api/error/api-error-codes.ts'
 
 jobs:
   sync-docs:
