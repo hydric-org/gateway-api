@@ -1,5 +1,5 @@
 import { Network } from '@core/enums/network';
-import { PoolNotFoundError } from '@core/errors/pool-not-found.error';
+import { LiquidityPoolNotFoundError } from '@core/errors/liquidity-pool-not-found.error';
 import { ErrorResponse } from '@lib/api/error/dtos/error-response.dto';
 import { UnsupportedChainIdError } from '@lib/api/network/errors/unsupported-chain-id.error';
 import { applyDecorators } from '@nestjs/common';
@@ -59,7 +59,7 @@ export function GetSingleLiquidityPoolDocs() {
         'application/json': {
           schema: { $ref: getSchemaPath(ErrorResponse) },
           example: ErrorResponse.from(
-            new PoolNotFoundError({ chainId: Network.BASE, poolAddress: '0x123' }),
+            new LiquidityPoolNotFoundError({ chainId: Network.BASE, poolAddress: '0x123' }),
             '/pools/0x123',
           ),
         },

@@ -1,6 +1,6 @@
 import { ZERO_ETHEREUM_ADDRESS } from '@core/constants';
 import { Network, NetworkUtils } from '@core/enums/network';
-import { PoolNotFoundError } from '@core/errors/pool-not-found.error';
+import { LiquidityPoolNotFoundError } from '@core/errors/liquidity-pool-not-found.error';
 import { TokenNotFoundError } from '@core/errors/token-not-found-error';
 import { IBlockchainAddress } from '@core/interfaces/blockchain-address.interface';
 import { ILiquidityPoolFilter } from '@core/interfaces/liquidity-pool/liquidity-pool-filter.interface';
@@ -93,7 +93,7 @@ export class LiquidityPoolsIndexerClient {
     });
 
     if (poolsMatching.Pool.length === 0) {
-      throw new PoolNotFoundError({
+      throw new LiquidityPoolNotFoundError({
         chainId: chainId,
         poolAddress: poolAddress,
       });
