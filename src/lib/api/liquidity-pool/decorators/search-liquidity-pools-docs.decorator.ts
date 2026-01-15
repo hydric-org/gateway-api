@@ -2,8 +2,9 @@ import { Network } from '@core/enums/network';
 import { BlockchainAddress } from '@lib/api/address/blockchain-address.dto';
 import { InvalidBlockchainAddressError } from '@lib/api/address/errors/invalid-blockchain-address.error';
 import { ErrorResponse } from '@lib/api/error/dtos/error-response.dto';
+import { ApiSuccessResponse } from '@lib/api/success/decorators/api-success-response.decorator';
 import { applyDecorators } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiBody, ApiOkResponse, ApiOperation, getSchemaPath } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiBody, ApiOperation, getSchemaPath } from '@nestjs/swagger';
 import { SearchLiquidityPoolsRequestParams } from '../dtos/request-params/search-liquidity-pools-request-params.dto';
 import { SearchLiquidityPoolsResponse } from '../dtos/response/search-liquidity-pools-response.dto';
 
@@ -19,9 +20,8 @@ export function SearchLiquidityPoolsDocs() {
       description: 'Search criteria and pagination config.',
     }),
 
-    ApiOkResponse({
+    ApiSuccessResponse(SearchLiquidityPoolsResponse, {
       description: 'Successfully retrieved a list of matching liquidity pools.',
-      type: () => SearchLiquidityPoolsResponse,
     }),
 
     ApiBadRequestResponse({

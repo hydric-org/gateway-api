@@ -1,6 +1,7 @@
-import { Protocol } from '@lib/api/protocol/dtos/protocol.dto';
+import { GetProtocolsResponse } from '@lib/api/protocol/dtos/response/get-protocols-response.dto';
+import { ApiSuccessResponse } from '@lib/api/success/decorators/api-success-response.decorator';
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation } from '@nestjs/swagger';
 
 export function ApiGetProtocolsDocs() {
   return applyDecorators(
@@ -16,11 +17,8 @@ Each protocol includes but is not limited to:
 * **Name:** The human-readable brand name.
       `,
     }),
-    ApiResponse({
-      status: 200,
+    ApiSuccessResponse(GetProtocolsResponse, {
       description: 'List of supported protocols retrieved successfully.',
-      isArray: true,
-      type: Protocol,
     }),
   );
 }

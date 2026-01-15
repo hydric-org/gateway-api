@@ -1,8 +1,8 @@
 import { GetSingleLiquidityPoolDocs } from '@lib/api/liquidity-pool/decorators/get-single-liquidity-pool-docs.decorator';
 import { SearchLiquidityPoolsDocs } from '@lib/api/liquidity-pool/decorators/search-liquidity-pools-docs.decorator';
-import { LiquidityPool } from '@lib/api/liquidity-pool/dtos/liquidity-pool.dto';
 import { GetSingleLiquidityPoolRequestParams } from '@lib/api/liquidity-pool/dtos/request-params/get-single-liquidity-pool-request-params.dto';
 import { SearchLiquidityPoolsRequestParams } from '@lib/api/liquidity-pool/dtos/request-params/search-liquidity-pools-request-params.dto';
+import { GetSingleLiquidityPoolResponse } from '@lib/api/liquidity-pool/dtos/response/get-single-liquidity-pool-response.dto';
 import { SearchLiquidityPoolsResponse } from '@lib/api/liquidity-pool/dtos/response/search-liquidity-pools-response.dto';
 import { LIQUIDITY_POOL_METADATA_TYPES } from '@lib/api/liquidity-pool/liquidity-pool-metadata-types';
 import { SearchLiquidityPoolsCursor } from '@lib/api/liquidity-pool/search-liquidity-pools-cursor.dto';
@@ -21,8 +21,9 @@ export class PoolsController {
   async getPoolData(
     @Param()
     params: GetSingleLiquidityPoolRequestParams,
-  ): Promise<LiquidityPool> {
-    return await this.poolsService.getPool(params.poolAddress, params.chainId);
+  ): Promise<GetSingleLiquidityPoolResponse> {
+    const pool = await this.poolsService.getPool(params.poolAddress, params.chainId);
+    return { pool };
   }
 
   @Post('/search')

@@ -1,3 +1,4 @@
+import { TransformInterceptor } from '@lib/api/interceptors/transform-response.interceptor';
 import { setupCors } from '@lib/app/bootstrap/setup-cors';
 import { setupPipes } from '@lib/app/bootstrap/setup-pipes';
 import { setupSecurity } from '@lib/app/bootstrap/setup-security';
@@ -18,6 +19,7 @@ async function bootstrap() {
   setupPipes(app);
 
   app.useGlobalFilters(new AllExceptionsFilter());
+  app.useGlobalInterceptors(new TransformInterceptor());
   setupSwagger(app);
 
   const port = process.env.PORT ?? 3000;

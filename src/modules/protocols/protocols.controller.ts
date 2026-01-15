@@ -1,5 +1,5 @@
 import { ApiGetProtocolsDocs } from '@lib/api/protocol/decorators/get-protocols-docs.decorator';
-import { Protocol } from '@lib/api/protocol/dtos/protocol.dto';
+import { GetProtocolsResponse } from '@lib/api/protocol/dtos/response/get-protocols-response.dto';
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ProtocolsService } from './protocols.service';
@@ -11,7 +11,8 @@ export class ProtocolsController {
 
   @Get()
   @ApiGetProtocolsDocs()
-  async getProtocols(): Promise<Protocol[]> {
-    return this.protocolsService.getAllSupportedProtocols();
+  async getProtocols(): Promise<GetProtocolsResponse> {
+    const protocols = await this.protocolsService.getAllSupportedProtocols();
+    return { protocols };
   }
 }
