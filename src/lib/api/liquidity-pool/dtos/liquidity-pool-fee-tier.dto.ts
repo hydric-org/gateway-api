@@ -9,7 +9,7 @@ export class LiquidityPoolFeeTier implements ILiquidityPoolFeeTier {
     description: 'The exact percentage of fee a trader pays when using this pool.',
     example: 0.3,
   })
-  feeTierPercent!: number;
+  feeTierPercentage!: number;
 
   @ApiProperty({
     description:

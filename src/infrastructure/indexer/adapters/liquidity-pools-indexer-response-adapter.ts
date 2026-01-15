@@ -38,7 +38,7 @@ function _parseRawPool(rawPool: GetPoolsQuery_query_root_Pool_Pool): ILiquidityP
     address: rawPool.poolAddress,
     createdAtTimestamp: Number(rawPool.createdAtTimestamp),
     feeTier: {
-      feeTierPercent: Number(rawPool.currentFeeTier),
+      feeTierPercentage: Number(rawPool.currentFeeTierPercentage),
       isDynamic: rawPool.isDynamicFee,
     },
     tokens: poolTokensMapped,
@@ -132,7 +132,7 @@ function _buildLiquidityPoolTypeMetadata(rawPool: GetPoolsQuery_query_root_Pool_
         latestSqrtPriceX96: rawPool.algebraPoolData!.sqrtPriceX96,
         tickSpacing: rawPool.algebraPoolData!.tickSpacing,
         latestTick: rawPool.algebraPoolData!.tick,
-        communityFeePercent: rawPool.algebraPoolData!.communityFee,
+        communityFeePercent: rawPool.algebraPoolData!.communityFeePercentage,
         deployer: rawPool.algebraPoolData!.deployer,
         plugin:
           rawPool.algebraPoolData!.plugin !== ZERO_ETHEREUM_ADDRESS

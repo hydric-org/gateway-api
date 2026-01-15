@@ -46,7 +46,7 @@ export const V3LiquidityPoolExample = {
   chainId: Network.ETHEREUM,
   createdAtTimestamp: 1768429616,
   feeTier: {
-    feeTierPercent: 0.4,
+    feeTierPercentage: 0.4,
     isDynamic: false,
   },
   type: LiquidityPoolType.V3,

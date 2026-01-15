@@ -8,7 +8,7 @@ query GetPools($poolsFilter: Pool_bool_exp, $limit: Int, $offset: Int, $orderBy:
     totalValueLockedToken0Usd
     totalValueLockedToken1
     totalValueLockedToken1Usd
-    currentFeeTier
+    currentFeeTierPercentage
     chainId
     positionManager
     totalStats24h {
@@ -45,7 +45,7 @@ query GetPools($poolsFilter: Pool_bool_exp, $limit: Int, $offset: Int, $orderBy:
       tickSpacing
       sqrtPriceX96
       tick
-      communityFee
+      communityFeePercentage
       plugin
       pluginConfig
       version

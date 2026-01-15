@@ -1,4 +1,4 @@
 export interface ILiquidityPoolFeeTier {
-  feeTierPercent: number;
+  feeTierPercentage: number;
   isDynamic: boolean;
 }
