@@ -101,7 +101,6 @@ export const V4LiquidityPoolExample = {
 } satisfies ILiquidityPool;
 
 @ApiSchema({
-  name: 'Liquidity Pool',
   description: `The universal interface for liquidity pools. hydric normalizes diverse protocol architectures (V2, V3, V4, Algebra) into this single, high-fidelity model. 
 
 ### Integration Strategy:
