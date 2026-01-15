@@ -38,4 +38,23 @@ export class ApiErrorCodeUtils {
     UNKNOWN_ERROR: 'Unknown Error',
     INVALID_PROTOCOL_ID: 'Invalid Parameters',
   };
+
+  static toDescription: Record<Exclude<ApiErrorCode, 'HTTP_EXCEPTION'>, string> = {
+    LIQUIDITY_POOL_NOT_FOUND:
+      'The requested liquidity pool could not be found. This may occur if the pool is not yet indexed or the address is incorrect for the specified network.',
+    TOKEN_NOT_FOUND: 'The requested token could not be located. Ensure the token address and chain ID are correct.',
+    INVALID_POOL_ADDRESS:
+      'The provided pool address is syntactically invalid or does not match the expected format for the target blockchain',
+    VALIDATION_ERROR: 'The request payload contains invalid data types or malformed parameters',
+    ROUTE_NOT_FOUND:
+      'The requested endpoint does not exist. Please refer to the hydric API reference for valid routes.',
+    UNSUPPORTED_CHAIN_ID: 'hydric does not currently support or index the provided Chain ID',
+    INVALID_PAGINATION_CURSOR:
+      'The pagination cursor is malformed or has expired. Request a new starting page to reset.',
+    INVALID_BLOCKCHAIN_ADDRESS:
+      'The provided blockchain identity (address/chain id pair) is malformed or refers to an unsupported network.',
+    UNKNOWN_ERROR: 'An internal server error occurred. Please try again later.',
+    INVALID_PROTOCOL_ID:
+      'The protocol identifier is not recognized. Protocol IDs must match the hydric slug format (e.g., uniswap-v3).',
+  };
 }
