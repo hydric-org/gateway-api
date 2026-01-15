@@ -6,7 +6,7 @@ import { V3LiquidityPoolMetadata } from './v3-liquidity-pool-metadata.dto';
 export const AlgebraLiquidityPoolMetadataExample = {
   deployer: '0x4440854B2d02C57A0Dc5c58b7A884562D875c0c4',
   version: '1.2.2',
-  communityFeePercent: 100,
+  communityFeePercentage: 100,
   plugin: AlgebraLiquidityPoolPluginExample,
   latestSqrtPriceX96: '1564073352721610496185854744476',
   latestTick: '201235',
@@ -37,9 +37,9 @@ export class AlgebraLiquidityPoolMetadata extends V3LiquidityPoolMetadata implem
 
   @ApiProperty({
     description: 'The protocol-level "cut" taken from the total swap fee represented in a percentage',
-    example: AlgebraLiquidityPoolMetadataExample.communityFeePercent,
+    example: AlgebraLiquidityPoolMetadataExample.communityFeePercentage,
   })
-  readonly communityFeePercent!: number;
+  readonly communityFeePercentage!: number;
 
   @ApiProperty({
     description: `

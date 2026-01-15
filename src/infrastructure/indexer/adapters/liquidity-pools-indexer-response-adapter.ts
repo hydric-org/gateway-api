@@ -132,7 +132,7 @@ function _buildLiquidityPoolTypeMetadata(rawPool: GetPoolsQuery_query_root_Pool_
         latestSqrtPriceX96: rawPool.algebraPoolData!.sqrtPriceX96,
         tickSpacing: rawPool.algebraPoolData!.tickSpacing,
         latestTick: rawPool.algebraPoolData!.tick,
-        communityFeePercent: rawPool.algebraPoolData!.communityFeePercentage,
+        communityFeePercentage: rawPool.algebraPoolData!.communityFeePercentage,
         deployer: rawPool.algebraPoolData!.deployer,
         plugin:
           rawPool.algebraPoolData!.plugin !== ZERO_ETHEREUM_ADDRESS
