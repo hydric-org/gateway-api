@@ -1,7 +1,7 @@
 {
-  "name": "pools-api",
+  "name": "hydric-gateway-api",
   "version": "1.0.0",
-  "description": "The high-performance liquidity pools layer for Hydric.",
+  "description": "The high-performance gateway layer for using the hydric indexer layer.",
   "private": true,
   "license": "Apache-2.0",
   "engines": {
