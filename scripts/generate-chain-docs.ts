@@ -7,15 +7,15 @@ function generateChainDocs() {
 
   // Sort by name for better readability
   chainIds.sort((a, b) => {
-    const nameA = ChainIdUtils.name[a] || '';
-    const nameB = ChainIdUtils.name[b] || '';
+    const nameA = ChainIdUtils.chainName[a] || '';
+    const nameB = ChainIdUtils.chainName[b] || '';
     return nameA.localeCompare(nameB);
   });
 
   const header = '| Chain Name | Chain ID |\n| :--- | :--- |';
 
   const rows = chainIds.map((chainId) => {
-    const name = ChainIdUtils.name[chainId];
+    const name = ChainIdUtils.chainName[chainId];
     return `| ${name} | ${chainId} |`;
   });
 

@@ -12,7 +12,7 @@ export enum ChainId {
   MONAD = 143,
 }
 
-export class ChainIdUtils {
+export abstract class ChainIdUtils {
   static values(): ChainId[] {
     return (Object.values(ChainId) as ChainId[]).filter((value) => typeof value === 'number');
   }
