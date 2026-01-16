@@ -12,6 +12,7 @@ function generateChainDocs() {
     return nameA.localeCompare(nameB);
   });
 
+  const comment = '[comment]: <> (This file is auto-generated. Do not modify manually. Changes will be overwritten.)';
   const header = '| Chain Name | Chain ID |\n| :--- | :--- |';
 
   const rows = chainIds.map((chainId) => {
@@ -19,7 +20,7 @@ function generateChainDocs() {
     return `| ${name} | ${chainId} |`;
   });
 
-  return [header, ...rows].join('\n');
+  return [comment, '', header, ...rows].join('\n');
 }
 
 // Check if running directly

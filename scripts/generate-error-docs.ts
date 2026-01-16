@@ -7,6 +7,7 @@ function generateErrorDocs() {
 
   errorCodes.sort();
 
+  const comment = '[comment]: <> (This file is auto-generated. Do not modify manually. Changes will be overwritten.)';
   const header = '| Error Code | Status | Title | Description |\n| :--- | :--- | :--- | :--- |';
 
   const rows = errorCodes.map((code) => {
@@ -17,7 +18,7 @@ function generateErrorDocs() {
     return `| \`${code}\` | ${status} | ${title} | ${description} |`;
   });
 
-  return [header, ...rows].join('\n');
+  return [comment, '', header, ...rows].join('\n');
 }
 
 // Check if running directly
