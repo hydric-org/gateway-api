@@ -32,7 +32,7 @@ export class ChainIdUtils {
     [ChainId.MONAD]: NetworkTokenUtils.metadata[NetworkToken.MON],
   };
 
-  static name: Record<ChainId, string> = {
+  static chainName: Record<ChainId, string> = {
     [ChainId.ETHEREUM]: 'Ethereum',
     [ChainId.SCROLL]: 'Scroll',
     [ChainId.SEPOLIA]: 'Sepolia',
