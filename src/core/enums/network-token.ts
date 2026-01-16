@@ -1,5 +1,5 @@
-import { ZERO_ETHEREUM_ADDRESS } from '../constants.js';
-import { ISingleChainToken } from '../interfaces/token/single-chain-token.interface.js';
+import { ZERO_ETHEREUM_ADDRESS } from '../constants';
+import { ISingleChainToken } from '../interfaces/token/single-chain-token.interface';
 
 export enum NetworkToken {
   ETH,

@@ -1,5 +1,5 @@
-import { ISingleChainToken } from '../interfaces/token/single-chain-token.interface.js';
-import { NetworkToken, NetworkTokenUtils } from './network-token.js';
+import { ISingleChainToken } from '../interfaces/token/single-chain-token.interface';
+import { NetworkToken, NetworkTokenUtils } from './network-token';
 
 export enum ChainId {
   ETHEREUM = 1,
@@ -30,5 +30,16 @@ export class ChainIdUtils {
     [ChainId.HYPER_EVM]: NetworkTokenUtils.metadata[NetworkToken.HYPE],
     [ChainId.PLASMA]: NetworkTokenUtils.metadata[NetworkToken.XPL],
     [ChainId.MONAD]: NetworkTokenUtils.metadata[NetworkToken.MON],
+  };
+
+  static name: Record<ChainId, string> = {
+    [ChainId.ETHEREUM]: 'Ethereum',
+    [ChainId.SCROLL]: 'Scroll',
+    [ChainId.SEPOLIA]: 'Sepolia',
+    [ChainId.BASE]: 'Base',
+    [ChainId.UNICHAIN]: 'Unichain',
+    [ChainId.HYPER_EVM]: 'Hyper EVM',
+    [ChainId.PLASMA]: 'Plasma',
+    [ChainId.MONAD]: 'Monad',
   };
 }
