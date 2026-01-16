@@ -13,7 +13,7 @@ const config: CodegenConfig = {
   config: {
     extractAllFieldsToTypes: true,
     scalars: {
-      pooltype: '@core/enums/pool/pool-type#PoolType',
+      pooltype: '@core/enums/liquidity-pool/liquidity-pool-type#LiquidityPoolType',
       Bytes: 'string',
       numeric: 'string',
       BigInt: 'string',
