@@ -2,7 +2,7 @@
 trigger: always_on
 ---
 
-# hydric Gatway API Documentation & Transparency Standards
+# hydric Gateway API Documentation & Transparency Standards
 
 ## 1. The Documentation Mandate
 

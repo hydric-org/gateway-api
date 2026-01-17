@@ -2,7 +2,7 @@
 trigger: always_on
 ---
 
-# The Hydric Gateway Constitution
+# The Hydric Gateway API Constitution
 
 ## 1. Strategic Identity: The "Unified Financial Model"
 

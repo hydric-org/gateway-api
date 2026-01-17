@@ -22,7 +22,7 @@ DTOs (Data Transfer Objects) are the only legal way to move data across the netw
 
 ## 3. Financial Precision Standards
 
-As a liquidity aggregator, mathematical precision is non-negotiable.
+As a liquidity data aggregator, mathematical precision is non-negotiable.
 
 - **Large Numbers:** Blockchain numbers (BigInts) must be handled with care. If a value exceeds the safe integer limit of JavaScript, it must be handled as a `string` in the DTO to avoid precision loss on the client side.
 - **Consistency:** Yield percentages, TVL, and Volume must follow a consistent rounding rule defined in `src/lib/api/common/transformers/`.
@@ -47,8 +47,7 @@ When creating a new data field, ask:
 
 1. Is this field present in the `Core Interface`?
 2. Does the `Indexer Response Adapter` explicitly map it?
-3. Does the `Output DTO` have an `@ApiProperty` description and a `class-transformer` decorator?
-4. Is there a unit test in `.spec.ts` verifying the mapping from raw GQL to the final DTO?
+3. Does the `DTO` have an `@ApiProperty` description and a `class-transformer` decorator if could be better?
 
 ---
 

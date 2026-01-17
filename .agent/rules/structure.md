@@ -17,13 +17,14 @@ The codebase is organized into four distinct "Logical Zones." This structure enf
   - `interfaces/`: Domain entities and data contracts (e.g., `liquidity-pool.interface.ts`).
   - `errors/`: Pure domain error classes (e.g., `liquidity-pool-not-found.error.ts`).
   - `extensions/`: Shared TypeScript prototypes or native object extensions.
+  - `types/`: Types that the whole application would use
 
 ### B. Infrastructure (`src/infrastructure`) — The External Adapters
 
 - **Role:** Handles all communication with the hydric indexing layer (hydric indexers) and external services.
 - **Components:**
   - `graphql/`: Contains `.graphql` queries and auto-generated TypeScript types.
-  - `indexer/clients/`: Wrapper classes (e.g., `LiquidityPoolsIndexerClient`) for external requests.
+  - `indexer/clients/`: Wrapper classes (e.g., `LiquidityPoolsIndexerClient`) for external requests to the indexer.
   - `indexer/adapters/`: Mapping logic that transforms Indexer-specific GQL objects into Core Interfaces.
 - **Rule:** If we switch indexer providers, _only_ this folder should be modified.
 
@@ -39,10 +40,10 @@ The codebase is organized into four distinct "Logical Zones." This structure enf
 
 - **Role:** Framework-specific utilities and reusable API boilerplate.
 - **Components:**
-  - `api/common/`: Shared DTOs and Transformers (e.g., `round-usd-transformer.ts`).
-  - `api/error/`: API-level error mapping and error codes.
-  - `identifiers/`: Logic for parsing and validating specific ID types (e.g., `liquidity-pool-address.ts`).
-  - `app/bootstrap/`: Centralized NestJS configuration (Security, Swagger, CORS).
+  - `api/common/`: Things that the whole api folder could use (e.g., `round-usd-transformer.ts`).
+  - `api/error/`: API-level error mapping, error codes and everyrhing related to global error things.
+  - `identifiers/`: Logic for parsing and validating specific ID types (e.g., `protocol-id.ts`).
+  - `app/`: Centralized NestJS configuration (Security, Swagger, CORS, etc.).
 
 ## 2. File Naming Conventions
 
@@ -53,7 +54,7 @@ To maintain professional consistency, all files must follow the kebab-case patte
 | **Controller** | `.controller.ts` | `pools.controller.ts`                         |
 | **Service**    | `.service.ts`    | `pools.service.ts`                            |
 | **Interface**  | `.interface.ts`  | `liquidity-pool.interface.ts`                 |
-| **DTO**        | `.dto.ts`        | `liquidity-pool-filter-input.dto.ts`          |
+| **DTO**        | `.dto.ts`        | `liquidity-pool-filter.dto.ts`                |
 | **Error**      | `.error.ts`      | `pool-not-found.error.ts`                     |
 | **Adapter**    | `.adapter.ts`    | `liquidity-pools-indexer-response.adapter.ts` |
 
@@ -94,7 +95,7 @@ If you encounter conflicting patterns within the codebase, follow this priority:
 
 To ensure the codebase is instantly searchable via global search or "Go to File" shortcuts, there must be an explicit, symmetrical relationship between file names and their contents.
 
-- **Explicit Mapping:** The filename must explicitly follow the primary class, interface, or contract name and vice versa.
+- **Explicit Mapping:** The filename must explicitly follow the primary class, interface, or contract name and vice versa. But you should not include the type of the file in the class name, for example if the file name is `liquidity-provider.dto.ts` the class would be called `LiquidityProvider` but under a DTO folder
 - **Direct Correspondence:** If you are looking for a class named `LiquidityProvider`, it must be located in a file named `liquidity-provider` (e.g., `liquidity-provider.sol` or `liquidity-provider.ts`).
 - **File name case:** The file name should be always kebab-case
 
