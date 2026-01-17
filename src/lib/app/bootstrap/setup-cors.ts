@@ -2,41 +2,25 @@ import { INestApplication } from '@nestjs/common';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 
 export function setupCors(app: INestApplication) {
-  const allowedDomains = process.env.ALLOWED_DOMAINS?.split(',') ?? [];
-
-  const allowedHeaders = ['Content-Type', 'Accept', 'Authorization', 'x-api-key', 'x-trace-id'];
+  const allowedHeaders = [
+    'Content-Type',
+    'Accept',
+    'Authorization',
+    'x-api-key',
+    'x-trace-id',
+    'Origin',
+    'X-Requested-With',
+  ];
 
   const corsOptions: CorsOptions = {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     preflightContinue: false,
     optionsSuccessStatus: 204,
+    maxAge: 86400,
     allowedHeaders: allowedHeaders.join(','),
-    credentials: true,
-
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-
-      try {
-        const originHostname = new URL(origin).hostname;
-
-        const isAllowed = allowedDomains.some((domain) => {
-          if (originHostname === domain) return true;
-
-          return originHostname.endsWith(`.${domain}`);
-        });
-
-        if (isAllowed) return callback(null, true);
-      } catch {
-        // Ignore
-      }
-
-      return callback(new Error('CORS Error: Origin not allowed'), false);
-    },
+    credentials: false,
+    origin: true,
   };
 
-  if (process.env.ENVIRONMENT !== 'development') {
-    app.enableCors(corsOptions);
-  } else {
-    app.enableCors();
-  }
+  app.enableCors(corsOptions);
 }

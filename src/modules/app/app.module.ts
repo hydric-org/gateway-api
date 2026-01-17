@@ -19,7 +19,6 @@ import { AppController } from './app.controller';
       validationSchema: Joi.object({
         [EnvKey.ENVIRONMENT]: Joi.string().valid('development', 'production', 'staging').default('development'),
         [EnvKey.PORT]: Joi.number().default(3000),
-        [EnvKey.ALLOWED_DOMAINS]: Joi.string().required(),
         [EnvKey.API_URL]: Joi.string().required(),
         [EnvKey.INDEXER_URL]: Joi.string()
           .required()
