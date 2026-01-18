@@ -18,7 +18,7 @@ export function setupCors(app: INestApplication) {
     optionsSuccessStatus: 204,
     maxAge: 86400,
     allowedHeaders: allowedHeaders.join(','),
-    credentials: false,
+    credentials: true,
     origin: true,
   };
 
