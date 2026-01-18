@@ -12,7 +12,7 @@ export const ProtocolExample = {
 @ApiSchema({
   description: 'Information about a DeFi Protocol',
 })
-@ObjectCost(0)
+@ObjectCost(1)
 export class Protocol implements IProtocol {
   @ApiProperty({
     description: 'The slug or unique string-based identifier for the protocol (e.g., "uniswap-v3").',
