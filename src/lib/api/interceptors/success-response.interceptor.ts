@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { SuccessResponse } from '../success/dtos/success-response.dto';
 
 @Injectable()
-export class TransformInterceptor<T> implements NestInterceptor<T, SuccessResponse<T>> {
+export class SuccessResponseInterceptor<T> implements NestInterceptor<T, SuccessResponse<T>> {
   intercept(context: ExecutionContext, next: CallHandler): Observable<SuccessResponse<T>> {
     const httpContext = context.switchToHttp();
     const request = httpContext.getRequest();

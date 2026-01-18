@@ -1,6 +1,6 @@
 import { ChainIdUtils } from '@core/enums/chain-id';
+import { ValidationErrorCode } from '../../error/error-codes/validation-error-codes';
 import { BaseApiError } from '../../error/errors/base-api-error';
-import { ValidationErrorCode } from '../../error/validation-error-codes';
 
 export class UnsupportedChainIdError extends BaseApiError {
   constructor(params: { chainId: number }) {

@@ -5,6 +5,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import Joi from 'joi';
 import { LoggerModule } from 'nestjs-pino';
+import { AuthModule } from '../auth/auth.module';
 import { CommonModule } from '../common.module';
 import { HealthModule } from '../health/health.module';
 import { PoolsModule } from '../pools/pools.module';
@@ -26,6 +27,7 @@ import { AppController } from './app.controller';
             if (typeof value === 'string') return value.replace(/^["']|["']$/g, '');
             return value;
           }),
+        [EnvKey.UNKEY_ROOT_KEY]: Joi.string().required(),
       }),
     }),
 
@@ -51,6 +53,7 @@ import { AppController } from './app.controller';
       ],
     }),
 
+    AuthModule,
     PoolsModule,
     ProtocolsModule,
     CommonModule,

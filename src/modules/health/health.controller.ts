@@ -1,3 +1,4 @@
+import { PublicRoute } from '@lib/api/auth/decorators/public-route.decorator';
 import { Controller, Get } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ApiExcludeController } from '@nestjs/swagger';
@@ -11,6 +12,7 @@ import {
 
 @Controller('health')
 @ApiExcludeController()
+@PublicRoute()
 export class HealthController {
   constructor(
     private health: HealthCheckService,

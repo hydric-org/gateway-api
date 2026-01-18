@@ -3,6 +3,7 @@ import { LiquidityPoolType } from '@core/enums/liquidity-pool/liquidity-pool-typ
 import { ILiquidityPool } from '@core/interfaces/liquidity-pool/liquidity-pool.interface';
 import { ISingleChainToken } from '@core/interfaces/token/single-chain-token.interface';
 import { LiquidityPoolMetadata } from '@core/types/liquidity-pool-metadata';
+import { ObjectCost } from '@lib/api/pricing/decorators/object-cost.decorator';
 import { Protocol } from '@lib/api/protocol/dtos/protocol.dto';
 import { SingleChainToken } from '@lib/api/token/dtos/single-chain-token.dto';
 import { ApiProperty, ApiSchema, getSchemaPath } from '@nestjs/swagger';
@@ -100,6 +101,7 @@ export const V4LiquidityPoolExample = {
   metadata: V4LiquidityPoolMetadataExample,
 } satisfies ILiquidityPool;
 
+@ObjectCost(20)
 @ApiSchema({
   description: `The universal interface for liquidity pools. hydric normalizes diverse protocol architectures (V2, V3, V4, Algebra) into this single, high-fidelity model. 
 

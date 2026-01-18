@@ -1,7 +1,7 @@
 import { ChainIdUtils } from '@core/enums/chain-id';
 import { IBlockchainAddress } from '@core/interfaces/blockchain-address.interface';
+import { ValidationErrorCode } from '../../error/error-codes/validation-error-codes';
 import { BaseApiError } from '../../error/errors/base-api-error';
-import { ValidationErrorCode } from '../../error/validation-error-codes';
 import { BlockchainAddressUtils } from '../blockchain-address-utils';
 
 export class InvalidBlockchainAddressError extends BaseApiError {

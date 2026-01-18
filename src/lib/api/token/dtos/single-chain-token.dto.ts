@@ -1,4 +1,5 @@
 import { ISingleChainToken } from '@core/interfaces/token/single-chain-token.interface';
+import { ObjectCost } from '@lib/api/pricing/decorators/object-cost.decorator';
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 
 export const SingleChainTokenExample = {
@@ -11,6 +12,7 @@ export const SingleChainTokenExample = {
 @ApiSchema({
   description: 'Information about a token inside a specific blockchain',
 })
+@ObjectCost(5)
 export class SingleChainToken implements ISingleChainToken {
   @ApiProperty({
     description: `

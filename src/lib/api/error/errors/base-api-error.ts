@@ -1,5 +1,5 @@
 import { BaseError } from '@core/errors/base-core-error';
-import { ApiErrorCode } from '../api-error-codes';
+import { ApiErrorCode } from '../error-codes/api-error-codes';
 
 export class BaseApiError extends BaseError {
   constructor(

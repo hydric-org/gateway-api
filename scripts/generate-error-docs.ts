@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { ApiErrorCode, ApiErrorCodeUtils } from '../src/lib/api/error/api-error-codes';
+import { ApiErrorCode, ApiErrorCodeUtils } from '../src/lib/api/error/error-codes/api-error-codes';
 
 function generateErrorDocs() {
   const errorCodes = Object.keys(ApiErrorCodeUtils.toStatusCode) as Exclude<ApiErrorCode, 'HTTP_EXCEPTION'>[];

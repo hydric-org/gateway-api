@@ -1,5 +1,5 @@
 import { BaseError } from '@core/errors/base-core-error';
-import { ValidationErrorCode } from '../validation-error-codes';
+import { ValidationErrorCode } from '../error-codes/validation-error-codes';
 
 export class GenericValidationError extends BaseError {
   constructor(params: { validationErrorDescription: string; meta: Record<string, any> }) {

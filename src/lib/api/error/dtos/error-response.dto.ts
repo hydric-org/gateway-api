@@ -1,7 +1,7 @@
 import { BaseError } from '@core/errors/base-core-error';
 import { HttpStatus } from '@nestjs/common';
 import { ApiProperty, ApiPropertyOptional, ApiSchema } from '@nestjs/swagger';
-import { ApiErrorCode, ApiErrorCodeUtils } from '../api-error-codes';
+import { ApiErrorCode, ApiErrorCodeUtils } from '../error-codes/api-error-codes';
 
 export class ErrorContent {
   @ApiProperty({

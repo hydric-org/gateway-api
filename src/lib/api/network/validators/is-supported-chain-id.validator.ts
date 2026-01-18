@@ -1,6 +1,6 @@
 import { ChainIdUtils } from '@core/enums/chain-id';
 import { ValidatorKey } from '@lib/api/common/validator-key';
-import { ValidationErrorCode } from '@lib/api/error/validation-error-codes';
+import { ValidationErrorCode } from '@lib/api/error/error-codes/validation-error-codes';
 import {
   registerDecorator,
   ValidationArguments,

@@ -32,3 +32,48 @@ This API facilitates the movement of significant capital. A single vulnerability
 
 - **Self-Documenting Code:** Use clear types and schemas (e.g., Zod or TypeScript interfaces) so that the API's "contract" is explicit and difficult to break.
 - **Consistency Rule:** As per the Antigravity standard, ensure 1:1 mapping between file names and class names for maximum searchability.
+
+## 5. Service Abstraction & Provider Agnosticism
+
+To maintain a modular and resilient architecture, the codebase must remain decoupled from specific third-party vendors. We code to **interfaces and capabilities**, not to specific companies.
+
+### 5.1 Generic Service Naming
+
+Never use a vendor or external service name (e.g., Unkey, Supabase, Redis) in class names, interface definitions, or file names. Use functional, capability-based naming instead.
+
+- **Bad:** `UnkeyAuthService`, `SupabaseDatabase`, `RedisCache`.
+- **Good:** `AuthVault`, `PrimaryDatabase`, `GlobalCache`.
+- **Example:** If we are integrating **Unkey**, the implementation should be named `APIKeyManager` or `AuthClient`.
+
+### 5.2 Implementation Encapsulation
+
+The goal is to ensure that switching a provider (e.g., moving from a cloud service to a self-hosted solution) only requires changing the internal logic of a single module, not a global "find-and-replace" of names throughout the codebase.
+
+- **Abstract the Logic:** Core business logic should interact with a generic `GatewayClient`, while the specific code that calls a vendor API is "hidden" inside that implementation.
+- **Consistency Check:** This rule extends to file naming. Use `AuthService.ts` rather than `UnkeyProvider.ts` to ensure that the file's purpose remains accurate even if the underlying technology changes.
+
+## 6. Interface Naming Convention
+
+To provide immediate clarity between abstractions and implementations:
+
+- **The "I" Prefix:** Every interface name must start with a capital "I" followed by PascalCase.
+- **Example:** `IAuthClient`, `IIndexerSource`, `IPoolProvider`.
+
+## 7. Lean Architecture & Dead Code Elimination
+
+Maintain a "Zero-Waste" codebase. Every line of code must be active and serving a current requirement.
+
+### 7.1 Just-In-Time Implementation
+
+Avoid "Speculative Generality." Do not add variables, classes, or abstractions based on what _might_ be needed in the future if they are not utilized in the current task.
+
+- **Essentialism:** Only implement what is required to satisfy the current logic.
+- **Minimalist Surface Area:** Keep the API and class signatures as small as possible.
+
+### 7.2 Proactive Cleanup (The Scout Rule)
+
+You are responsible for the hygiene of the files you touch.
+
+- **Dead Code Removal:** If you identify variables, imports, or functions that are no longer in use—either due to a legacy version or your current refactor—you must remove them immediately.
+- **No "Commented-Out" Code:** Never leave dead code in comments. If it is not active, it does not belong in the repository.
+- **Clean Imports:** Ensure that only the necessary modules are imported. Prune unused dependencies from the top of the file during every edit.

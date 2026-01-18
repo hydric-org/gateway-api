@@ -21,12 +21,12 @@ The codebase is organized into four distinct "Logical Zones." This structure enf
 
 ### B. Infrastructure (`src/infrastructure`) — The External Adapters
 
-- **Role:** Handles all communication with the hydric indexing layer (hydric indexers) and external services.
+- **Role:** Handles all the communications against external services, doesn't matter if it's auth, indexing, etc. All the communications with external services should be done here.
 - **Components:**
   - `graphql/`: Contains `.graphql` queries and auto-generated TypeScript types.
   - `indexer/clients/`: Wrapper classes (e.g., `LiquidityPoolsIndexerClient`) for external requests to the indexer.
   - `indexer/adapters/`: Mapping logic that transforms Indexer-specific GQL objects into Core Interfaces.
-- **Rule:** If we switch indexer providers, _only_ this folder should be modified.
+- **Rule:** If we switch external providers, only this folder should be modifed.
 
 ### C. Modules (`src/modules`) — The Feature Orchestration
 

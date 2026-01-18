@@ -23,7 +23,8 @@ export class PoolsController {
     params: GetSingleLiquidityPoolRequestParams,
   ): Promise<GetSingleLiquidityPoolResponse> {
     const pool = await this.poolsService.getPool(params.poolAddress, params.chainId);
-    return { pool };
+
+    return new GetSingleLiquidityPoolResponse(pool);
   }
 
   @Post('/search')
@@ -37,10 +38,10 @@ export class PoolsController {
       searchConfig: requestBody.config,
     });
 
-    return {
+    return new SearchLiquidityPoolsResponse({
       pools: result.pools,
       filters: requestBody.filters,
       nextCursor: SearchLiquidityPoolsCursor.encode(result.nextCursor),
-    };
+    });
   }
 }

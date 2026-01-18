@@ -1,5 +1,5 @@
 import { BaseError as BaseApiError } from '@core/errors/base-core-error';
-import { ValidationErrorCode } from '../validation-error-codes';
+import { ValidationErrorCode } from '../error-codes/validation-error-codes';
 
 export class InvalidPaginationCursorError extends BaseApiError {
   constructor(params: { cursor: string }) {

@@ -13,6 +13,9 @@ export class ProtocolsController {
   @ApiGetProtocolsDocs()
   async getProtocols(): Promise<GetProtocolsResponse> {
     const protocols = await this.protocolsService.getAllSupportedProtocols();
-    return { protocols };
+
+    return new GetProtocolsResponse({
+      protocols,
+    });
   }
 }

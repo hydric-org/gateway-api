@@ -1,10 +1,12 @@
 import { CoreErrorCode } from '@core/enums/core-error-code';
 import { HttpStatus } from '@nestjs/common';
+import { AuthErrorCode } from './auth-error-codes';
 import { ValidationErrorCode } from './validation-error-codes';
 
 export const ApiErrorCode = {
   ...CoreErrorCode,
   ...ValidationErrorCode,
+  ...AuthErrorCode,
   ROUTE_NOT_FOUND: 'ROUTE_NOT_FOUND',
   UNKNOWN_ERROR: 'UNKNOWN_ERROR',
   HTTP_EXCEPTION: 'HTTP_EXCEPTION',
@@ -24,6 +26,10 @@ export class ApiErrorCodeUtils {
     INVALID_BLOCKCHAIN_ADDRESS: HttpStatus.BAD_REQUEST,
     UNKNOWN_ERROR: HttpStatus.INTERNAL_SERVER_ERROR,
     INVALID_PROTOCOL_ID: HttpStatus.BAD_REQUEST,
+    API_KEY_DISABLED: HttpStatus.FORBIDDEN,
+    API_KEY_EXPIRED: HttpStatus.FORBIDDEN,
+    API_KEY_NOT_FOUND: HttpStatus.UNAUTHORIZED,
+    API_KEY_INVALID: HttpStatus.UNAUTHORIZED,
   };
 
   static toTitle: Record<Exclude<ApiErrorCode, 'HTTP_EXCEPTION'>, string> = {
@@ -37,6 +43,10 @@ export class ApiErrorCodeUtils {
     INVALID_BLOCKCHAIN_ADDRESS: 'Invalid Parameters',
     UNKNOWN_ERROR: 'Unknown Error',
     INVALID_PROTOCOL_ID: 'Invalid Parameters',
+    API_KEY_DISABLED: 'Authentication Failed',
+    API_KEY_EXPIRED: 'Authentication Failed',
+    API_KEY_NOT_FOUND: 'Authentication Failed',
+    API_KEY_INVALID: 'Authentication Failed',
   };
 
   static toDescription: Record<Exclude<ApiErrorCode, 'HTTP_EXCEPTION'>, string> = {
@@ -56,5 +66,9 @@ export class ApiErrorCodeUtils {
     UNKNOWN_ERROR: 'An internal server error occurred. Please try again later.',
     INVALID_PROTOCOL_ID:
       'The protocol identifier is not recognized. Protocol IDs must match the hydric slug format (e.g., uniswap-v3).',
+    API_KEY_DISABLED: 'The provided API key exists but is disabled.',
+    API_KEY_EXPIRED: 'The provided API key exists but has expired.',
+    API_KEY_NOT_FOUND: 'The provided API key does not exist.',
+    API_KEY_INVALID: 'The provided API key is invalid.',
   };
 }

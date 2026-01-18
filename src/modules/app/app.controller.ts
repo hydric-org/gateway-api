@@ -1,8 +1,10 @@
+import { PublicRoute } from '@lib/api/auth/decorators/public-route.decorator';
 import { Controller, Get } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
 
 @Controller()
 @ApiExcludeController()
+@PublicRoute()
 export class AppController {
   @Get()
   getStatus() {

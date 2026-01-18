@@ -3,4 +3,5 @@ export enum EnvKey {
   INDEXER_URL = 'INDEXER_URL',
   ENVIRONMENT = 'ENVIRONMENT',
   PORT = 'PORT',
+  UNKEY_ROOT_KEY = 'UNKEY_ROOT_KEY',
 }

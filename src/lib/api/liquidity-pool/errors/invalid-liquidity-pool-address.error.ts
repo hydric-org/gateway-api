@@ -1,5 +1,5 @@
+import { ValidationErrorCode } from '@lib/api/error/error-codes/validation-error-codes';
 import { BaseApiError } from '@lib/api/error/errors/base-api-error';
-import { ValidationErrorCode } from '@lib/api/error/validation-error-codes';
 
 export class InvalidLiquidityPoolAddressError extends BaseApiError {
   constructor(params: { liquidityPoolAddress: string }) {

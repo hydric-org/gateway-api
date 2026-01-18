@@ -1,4 +1,5 @@
 import { IProtocol } from '@core/interfaces/protocol.interface';
+import { ObjectCost } from '@lib/api/pricing/decorators/object-cost.decorator';
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 
 export const ProtocolExample = {
@@ -11,6 +12,7 @@ export const ProtocolExample = {
 @ApiSchema({
   description: 'Information about a DeFi Protocol',
 })
+@ObjectCost(0)
 export class Protocol implements IProtocol {
   @ApiProperty({
     description: 'The slug or unique string-based identifier for the protocol (e.g., "uniswap-v3").',

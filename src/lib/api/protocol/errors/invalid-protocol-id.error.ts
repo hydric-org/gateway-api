@@ -1,4 +1,4 @@
-import { ApiErrorCode } from '@lib/api/error/api-error-codes';
+import { ApiErrorCode } from '@lib/api/error/error-codes/api-error-codes';
 import { BaseApiError } from '@lib/api/error/errors/base-api-error';
 import { ProtocolId } from '@lib/identifiers/protocol-id';
 

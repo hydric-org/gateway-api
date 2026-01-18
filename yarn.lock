@@ -4145,6 +4145,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@unkey/api@npm:^2.2.1":
+  version: 2.2.1
+  resolution: "@unkey/api@npm:2.2.1"
+  dependencies:
+    zod: "npm:^3.25.0 || ^4.0.0"
+  checksum: 10c0/e96c02dbe7a806aefa8313a6323a1e86caedb2f958e758ac2e1a71b2447fc0cb9cb772180a4fa53f9b4eb3ad11fcb483e1d17c4e8c35c2cf07487c802c2e530a
+  languageName: node
+  linkType: hard
+
 "@webassemblyjs/ast@npm:1.14.1, @webassemblyjs/ast@npm:^1.14.1":
   version: 1.14.1
   resolution: "@webassemblyjs/ast@npm:1.14.1"
@@ -7626,6 +7635,7 @@ __metadata:
     "@types/node": "npm:^22.10.7"
     "@types/supertest": "npm:^6.0.2"
     "@types/uuid": "npm:^10.0.0"
+    "@unkey/api": "npm:^2.2.1"
     axios: "npm:^1.13.2"
     class-transformer: "npm:^0.5.1"
     class-validator: "npm:^0.14.1"
@@ -12528,5 +12538,12 @@ __metadata:
   version: 2.1.2
   resolution: "yoctocolors-cjs@npm:2.1.2"
   checksum: 10c0/a0e36eb88fea2c7981eab22d1ba45e15d8d268626e6c4143305e2c1628fa17ebfaa40cd306161a8ce04c0a60ee0262058eab12567493d5eb1409780853454c6f
+  languageName: node
+  linkType: hard
+
+"zod@npm:^3.25.0 || ^4.0.0":
+  version: 4.3.5
+  resolution: "zod@npm:4.3.5"
+  checksum: 10c0/5a2db7e59177a3d7e202543f5136cb87b97b047b77c8a3d824098d3fa8b80d3aa40a0a5f296965c3b82dfdccdd05dbbfacce91347f16a39c675680fd7b1ab109
   languageName: node
   linkType: hard
