@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   CallHandler,
   ExecutionContext,
   Injectable,
@@ -22,6 +23,10 @@ export class ObjectCostInterceptor implements NestInterceptor {
     ]);
 
     const response = context.switchToHttp().getResponse();
+    const request = context.switchToHttp().getRequest();
+
+    let apiKey = request.headers.authorization;
+    if (apiKey) apiKey = apiKey.split(' ')[1];
 
     return next.handle().pipe(
       map((data) => {
@@ -35,6 +40,7 @@ export class ObjectCostInterceptor implements NestInterceptor {
         }
 
         const OCCostPerObject = this.reflector.get<number>(DecoratorKey.OBJECT_COST, data.objectType) ?? 0;
+        const totalOCUsed = OCCostPerObject * (data.count || 0);
 
         if (OCCostPerObject === 0) {
           throw new InternalServerErrorException(
@@ -42,7 +48,11 @@ export class ObjectCostInterceptor implements NestInterceptor {
           );
         }
 
-        const totalOCUsed = OCCostPerObject * (data.count || 0);
+        if (apiKey === 'hydric_docs_4N4ocuirsN8Sh' && totalOCUsed > 200) {
+          throw new BadRequestException(
+            'Cannot use more than 200 object credits in a non public route with the docs API key. Please either use a different API Key or decrease the number of objects returned.',
+          );
+        }
 
         setOCHeader(response, totalOCUsed);
 
