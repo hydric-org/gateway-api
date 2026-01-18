@@ -18,7 +18,9 @@ async function bootstrap() {
   const reflector = app.get(Reflector);
   const authService = app.get(AuthService);
 
-  app.setGlobalPrefix('/v1');
+  app.setGlobalPrefix('/v1', {
+    exclude: ['/health', '/'],
+  });
   app.useLogger(app.get(Logger));
 
   setupSecurity(app);
