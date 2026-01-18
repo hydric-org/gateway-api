@@ -8,10 +8,20 @@ export function setupSwagger(app: INestApplication) {
   const apiUrl = configService.get(EnvKey.API_URL);
 
   let configBuilder = new DocumentBuilder()
-    .setTitle(`Hydric Gateway API`)
+    .setTitle(`hydric Gateway API`)
     .setDescription(`Access DeFi Liquidity easily. One plug. Every Protocol. Every Network.`)
     .setVersion(process.env.npm_package_version || '1.0.0')
     .setOpenAPIVersion('3.1.0')
+    .addBearerAuth(
+      {
+        scheme: 'bearer',
+        type: 'http',
+        bearerFormat: 'JWT',
+        description: 'Use the docs sandbox API key for authentication: **hydric_docs_4N4ocuirsN8Sh**',
+      },
+      'bearerAuth',
+    )
+    .addSecurityRequirements('bearerAuth')
     .addServer(apiUrl);
 
   const config = configBuilder.build();
