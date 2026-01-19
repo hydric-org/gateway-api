@@ -1,10 +1,12 @@
 import { ApiKeyStatus } from '@lib/api/auth/api-key-status';
 import { ApiKeyDisabledError } from '@lib/api/auth/errors/api-key-disabled.error';
 import { ApiKeyExpiredError } from '@lib/api/auth/errors/api-key-expired.error';
+import { ApiKeyInvalidError } from '@lib/api/auth/errors/api-key-invalid.error';
+import { ApiKeyMissingError } from '@lib/api/auth/errors/api-key-missing.error';
 import { ApiKeyNotFoundError } from '@lib/api/auth/errors/api-key-not-found.error';
-import { ApiKeyUnknownError } from '@lib/api/auth/errors/api-key-unkown.error';
+import { ApiKeyUnknownError } from '@lib/api/auth/errors/api-key-unknown.error';
 import { DecoratorKey } from '@lib/api/common/decorator-key';
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthService } from '../auth.service';
 
@@ -26,12 +28,12 @@ export class ApiKeyGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const authHeader = request.headers.authorization;
 
-    if (!authHeader) throw new UnauthorizedException('Missing Authorization header');
+    if (!authHeader) throw new ApiKeyMissingError();
 
     const [type, token] = authHeader.split(' ');
 
     if (type !== 'Bearer' || !token) {
-      throw new UnauthorizedException('Invalid Authorization header format. Expected "Bearer <token>"');
+      throw new ApiKeyInvalidError();
     }
 
     const apiKeyData = await this.authService.getApiKeyData(token);

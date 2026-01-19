@@ -30,6 +30,7 @@ export class ApiErrorCodeUtils {
     API_KEY_EXPIRED: HttpStatus.FORBIDDEN,
     API_KEY_NOT_FOUND: HttpStatus.UNAUTHORIZED,
     API_KEY_INVALID: HttpStatus.UNAUTHORIZED,
+    API_KEY_MISSING: HttpStatus.UNAUTHORIZED,
   };
 
   static toTitle: Record<Exclude<ApiErrorCode, 'HTTP_EXCEPTION'>, string> = {
@@ -47,6 +48,7 @@ export class ApiErrorCodeUtils {
     API_KEY_EXPIRED: 'Authentication Failed',
     API_KEY_NOT_FOUND: 'Authentication Failed',
     API_KEY_INVALID: 'Authentication Failed',
+    API_KEY_MISSING: 'Authentication Failed',
   };
 
   static toDescription: Record<Exclude<ApiErrorCode, 'HTTP_EXCEPTION'>, string> = {
@@ -70,5 +72,6 @@ export class ApiErrorCodeUtils {
     API_KEY_EXPIRED: 'The provided API key exists but has expired.',
     API_KEY_NOT_FOUND: 'The provided API key does not exist.',
     API_KEY_INVALID: 'The provided API key is invalid.',
+    API_KEY_MISSING: 'The request lacks an API key. Provide one in the Authorization header.',
   };
 }
