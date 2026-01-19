@@ -6,7 +6,7 @@ trigger: always_on
 
 ## 1. Strategic Identity: The "Unified Financial Model"
 
-The **Hydric Gateway API** is the definitive **DeFi Intelligence Layer**. It serves as the "Universal Translator" that bridges the gap between fragmented, protocol-specific blockchain state and institutional-grade financial data.
+The **Hydric Gateway API** is the definitive **DeFi Intelligence Layer**. It serves as the "Universal Translator" that bridges the gap between fragmented, protocol-specific blockchain state and institutional-grade financial data. This API is currently hosted in production at **https://api.hydric.org**
 
 - **Primitive-Based Normalization:** Hydric does not model protocols; it models **Financial Primitives**. Whether a user is querying a Uniswap Pool, an Aave Lending Market, or a Lido Staking Vault, the data conforms to a shared, stable, and predictable schema.
 - **Infrastructure-First:** Every response is a financial contract. We provide the "Public Contract" of the DeFi ecosystem: deterministic, structure-immutable, and optimized for automated consumption.
