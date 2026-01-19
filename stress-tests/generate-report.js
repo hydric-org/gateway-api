@@ -22,8 +22,8 @@ const currentMetrics = {
 let previousMetrics = null;
 if (fs.existsSync(REPORT_FILE)) {
   const content = fs.readFileSync(REPORT_FILE, 'utf8');
-  const rpsMatch = content.match(/Average RPS\*\* \| ([0-9.]+) reqs\/s/);
-  const p95Match = content.match(/p\(95\) Duration\*\* \| ([0-9.]+) ms/);
+  const rpsMatch = content.match(/- \*\*Average RPS\*\*: ([0-9.]+) reqs\/s/);
+  const p95Match = content.match(/\| \*\*p\(95\) Duration\*\* +\| ([0-9.]+) ms/);
   if (rpsMatch && p95Match) {
     previousMetrics = {
       rps: parseFloat(rpsMatch[1]),
@@ -35,35 +35,41 @@ if (fs.existsSync(REPORT_FILE)) {
 function getDelta(current, previous, higherIsBetter = true) {
   if (!previous) return '';
   const diff = current - previous;
-  if (diff === 0) return ' ( - )';
+  if (Math.abs(diff) < 0.01) return ' ( - )';
   const percent = ((diff / previous) * 100).toFixed(2);
   const sign = diff >= 0 ? '+' : '';
   const color = diff >= 0 === higherIsBetter ? '🟢' : '🔴';
-  return ` ( ${color} ${sign}${percent}% )`;
+  return ` **(${color} ${sign}${percent}%)**`;
 }
 
 const report = `# Stress Test Report: hydric Gateway API
 
-Last generated: ${new Date().toUTCString()}
+> Generated on: **${new Date().toUTCString()}**
 
-## Execution Summary
-- **Total Requests**: ${currentMetrics.totalReqs}
-- **Average RPS**: ${currentMetrics.rps} reqs/s${getDelta(currentMetrics.rps, previousMetrics?.rps)}
-- **Success Rate**: ${currentMetrics.successRate}%
+## 📊 Execution Summary
 
-## Latency Metrics
+- **Total Requests**: \`${currentMetrics.totalReqs}\`
+- **Success Rate**: \`${currentMetrics.successRate}%\`
+- **Average RPS**: \`${currentMetrics.rps} reqs/s\`${getDelta(currentMetrics.rps, previousMetrics?.rps)}
+
+## ⏱️ Latency Metrics
+
 | Metric | Value |
 | :--- | :--- |
-| **p(95) Duration** | ${currentMetrics.p95} ms${getDelta(currentMetrics.p95, previousMetrics?.p95, false)} |
-| **Average Duration** | ${currentMetrics.avg} ms |
+| **p(95) Duration** | \`${currentMetrics.p95} ms\`${getDelta(currentMetrics.p95, previousMetrics?.p95, false)} |
+| **Average Duration** | \`${currentMetrics.avg} ms\` |
 
-## Automated Generation
+---
+
+## 🛠️ Automated Generation
+
 To re-run the stress tests and update this report automatically:
+
 \`\`\`bash
-# Run k6 and export results to JSON
+# 1. Run k6 and export results to JSON
 k6 run --summary-export=summary.json stress-tests/stress-test.js
 
-# Generate the comparative report
+# 2. Generate the comparative report
 node stress-tests/generate-report.js
 \`\`\`
 `;
