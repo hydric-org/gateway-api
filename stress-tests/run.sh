@@ -10,8 +10,9 @@ SCENARIO=${1:-smoke}
 
 # Ensure API_KEY is set
 if [ -z "$API_KEY" ]; then
-  echo "⚠️  Warning: API_KEY is not set. The tests will likely fail with 401 Unauthorized."
-  echo "You can set it in your .env file or export it: export API_KEY=your_key"
+  echo "❌ Error: API_KEY is not set. Stress tests require a valid API key."
+  echo "Please set it in your .env file or export it: export API_KEY=your_key"
+  exit 1
 fi
 
 echo "🚀 Running k6 stress test [Scenario: $SCENARIO]..."
