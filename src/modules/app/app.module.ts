@@ -1,6 +1,8 @@
 import { EnvKey } from '@lib/app/env-key.enum';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import Joi from 'joi';
 import { LoggerModule } from 'nestjs-pino';
 import { AuthModule } from '../auth/auth.module';
@@ -40,6 +42,17 @@ import { AppController } from './app.controller';
       }),
     }),
 
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => [
+        {
+          ttl: config.get('THROTTLE_TTL', 60000),
+          limit: config.get('THROTTLE_LIMIT', 1000),
+        },
+      ],
+    }),
+
     AuthModule,
     PoolsModule,
     ProtocolsModule,
@@ -47,5 +60,11 @@ import { AppController } from './app.controller';
     HealthModule,
   ],
   controllers: [AppController],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}
