@@ -1,31 +1,28 @@
 # Stress Test Report: hydric Gateway API
 
-> Generated on: **Mon, 19 Jan 2026 15:18:36 GMT**
+> Generated on: **Mon, 19 Jan 2026 15:34:41 GMT**
 
 ## 📊 Latest Execution Summary
 
-- **Total Requests**: `0`
+- **Total Requests**: `714`
 - **Success Rate**: `100.00%`
-- **Average RPS**: `0.00 reqs/s`
+- **Average RPS**: `5.90 reqs/s` **(🟢 +708.22%)**
 
 ## ⏱️ Latency Metrics
 
 | Metric | Value |
 | :--- | :--- |
-| **p(95) Duration** | `0.00 ms` |
-| **Average Duration** | `0.00 ms` |
+| **p(95) Duration** | `334.22 ms` **(🟢 -36.71%)** |
+| **Average Duration** | `276.13 ms` |
 
 ---
 
 ## 🕒 History
 
-| Date                          | Total Req | RPS   | p(95)    | Success |
-| :---------------------------- | :-------- | :---- | :------- | :------ |
-| Mon, 19 Jan 2026 15:18:36 GMT | 0 | 0.00 | 0.00ms | 100.00% |
-| Mon, 19 Jan 2026 15:17:57 GMT | 0 | 0.00 | 0.00ms | 100.00% |
-| Mon, 19 Jan 2026 15:16:17 GMT | 0 | 0.00 | 0.00ms | 100.00% |
-| Mon, 19 Jan 2026 15:13:59 GMT | 0 | 0.00 | 0.00ms | 100.00% |
-| Mon, 19 Jan 2026 14:55:00 GMT | 23490     | 35.46 | 814.29ms | 100.00% |
+| Date | Scenario | Total Req | RPS | p(95) | Success |
+| :--- | :------- | :-------- | :-- | :---- | :------ |
+| Mon, 19 Jan 2026 15:34:41 GMT | load | 714 | 5.90 | 334.22ms | 100.00% |
+| Mon, 19 Jan 2026 15:32:36 GMT | smoke | 8 | 0.73 | 528.11ms | 100.00% |
 
 ---
 
