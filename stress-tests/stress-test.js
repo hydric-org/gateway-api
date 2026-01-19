@@ -50,7 +50,7 @@ export const options = {
   },
 };
 
-const API_KEY = __ENV.API_KEY;
+const API_KEY = __ENV.STRESS_TEST_API_KEY;
 const BASE_URL = 'https://api.hydric.org/v1';
 
 export default function () {

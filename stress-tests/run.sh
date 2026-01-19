@@ -8,10 +8,10 @@ fi
 # Determine Scenario (default to smoke)
 SCENARIO=${1:-smoke}
 
-# Ensure API_KEY is set
-if [ -z "$API_KEY" ]; then
-  echo "❌ Error: API_KEY is not set. Stress tests require a valid API key."
-  echo "Please set it in your .env file or export it: export API_KEY=your_key"
+# Ensure STRESS_TEST_API_KEY is set
+if [ -z "$STRESS_TEST_API_KEY" ]; then
+  echo "❌ Error: STRESS_TEST_API_KEY is not set. Stress tests require a valid API key."
+  echo "Please set it in your .env file or export it: export STRESS_TEST_API_KEY=your_key"
   exit 1
 fi
 
