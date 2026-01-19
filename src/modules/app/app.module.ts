@@ -28,6 +28,8 @@ import { AppController } from './app.controller';
             return value;
           }),
         [EnvKey.UNKEY_ROOT_KEY]: Joi.string().required(),
+        [EnvKey.DOCS_API_KEY]: Joi.string().required(),
+        [EnvKey.AUTH_CACHE_TTL]: Joi.number().default(300),
       }),
     }),
 

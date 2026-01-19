@@ -5,6 +5,7 @@ import { setupPipes } from '@lib/app/bootstrap/setup-pipes';
 import { setupSecurity } from '@lib/app/bootstrap/setup-security';
 import { setupSwagger } from '@lib/app/bootstrap/setup-swagger';
 import { ClassSerializerInterceptor } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { Logger } from 'nestjs-pino';
 import 'src/core/extensions/string.extension';
@@ -17,6 +18,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const reflector = app.get(Reflector);
   const authService = app.get(AuthService);
+  const configService = app.get(ConfigService);
 
   app.setGlobalPrefix('/v1', {
     exclude: ['/health', '/'],
@@ -34,7 +36,7 @@ async function bootstrap() {
     new ClassSerializerInterceptor(reflector),
 
     // this interceptor should be the last one so it can calculate the credits of the response without any transformation
-    new ObjectCostInterceptor(reflector),
+    new ObjectCostInterceptor(reflector, configService),
   );
   setupSwagger(app);
 

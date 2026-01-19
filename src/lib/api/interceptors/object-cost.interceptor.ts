@@ -1,3 +1,4 @@
+import { EnvKey } from '@lib/app/env-key.enum';
 import {
   BadRequestException,
   CallHandler,
@@ -6,6 +7,7 @@ import {
   InternalServerErrorException,
   NestInterceptor,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -14,7 +16,10 @@ import { _Internal_BilledObjectResponse } from '../pricing/dtos/billed-object-re
 
 @Injectable()
 export class ObjectCostInterceptor implements NestInterceptor {
-  constructor(readonly reflector: Reflector) {}
+  constructor(
+    readonly reflector: Reflector,
+    readonly configService: ConfigService,
+  ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const isPublicRoute = this.reflector.getAllAndOverride<boolean>(DecoratorKey.PUBLIC_ROUTE, [
@@ -48,7 +53,7 @@ export class ObjectCostInterceptor implements NestInterceptor {
           );
         }
 
-        if (apiKey === 'hydric_docs_4N4ocuirsN8Sh' && totalOCUsed > 200) {
+        if (apiKey === this.configService.get(EnvKey.DOCS_API_KEY) && totalOCUsed > 200) {
           throw new BadRequestException(
             'Cannot use more than 200 object credits in a non public route with the docs API key. Please either use a different API Key or decrease the number of objects returned.',
           );

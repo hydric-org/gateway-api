@@ -17,7 +17,7 @@ export function setupSwagger(app: INestApplication) {
         scheme: 'bearer',
         type: 'http',
         bearerFormat: 'JWT',
-        description: 'Use the docs sandbox API key for authentication: **hydric_docs_4N4ocuirsN8Sh**',
+        description: `Use the docs sandbox API key for authentication: **${configService.get(EnvKey.DOCS_API_KEY)}**`,
       },
       'bearerAuth',
     )
