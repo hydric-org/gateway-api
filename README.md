@@ -57,3 +57,33 @@ yarn test
 ```
 yarn build
 ```
+
+---
+
+## Stress Testing
+
+We use [k6](https://k6.io/) to perform stress and load testing on the production API.
+
+### Running Tests
+
+All stress tests are located in the `stress-tests/` directory.
+
+- **Load Test**: Baseline performance (up to 10 VUs).
+  ```bash
+  k6 run -e SCENARIO=load stress-tests/stress-test.js
+  ```
+- **Stress Test**: Pushing limits (up to 80 VUs).
+  ```bash
+  k6 run -e SCENARIO=stress stress-tests/stress-test.js
+  ```
+
+### Automated Reporting
+
+To generate a comparative performance report:
+
+```bash
+k6 run --summary-export=summary.json stress-tests/stress-test.js
+node stress-tests/generate-report.js
+```
+
+The results will be updated in [STRESS_TEST_REPORT.md](./STRESS_TEST_REPORT.md).
