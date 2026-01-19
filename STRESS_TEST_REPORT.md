@@ -1,19 +1,31 @@
 # Stress Test Report: hydric Gateway API
 
-> Generated on: **Mon, 19 Jan 2026 14:55:00 GMT**
+> Generated on: **Mon, 19 Jan 2026 15:18:36 GMT**
 
-## 📊 Execution Summary
+## 📊 Latest Execution Summary
 
-- **Total Requests**: \`23490\`
-- **Success Rate**: \`100.00%\`
-- **Average RPS**: \`35.46 reqs/s\`
+- **Total Requests**: `0`
+- **Success Rate**: `100.00%`
+- **Average RPS**: `0.00 reqs/s`
 
 ## ⏱️ Latency Metrics
 
-| Metric               | Value         |
-| :------------------- | :------------ |
-| **p(95) Duration**   | \`814.29 ms\` |
-| **Average Duration** | \`429.94 ms\` |
+| Metric | Value |
+| :--- | :--- |
+| **p(95) Duration** | `0.00 ms` |
+| **Average Duration** | `0.00 ms` |
+
+---
+
+## 🕒 History
+
+| Date                          | Total Req | RPS   | p(95)    | Success |
+| :---------------------------- | :-------- | :---- | :------- | :------ |
+| Mon, 19 Jan 2026 15:18:36 GMT | 0 | 0.00 | 0.00ms | 100.00% |
+| Mon, 19 Jan 2026 15:17:57 GMT | 0 | 0.00 | 0.00ms | 100.00% |
+| Mon, 19 Jan 2026 15:16:17 GMT | 0 | 0.00 | 0.00ms | 100.00% |
+| Mon, 19 Jan 2026 15:13:59 GMT | 0 | 0.00 | 0.00ms | 100.00% |
+| Mon, 19 Jan 2026 14:55:00 GMT | 23490     | 35.46 | 814.29ms | 100.00% |
 
 ---
 
@@ -21,13 +33,8 @@
 
 To re-run the stress tests and update this report automatically:
 
-\`\`\`bash
-
-# 1. Run k6 and export results to JSON
-
-k6 run --summary-export=summary.json stress-tests/stress-test.js
-
-# 2. Generate the comparative report
-
-node stress-tests/generate-report.js
-\`\`\`
+# 1. Run the automated script
+```bash
+./stress-tests/run.sh <scenario>
+```
+*(scenario defaults to smoke if not provided)*

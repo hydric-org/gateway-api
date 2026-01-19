@@ -5,35 +5,74 @@ const SUMMARY_FILE = process.argv[2] || 'summary.json';
 const REPORT_FILE = path.join(__dirname, '../STRESS_TEST_REPORT.md');
 
 if (!fs.existsSync(SUMMARY_FILE)) {
-  console.error(`Error: Summary file ${SUMMARY_FILE} not found. Ensure you run k6 with --summary-export=summary.json`);
+  console.error(
+    `Error: Summary file ${SUMMARY_FILE} not found. Ensure k6 ran successfully with --summary-export=${SUMMARY_FILE}`,
+  );
   process.exit(1);
 }
 
 const summary = JSON.parse(fs.readFileSync(SUMMARY_FILE, 'utf8'));
 
+// Helper to safely get nested values
+const getMetric = (path, field = 'value') => {
+  const parts = path.split('.');
+  let obj = summary.metrics;
+  for (const part of parts) {
+    if (!obj || !obj[part]) return null;
+    obj = obj[part];
+  }
+  return obj.values ? obj.values[field] : null;
+};
+
 const currentMetrics = {
-  rps: summary.metrics.http_reqs.values.rate.toFixed(2),
-  p95: summary.metrics.http_req_duration.values['p(95)'].toFixed(2),
-  avg: summary.metrics.http_req_duration.values.avg.toFixed(2),
-  successRate: ((1 - summary.metrics.http_req_failed.values.rate) * 100).toFixed(2),
-  totalReqs: summary.metrics.http_reqs.values.count,
+  rps: (getMetric('http_reqs', 'rate') || 0).toFixed(2),
+  p95: (getMetric('http_req_duration', 'p(95)') || 0).toFixed(2),
+  avg: (getMetric('http_req_duration', 'avg') || 0).toFixed(2),
+  successRate: ((1 - (getMetric('http_req_failed', 'rate') || 0)) * 100).toFixed(2),
+  totalReqs: getMetric('http_reqs', 'count') || 0,
 };
 
 let previousMetrics = null;
+let history = '';
+
 if (fs.existsSync(REPORT_FILE)) {
   const content = fs.readFileSync(REPORT_FILE, 'utf8');
-  const rpsMatch = content.match(/- \*\*Average RPS\*\*: ([0-9.]+) reqs\/s/);
-  const p95Match = content.match(/\| \*\*p\(95\) Duration\*\* +\| ([0-9.]+) ms/);
+
+  // Extract previous metrics from the last run's summary
+  const rpsMatch = content.match(/- \*\*Average RPS\*\*: `([0-9.]+) reqs\/s`/);
+  const p95Match = content.match(/\| \*\*p\(95\) Duration\*\* +\| `([0-9.]+) ms`/);
+
   if (rpsMatch && p95Match) {
     previousMetrics = {
       rps: parseFloat(rpsMatch[1]),
       p95: parseFloat(p95Match[1]),
     };
   }
+
+  // Extract history table if it exists
+  const historyStart = content.indexOf('## 🕒 History');
+  if (historyStart !== -1) {
+    // Find where the next section starts (---) or take till end if no more sections
+    const nextSectionIndex = content.indexOf('\n---', historyStart + 15);
+    if (nextSectionIndex !== -1) {
+      history = content.substring(historyStart, nextSectionIndex).trim();
+    } else {
+      history = content.substring(historyStart).trim();
+    }
+  }
+}
+
+// Ensure history has a header if it was empty
+if (!history) {
+  history = `## 🕒 History
+
+| Date | Total Req | RPS | p(95) | Success |
+| :--- | :--- | :--- | :--- | :--- |
+`;
 }
 
 function getDelta(current, previous, higherIsBetter = true) {
-  if (!previous) return '';
+  if (!previous || previous === 0) return '';
   const diff = current - previous;
   if (Math.abs(diff) < 0.01) return ' ( - )';
   const percent = ((diff / previous) * 100).toFixed(2);
@@ -42,11 +81,20 @@ function getDelta(current, previous, higherIsBetter = true) {
   return ` **(${color} ${sign}${percent}%)**`;
 }
 
+const timestamp = new Date().toUTCString();
+
+// Add current run to history (limit to last 10 runs optionally, but keeping all for now)
+const newHistoryEntry = `| ${timestamp} | ${currentMetrics.totalReqs} | ${currentMetrics.rps} | ${currentMetrics.p95}ms | ${currentMetrics.successRate}% |
+`;
+const historyLines = history.split('\n');
+historyLines.splice(4, 0, newHistoryEntry.trim());
+history = historyLines.join('\n');
+
 const report = `# Stress Test Report: hydric Gateway API
 
-> Generated on: **${new Date().toUTCString()}**
+> Generated on: **${timestamp}**
 
-## 📊 Execution Summary
+## 📊 Latest Execution Summary
 
 - **Total Requests**: \`${currentMetrics.totalReqs}\`
 - **Success Rate**: \`${currentMetrics.successRate}%\`
@@ -61,17 +109,19 @@ const report = `# Stress Test Report: hydric Gateway API
 
 ---
 
+${history}
+
+---
+
 ## 🛠️ Automated Generation
 
 To re-run the stress tests and update this report automatically:
 
+# 1. Run the automated script
 \`\`\`bash
-# 1. Run k6 and export results to JSON
-k6 run --summary-export=summary.json stress-tests/stress-test.js
-
-# 2. Generate the comparative report
-node stress-tests/generate-report.js
+./stress-tests/run.sh <scenario>
 \`\`\`
+*(scenario defaults to smoke if not provided)*
 `;
 
 fs.writeFileSync(REPORT_FILE, report);
