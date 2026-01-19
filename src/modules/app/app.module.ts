@@ -48,7 +48,7 @@ import { AppController } from './app.controller';
       useFactory: (config: ConfigService) => [
         {
           ttl: config.get('THROTTLE_TTL', 60000),
-          limit: config.get('THROTTLE_LIMIT', 1000),
+          limit: config.get('THROTTLE_LIMIT', 5000),
         },
       ],
     }),
