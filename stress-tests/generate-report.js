@@ -14,14 +14,11 @@ if (!fs.existsSync(SUMMARY_FILE)) {
 const summary = JSON.parse(fs.readFileSync(SUMMARY_FILE, 'utf8'));
 
 // Helper to safely get nested values
-const getMetric = (path, field = 'value') => {
-  const parts = path.split('.');
-  let obj = summary.metrics;
-  for (const part of parts) {
-    if (!obj || !obj[part]) return null;
-    obj = obj[part];
-  }
-  return obj.values ? obj.values[field] : null;
+const getMetric = (metricName, field = 'value') => {
+  const metric = summary.metrics[metricName];
+  if (!metric) return null;
+  // If requesting a specific value field (like 'min', 'max', 'p(95)')
+  return metric.values ? metric.values[field] : metric[field];
 };
 
 const currentMetrics = {
@@ -31,6 +28,10 @@ const currentMetrics = {
   successRate: ((1 - (getMetric('http_req_failed', 'rate') || 0)) * 100).toFixed(2),
   totalReqs: getMetric('http_reqs', 'count') || 0,
 };
+
+// Determine scenario from file or args (simplistic approach: assume Env was passed via process or defaulted)
+// Since we don't have easy access to the k6 ENV vars here, we check process.env or default to 'unknown'
+const scenario = process.env.SCENARIO || 'unknown';
 
 let previousMetrics = null;
 let history = '';
@@ -62,13 +63,19 @@ if (fs.existsSync(REPORT_FILE)) {
   }
 }
 
-// Ensure history has a header if it was empty
+// Ensure history has a header if it was empty, now including "Scenario"
 if (!history) {
   history = `## 🕒 History
 
-| Date | Total Req | RPS | p(95) | Success |
-| :--- | :--- | :--- | :--- | :--- |
+| Date | Scenario | Total Req | RPS | p(95) | Success |
+| :--- | :--- | :--- | :--- | :--- | :--- |
 `;
+} else if (!history.includes('| Scenario |')) {
+  // Migration: If existing history doesn't have Scenario column, recreate header
+  // Note: This won't fix existing rows, but ensures future compatibility
+  history = history
+    .replace('| Date | Total Req | RPS | p(95) | Success |', '| Date | Scenario | Total Req | RPS | p(95) | Success |')
+    .replace('| :--- | :--- | :--- | :--- | :--- |', '| :--- | :--- | :--- | :--- | :--- | :--- |');
 }
 
 function getDelta(current, previous, higherIsBetter = true) {
@@ -84,7 +91,7 @@ function getDelta(current, previous, higherIsBetter = true) {
 const timestamp = new Date().toUTCString();
 
 // Add current run to history (limit to last 10 runs optionally, but keeping all for now)
-const newHistoryEntry = `| ${timestamp} | ${currentMetrics.totalReqs} | ${currentMetrics.rps} | ${currentMetrics.p95}ms | ${currentMetrics.successRate}% |
+const newHistoryEntry = `| ${timestamp} | ${scenario} | ${currentMetrics.totalReqs} | ${currentMetrics.rps} | ${currentMetrics.p95}ms | ${currentMetrics.successRate}% |
 `;
 const historyLines = history.split('\n');
 historyLines.splice(4, 0, newHistoryEntry.trim());

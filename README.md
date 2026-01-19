@@ -79,11 +79,12 @@ All stress tests are located in the `stress-tests/` directory.
 
 ### Automated Reporting
 
-To generate a comparative performance report:
+To run a test and automatically update the comparative performance report:
 
 ```bash
-k6 run --summary-export=summary.json stress-tests/stress-test.js
-node stress-tests/generate-report.js
+./stress-tests/run.sh <scenario>
 ```
 
-The results will be updated in [STRESS_TEST_REPORT.md](./STRESS_TEST_REPORT.md).
+_(Available scenarios: `smoke`, `load`, `stress`)_
+
+The results and historical comparisons will be updated in [STRESS_TEST_REPORT.md](./STRESS_TEST_REPORT.md).
