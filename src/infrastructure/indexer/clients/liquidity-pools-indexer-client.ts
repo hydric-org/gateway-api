@@ -7,7 +7,10 @@ import { ILiquidityPoolFilter } from '@core/interfaces/liquidity-pool/liquidity-
 import { ILiquidityPoolOrder } from '@core/interfaces/liquidity-pool/liquidity-pool-order.interface';
 import { ILiquidityPool } from '@core/interfaces/liquidity-pool/liquidity-pool.interface';
 import { IProtocol } from '@core/interfaces/protocol.interface';
+import { IIndexerToken } from '@core/interfaces/token/indexer-token.interface';
 import { ISingleChainToken } from '@core/interfaces/token/single-chain-token.interface';
+import { ITokenFilter } from '@core/interfaces/token/token-filter.interface';
+import { ITokenOrder } from '@core/interfaces/token/token-order.interface';
 import { GraphQLClients } from '@infrastructure/graphql/graphql-clients';
 import { LiquidityPoolsIndexerRequestAdapter } from '@infrastructure/indexer/adapters/liquidity-pools-indexer-request-adapter';
 import { Injectable } from '@nestjs/common';
@@ -18,9 +21,9 @@ import {
   GetProtocolsDocument,
   GetProtocolsQuery,
   GetProtocolsQueryVariables,
-  GetTokenDocument,
-  GetTokenQuery,
-  GetTokenQueryVariables,
+  GetTokensDocument,
+  GetTokensQuery,
+  GetTokensQueryVariables,
 } from 'src/gen/graphql.gen';
 import { LiquidityPoolsIndexerResponseAdapter } from '../adapters/liquidity-pools-indexer-response-adapter';
 
@@ -42,19 +45,40 @@ export class LiquidityPoolsIndexerClient {
     }));
   }
 
+  async getTokens(params: { filter?: ITokenFilter; orderBy: ITokenOrder; limit?: number }): Promise<IIndexerToken[]> {
+    const response = await this.graphQLClients.liquidityPoolsIndexerClient.request<
+      GetTokensQuery,
+      GetTokensQueryVariables
+    >(GetTokensDocument, {
+      tokenFilter: {
+        ...(params.filter?.minTotalValuePooledUsd && {
+          trackedTotalValuePooledUsd: { _gt: params.filter.minTotalValuePooledUsd.toString() },
+        }),
+
+        ...(params.filter?.symbol && {
+          symbol: Array.isArray(params.filter.symbol) ? { _in: params.filter.symbol } : { _eq: params.filter.symbol },
+        }),
+      },
+      limit: params.limit,
+      orderBy: LiquidityPoolsIndexerRequestAdapter.tokenOrderToIndexer(params.orderBy),
+    });
+
+    return LiquidityPoolsIndexerResponseAdapter.responseToIndexerTokenList(response.Token);
+  }
+
   async getToken(chainId: ChainId, tokenAddress: string): Promise<ISingleChainToken> {
     const isSearchingForNative = tokenAddress === ZERO_ETHEREUM_ADDRESS;
 
-    const tokens = await this.graphQLClients.liquidityPoolsIndexerClient.request<GetTokenQuery, GetTokenQueryVariables>(
-      GetTokenDocument,
-      {
-        tokenFilter: {
-          id: {
-            _in: [`${chainId}-${tokenAddress}`.toLowerCase()],
-          },
+    const tokens = await this.graphQLClients.liquidityPoolsIndexerClient.request<
+      GetTokensQuery,
+      GetTokensQueryVariables
+    >(GetTokensDocument, {
+      tokenFilter: {
+        id: {
+          _in: [`${chainId}-${tokenAddress}`.toLowerCase()],
         },
       },
-    );
+    });
 
     if (tokens.Token.length === 0) {
       throw new TokenNotFoundError({

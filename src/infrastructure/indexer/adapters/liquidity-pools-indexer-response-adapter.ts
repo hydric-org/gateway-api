@@ -5,12 +5,28 @@ import { IAlgebraLiquidityPoolMetadata } from '@core/interfaces/liquidity-pool/m
 import { ISlipstreamLiquidityPoolMetadata } from '@core/interfaces/liquidity-pool/metadata/slipstream-liquidity-pool-metadata.interface';
 import { IV3LiquidityPoolMetadata } from '@core/interfaces/liquidity-pool/metadata/v3-liquidity-pool-metadata.interface';
 import { IV4LiquidityPoolMetadata } from '@core/interfaces/liquidity-pool/metadata/v4-liquidity-pool-metadata.interface';
+import { IIndexerToken } from '@core/interfaces/token/indexer-token.interface';
 import { LiquidityPoolMetadata } from '@core/types/liquidity-pool-metadata';
-import { GetPoolsQuery_query_root_Pool_Pool } from '@gen/graphql.gen';
+import { GetPoolsQuery_query_root_Pool_Pool, GetTokensQuery_query_root_Token_Token } from '@gen/graphql.gen';
 
 export const LiquidityPoolsIndexerResponseAdapter = {
   responseToLiquidityPoolList,
+  responseToIndexerTokenList,
 };
+
+function responseToIndexerTokenList(rawTokens: GetTokensQuery_query_root_Token_Token[]): IIndexerToken[] {
+  return rawTokens.map(
+    (token): IIndexerToken => ({
+      address: token.tokenAddress,
+      decimals: token.decimals,
+      name: token.name,
+      symbol: token.symbol,
+      chainId: token.chainId,
+      trackedUsdPrice: Number(token.trackedUsdPrice),
+      trackedTotalValuePooledUsd: Number(token.trackedTotalValuePooledUsd),
+    }),
+  );
+}
 
 function responseToLiquidityPoolList(rawPools: GetPoolsQuery_query_root_Pool_Pool[]): ILiquidityPool[] {
   const matchedPools: ILiquidityPool[] = [];

@@ -1,11 +1,14 @@
 import { LiquidityPoolOrderField } from '@core/enums/liquidity-pool/liquidity-pool-order-field';
 import { LiquidityPoolStatsTimeframe } from '@core/enums/liquidity-pool/liquidity-pool-stats-timeframe';
 import { OrderDirection } from '@core/enums/order-direction';
+import { TokenOrderField } from '@core/enums/token/token-order-field';
 import { ILiquidityPoolOrder } from '@core/interfaces/liquidity-pool/liquidity-pool-order.interface';
-import { Order_By, Pool_Order_By, PoolTimeframedStats_Order_By } from '@gen/graphql.gen';
+import { ITokenOrder } from '@core/interfaces/token/token-order.interface';
+import { Order_By, Pool_Order_By, PoolTimeframedStats_Order_By, Token_Order_By } from '@gen/graphql.gen';
 
 export const LiquidityPoolsIndexerRequestAdapter = {
   poolOrderToIndexer: liquidityPoolOrderToIndexer,
+  tokenOrderToIndexer: tokenOrderToIndexer,
 };
 
 function orderDirectionToIndexer(direction: OrderDirection): Order_By {
@@ -41,6 +44,18 @@ function liquidityPoolOrderToIndexer(order: ILiquidityPoolOrder): Pool_Order_By 
     case LiquidityPoolOrderField.TVL: {
       return {
         trackedTotalValueLockedUsd: direction,
+      };
+    }
+  }
+}
+
+function tokenOrderToIndexer(order: ITokenOrder): Token_Order_By {
+  const direction = orderDirectionToIndexer(order.direction);
+
+  switch (order.field) {
+    case TokenOrderField.TVL: {
+      return {
+        trackedTotalValuePooledUsd: direction,
       };
     }
   }

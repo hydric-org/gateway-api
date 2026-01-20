@@ -10,6 +10,7 @@ import { CommonModule } from '../common.module';
 import { HealthModule } from '../health/health.module';
 import { PoolsModule } from '../pools/pools.module';
 import { ProtocolsModule } from '../protocols/protocols.module';
+import { TokensModule } from '../tokens/tokens.module';
 import { AppController } from './app.controller';
 
 @Module({
@@ -58,6 +59,7 @@ import { AppController } from './app.controller';
     AuthModule,
     PoolsModule,
     ProtocolsModule,
+    TokensModule,
     CommonModule,
     HealthModule,
   ],

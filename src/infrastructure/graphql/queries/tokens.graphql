@@ -1,0 +1,12 @@
+query GetTokens($tokenFilter: Token_bool_exp, $limit: Int, $offset: Int, $orderBy: [Token_order_by!]) {
+  Token(where: $tokenFilter, limit: $limit, offset: $offset, order_by: $orderBy) {
+    id
+    tokenAddress
+    decimals
+    name
+    symbol
+    trackedUsdPrice
+    trackedTotalValuePooledUsd
+    chainId
+  }
+}
