@@ -4,7 +4,7 @@ import { IIndexerToken } from '@core/interfaces/token/indexer-token.interface';
 import { IMultiChainToken } from '@core/interfaces/token/multi-chain-token.interface';
 import { LiquidityPoolsIndexerClient } from '@infrastructure/indexer/clients/liquidity-pools-indexer-client';
 import { Injectable } from '@nestjs/common';
-import { MultiChainTokenDto } from './dto/multi-chain-token.dto';
+import { MultiChainTokenDTO } from '../../lib/api/token/dtos/multi-chain-token.dto';
 
 @Injectable()
 export class TokensService {
@@ -42,7 +42,7 @@ export class TokensService {
       topTokensBundledBySymbol.set(token.symbol, group);
     }
 
-    const multichainTokenList: MultiChainTokenDto[] = [];
+    const multichainTokenList: MultiChainTokenDTO[] = [];
     const processedSymbols = new Set<string>();
 
     for (const token of topTokens) {

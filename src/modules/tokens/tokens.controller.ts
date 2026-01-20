@@ -1,6 +1,7 @@
+import { ApiGetMultiChainTokenListDocs } from '@lib/api/token/descorators/get-multichain-token-list-docs.decorator';
 import { Controller, Get } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { GetMultiChainTokenListResponse } from './dto/get-multi-chain-token-list-response.dto';
+import { ApiTags } from '@nestjs/swagger';
+import { GetMultiChainTokenListResponse } from '../../lib/api/token/dtos/response/get-multi-chain-token-list-response.dto';
 import { TokensService } from './tokens.service';
 
 @Controller('tokens')
@@ -9,11 +10,7 @@ export class TokensController {
   constructor(private readonly tokensService: TokensService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Get list of top multi-chain tokens ranked by TVL' })
-  @ApiOkResponse({
-    description: 'List of multi-chain tokens',
-    type: GetMultiChainTokenListResponse,
-  })
+  @ApiGetMultiChainTokenListDocs()
   async getMultiChainTokenList(): Promise<GetMultiChainTokenListResponse> {
     const tokens = await this.tokensService.getMultiChainTokenList();
     return new GetMultiChainTokenListResponse(tokens);
