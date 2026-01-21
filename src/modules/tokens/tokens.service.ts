@@ -1,3 +1,4 @@
+import { ChainIdUtils } from '@core/enums/chain-id';
 import { OrderDirection } from '@core/enums/order-direction';
 import { TokenOrderField } from '@core/enums/token/token-order-field';
 import { IIndexerToken } from '@core/interfaces/token/indexer-token.interface';
@@ -11,12 +12,11 @@ export class TokensService {
   constructor(private readonly liquidityPoolsIndexer: LiquidityPoolsIndexerClient) {}
 
   async getMultiChainTokenList(limit: number): Promise<IMultiChainToken[]> {
-    const uniqueSymbolsInOrder: string[] = [];
-    const processedSymbolsSet = new Set<string>();
+    const uniqueTopSymbols = new Set<string>();
     const batchSize = limit * 2;
     let skip = 0;
 
-    while (uniqueSymbolsInOrder.length < limit) {
+    while (uniqueTopSymbols.size < limit) {
       const tokensBatch = await this.liquidityPoolsIndexer.getTokens({
         orderBy: {
           direction: OrderDirection.DESC,
@@ -29,49 +29,44 @@ export class TokensService {
       if (tokensBatch.length === 0) break;
 
       for (const token of tokensBatch) {
-        if (!processedSymbolsSet.has(token.symbol)) {
-          processedSymbolsSet.add(token.symbol);
-
-          uniqueSymbolsInOrder.push(token.symbol);
-        }
-
-        if (uniqueSymbolsInOrder.length === limit) break;
+        if (!uniqueTopSymbols.has(token.symbol)) uniqueTopSymbols.add(token.symbol);
+        if (uniqueTopSymbols.size === limit) break;
       }
 
       if (tokensBatch.length < batchSize) break;
       skip += batchSize;
     }
 
-    if (uniqueSymbolsInOrder.length === 0) return [];
+    if (uniqueTopSymbols.size === 0) {
+      return [];
+    }
 
-    const topTokensFromAllChains = await this.liquidityPoolsIndexer.getTokens({
+    const allTokensForSymbols = await this.liquidityPoolsIndexer.getTokens({
       filter: {
-        symbol: uniqueSymbolsInOrder,
+        symbol: Array.from(uniqueTopSymbols),
         minTotalValuePooledUsd: 1000,
       },
       orderBy: {
         direction: OrderDirection.DESC,
         field: TokenOrderField.TVL,
       },
+      limit: uniqueTopSymbols.size * ChainIdUtils.values().length,
     });
 
-    const topTokensBundledBySymbol = new Map<string, IIndexerToken[]>();
+    const tokensBySymbol = new Map<string, IIndexerToken[]>();
 
-    for (const token of topTokensFromAllChains) {
-      const group = topTokensBundledBySymbol.get(token.symbol) || [];
+    for (const token of allTokensForSymbols) {
+      if (!tokensBySymbol.has(token.symbol)) tokensBySymbol.set(token.symbol, []);
 
-      group.push(token);
-      topTokensBundledBySymbol.set(token.symbol, group);
+      tokensBySymbol.get(token.symbol)!.push(token);
     }
 
     const multichainTokenList: MultiChainTokenDTO[] = [];
-
-    for (const symbol of uniqueSymbolsInOrder) {
-      const tokenBundle = topTokensBundledBySymbol.get(symbol);
+    for (const symbol of uniqueTopSymbols) {
+      const tokenBundle = tokensBySymbol.get(symbol);
       if (!tokenBundle || tokenBundle.length === 0) continue;
 
       const anchorToken = tokenBundle[0];
-
       const validTokens: IIndexerToken[] = [];
       const seenChains = new Set<number>();
 
@@ -80,16 +75,14 @@ export class TokensService {
         const percentageDiff = priceDiffFromTopToken === 0 ? 0 : priceDiffFromTopToken / anchorToken.trackedUsdPrice;
 
         if (percentageDiff > 0.05) continue;
-
         if (!this._areTokensNamesSimilar(tokenCandidate, anchorToken)) continue;
-
-        // Chain check: only one token per chain (the one with highest TVL)
-        // Since group is sorted by TVL, the first one encountered for a chain is the best candidate
         if (seenChains.has(tokenCandidate.chainId)) continue;
 
         seenChains.add(tokenCandidate.chainId);
         validTokens.push(tokenCandidate);
       }
+
+      if (validTokens.length === 0) continue;
 
       const multichainToken: IMultiChainToken = {
         ids: validTokens.map((t) => `${t.chainId}-${t.address.toLowerCase()}`),
