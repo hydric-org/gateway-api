@@ -1,7 +1,5 @@
-import { ChainId } from '@core/enums/chain-id';
-import { BlockchainAddress } from '@lib/api/address/blockchain-address.dto';
-import { InvalidBlockchainAddressError } from '@lib/api/address/errors/invalid-blockchain-address.error';
 import { ErrorResponse } from '@lib/api/error/dtos/error-response.dto';
+import { GenericValidationError } from '@lib/api/error/errors/generic-validation.error';
 import { ApiSuccessResponse } from '@lib/api/success/decorators/api-success-response.decorator';
 import { applyDecorators } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiBody, ApiOperation, getSchemaPath } from '@nestjs/swagger';
@@ -25,14 +23,14 @@ export function SearchLiquidityPoolsDocs() {
     }),
 
     ApiBadRequestResponse({
-      description: 'One or more search parameters are invalid.',
+      description: 'Bad request.',
       content: {
         'application/json': {
           schema: { $ref: getSchemaPath(ErrorResponse) },
           example: ErrorResponse.from(
-            new InvalidBlockchainAddressError({
-              blockchainAddress: new BlockchainAddress(ChainId.ETHEREUM, '0xbad-address'),
-              property: 'tokensA',
+            new GenericValidationError({
+              validationErrorDescription: 'Invalid query parameters.',
+              meta: {},
             }),
             '/pools/search',
           ),

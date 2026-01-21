@@ -45,12 +45,20 @@ export class LiquidityPoolsIndexerClient {
     }));
   }
 
-  async getTokens(params: { filter?: ITokenFilter; orderBy: ITokenOrder; limit?: number }): Promise<IIndexerToken[]> {
+  async getTokens(params: {
+    filter?: ITokenFilter;
+    orderBy: ITokenOrder;
+    limit?: number;
+    skip?: number;
+  }): Promise<IIndexerToken[]> {
     const response = await this.graphQLClients.liquidityPoolsIndexerClient.request<
       GetTokensQuery,
       GetTokensQueryVariables
     >(GetTokensDocument, {
       tokenFilter: {
+        chainId: {
+          _neq: ChainId.SEPOLIA,
+        },
         ...(params.filter?.minTotalValuePooledUsd && {
           trackedTotalValuePooledUsd: { _gt: params.filter.minTotalValuePooledUsd.toString() },
         }),
@@ -60,6 +68,7 @@ export class LiquidityPoolsIndexerClient {
         }),
       },
       limit: params.limit,
+      offset: params.skip,
       orderBy: LiquidityPoolsIndexerRequestAdapter.tokenOrderToIndexer(params.orderBy),
     });
 

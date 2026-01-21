@@ -10,21 +10,43 @@ import { MultiChainTokenDTO } from '../../lib/api/token/dtos/multi-chain-token.d
 export class TokensService {
   constructor(private readonly liquidityPoolsIndexer: LiquidityPoolsIndexerClient) {}
 
-  async getMultiChainTokenList(): Promise<IMultiChainToken[]> {
-    const topTokens = await this.liquidityPoolsIndexer.getTokens({
-      orderBy: {
-        direction: OrderDirection.DESC,
-        field: TokenOrderField.TVL,
-      },
-      limit: 10,
-    });
+  async getMultiChainTokenList(limit: number): Promise<IMultiChainToken[]> {
+    const uniqueSymbolsInOrder: string[] = [];
+    const processedSymbolsSet = new Set<string>();
+    const batchSize = limit * 2;
+    let skip = 0;
 
-    if (topTokens.length === 0) return [];
+    while (uniqueSymbolsInOrder.length < limit) {
+      const tokensBatch = await this.liquidityPoolsIndexer.getTokens({
+        orderBy: {
+          direction: OrderDirection.DESC,
+          field: TokenOrderField.TVL,
+        },
+        limit: batchSize,
+        skip: skip,
+      });
 
-    const topTokensSymbols = new Set(topTokens.map((t) => t.symbol));
+      if (tokensBatch.length === 0) break;
+
+      for (const token of tokensBatch) {
+        if (!processedSymbolsSet.has(token.symbol)) {
+          processedSymbolsSet.add(token.symbol);
+
+          uniqueSymbolsInOrder.push(token.symbol);
+        }
+
+        if (uniqueSymbolsInOrder.length === limit) break;
+      }
+
+      if (tokensBatch.length < batchSize) break;
+      skip += batchSize;
+    }
+
+    if (uniqueSymbolsInOrder.length === 0) return [];
+
     const topTokensFromAllChains = await this.liquidityPoolsIndexer.getTokens({
       filter: {
-        symbol: Array.from(topTokensSymbols),
+        symbol: uniqueSymbolsInOrder,
         minTotalValuePooledUsd: 1000,
       },
       orderBy: {
@@ -43,13 +65,10 @@ export class TokensService {
     }
 
     const multichainTokenList: MultiChainTokenDTO[] = [];
-    const processedSymbols = new Set<string>();
 
-    for (const token of topTokens) {
-      if (processedSymbols.has(token.symbol)) continue;
-      processedSymbols.add(token.symbol);
-
-      const tokenBundle = topTokensBundledBySymbol.get(token.symbol) || [token];
+    for (const symbol of uniqueSymbolsInOrder) {
+      const tokenBundle = topTokensBundledBySymbol.get(symbol);
+      if (!tokenBundle || tokenBundle.length === 0) continue;
 
       const anchorToken = tokenBundle[0];
 
@@ -63,10 +82,6 @@ export class TokensService {
         if (percentageDiff > 0.05) continue;
 
         if (!this._areTokensNamesSimilar(tokenCandidate, anchorToken)) continue;
-
-        if (tokenCandidate.symbol.toLowerCase() === 'usdm') {
-          console.log(this._areTokensNamesSimilar(tokenCandidate, anchorToken));
-        }
 
         // Chain check: only one token per chain (the one with highest TVL)
         // Since group is sorted by TVL, the first one encountered for a chain is the best candidate

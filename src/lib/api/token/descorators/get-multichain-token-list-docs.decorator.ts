@@ -1,11 +1,13 @@
+import { ErrorResponse } from '@lib/api/error/dtos/error-response.dto';
+import { GenericValidationError } from '@lib/api/error/errors/generic-validation.error';
 import { applyDecorators } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { GetMultiChainTokenListResponse } from '../dtos/response/get-multi-chain-token-list-response.dto';
 
 export function ApiGetMultiChainTokenListDocs() {
   return applyDecorators(
     ApiOperation({
-      summary: 'Unified List of Multi-Chain Assets',
+      summary: 'Get a unified list of multi-chain assets',
       description: `
 Returns a list of tokens containing metadata for multiple blockchains in one single model.
 
@@ -17,6 +19,19 @@ Returns a list of tokens containing metadata for multiple blockchains in one sin
     ApiOkResponse({
       description: 'The registry of multi-chain assets was successfully retrieved.',
       type: GetMultiChainTokenListResponse,
+    }),
+    ApiBadRequestResponse({
+      description: 'Invalid limit parameter.',
+      example: ErrorResponse.from(
+        new GenericValidationError({
+          validationErrorDescription: 'limit must not be greater than 1000',
+          meta: {
+            property: 'limit',
+            value: 101,
+          },
+        }),
+        '/tokens',
+      ),
     }),
   );
 }
