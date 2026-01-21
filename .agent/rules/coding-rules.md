@@ -77,3 +77,55 @@ You are responsible for the hygiene of the files you touch.
 - **Dead Code Removal:** If you identify variables, imports, or functions that are no longer in use—either due to a legacy version or your current refactor—you must remove them immediately.
 - **No "Commented-Out" Code:** Never leave dead code in comments. If it is not active, it does not belong in the repository.
 - **Clean Imports:** Ensure that only the necessary modules are imported. Prune unused dependencies from the top of the file during every edit.
+
+# Hydric Gateway API: Coding Standards
+
+## 8. Semantic Variable Naming
+
+Code must be self-explanatory. Every variable, function, and constant name must reveal its **intent, context, and contents** without requiring an external comment.
+
+### 8.1 The "No-Abbreviation" Mandate
+
+Abbreviated names are strictly prohibited. You must prioritize clarity over brevity.
+
+- **Bad:** `h`, `tx`, `addr`, `amt`, `ptr`.
+- **Good:** `transactionHash`, `walletAddress`, `tokenAmount`, `dataPointer`.
+- **Rationale:** A developer should never have to guess what an abbreviation stands for. "Lazy" naming is technical debt that creates cognitive load.
+
+### 8.2 Intention-Revealing Names
+
+The name must answer: **Why does this exist? What does it do? How is it used?**
+
+- **Contextual Specificity:** Instead of `data`, use `tokenMetadata`. Instead of `list`, use `activePoolList`.
+- **Units in Names:** If a variable represents a specific unit of time or value, include it in the name to prevent logic errors.
+  - **Example:** `timeoutMilliseconds`, `gasLimitInWei`, `priceUsd`.
+
+### 8.3 Boolean Logic (The "Positive" Rule)
+
+Booleans should read like a clear question that yields a "Yes" or "No" answer.
+
+- **Prefixes:** Use `is`, `has`, `can`, or `should`.
+- **Stay Positive:** Favor positive naming over negative. `isEnabled` is significantly easier to reason about than `isNotDisabled`.
+- **Example:** `isTransactionPending`, `hasValidSignature`.
+
+### 8.4 Exceptions: Local Loop Counters
+
+Short, single-letter variables are **only** permitted as counters in high-frequency, local loops (e.g., `i`, `j`, `k`) where the scope is less than 5 lines. For any other local variable, use a descriptive name.
+
+### 8.5 Global Constants
+
+Global constants must be in `SCREAMING_SNAKE_CASE` and highly descriptive.
+
+- **Bad:** `const MAX = 100;`
+- **Good:** `const MAX_CONCURRENT_RPC_CALLS = 100;`
+
+---
+
+## Summary Table
+
+| Category        | Bad Example | Good Example                    |
+| :-------------- | :---------- | :------------------------------ |
+| **Addresses**   | `u`         | `userWalletAddress`             |
+| **Prices**      | `p`         | `tokenPriceInUsd`               |
+| **Collections** | `arr`       | `supportedChainIds`             |
+| **Time**        | `t`         | `liquidityLockedUntilTimestamp` |
