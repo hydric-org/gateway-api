@@ -19,12 +19,8 @@ export class PoolsService {
     tokensB: BlockchainAddress[];
     searchFilters: ILiquidityPoolFilter;
     searchConfig: LiquidityPoolSearchConfig;
-  }): Promise<{ pools: LiquidityPool[]; nextCursor: SearchLiquidityPoolsCursor }> {
+  }): Promise<{ pools: LiquidityPool[]; nextCursor: string | null }> {
     const passedCursor = SearchLiquidityPoolsCursor.decode(params.searchConfig.cursor);
-    const nextCursor: SearchLiquidityPoolsCursor = {
-      ...passedCursor,
-      skip: passedCursor.skip + params.searchConfig.limit,
-    };
 
     const pools = await this.liqudityPoolsIndexerClient.getPools({
       tokensA: params.tokensA,
@@ -34,6 +30,14 @@ export class PoolsService {
       skip: passedCursor.skip,
       orderBy: params.searchConfig.orderBy,
     });
+
+    const nextCursor: string | null =
+      pools.length < params.searchConfig.limit
+        ? null
+        : SearchLiquidityPoolsCursor.encode({
+            ...passedCursor,
+            skip: passedCursor.skip + params.searchConfig.limit,
+          });
 
     return {
       pools: pools,

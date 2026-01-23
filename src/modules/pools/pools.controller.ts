@@ -5,7 +5,6 @@ import { SearchLiquidityPoolsRequestParams } from '@lib/api/liquidity-pool/dtos/
 import { GetSingleLiquidityPoolResponse } from '@lib/api/liquidity-pool/dtos/response/get-single-liquidity-pool-response.dto';
 import { SearchLiquidityPoolsResponse } from '@lib/api/liquidity-pool/dtos/response/search-liquidity-pools-response.dto';
 import { LIQUIDITY_POOL_METADATA_TYPES } from '@lib/api/liquidity-pool/liquidity-pool-metadata-types';
-import { SearchLiquidityPoolsCursor } from '@lib/api/liquidity-pool/search-liquidity-pools-cursor.dto';
 import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
 import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
 import { PoolsService } from './pools.service';
@@ -41,7 +40,7 @@ export class PoolsController {
     return new SearchLiquidityPoolsResponse({
       pools: result.pools,
       filters: requestBody.filters,
-      nextCursor: SearchLiquidityPoolsCursor.encode(result.nextCursor),
+      nextCursor: result.nextCursor,
     });
   }
 }

@@ -1,5 +1,5 @@
 import { _Internal_BilledObjectResponse } from '@lib/api/pricing/dtos/billed-object-response.dto';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { LiquidityPoolFilter } from '../liquidity-pool-filter.dto';
 import { LiquidityPool, V3LiquidityPoolExample } from '../liquidity-pool.dto';
 
@@ -25,13 +25,14 @@ export class SearchLiquidityPoolsResponse extends _Internal_BilledObjectResponse
   })
   readonly filters!: LiquidityPoolFilter;
 
-  @ApiProperty({
-    description: 'Cursor for the next page if exists',
+  @ApiPropertyOptional({
+    description: 'Cursor for the next page. Null if no more results.',
     example: 'Y3Vyc29yXzE2NjMwMDAwMDA=',
+    nullable: true,
   })
-  readonly nextCursor!: string;
+  readonly nextCursor!: string | null;
 
-  constructor(params: { pools: LiquidityPool[]; filters: LiquidityPoolFilter; nextCursor: string }) {
+  constructor(params: { pools: LiquidityPool[]; filters: LiquidityPoolFilter; nextCursor: string | null }) {
     super({
       count: params.pools.length,
       objectType: LiquidityPool,
