@@ -9,7 +9,7 @@ export class TokenFilter implements ITokenFilter {
 Filter assets by a single ticker symbol or a collection of symbols. 
 
 **Note:** This filter is **case-sensitive** to distinguish between distinct assets with similar ticker names (e.g., 'mUSD' vs 'MUSD'). hydric will only return assets that match the exact casing provided.`,
-    example: ['USDC', 'WETH'],
+    example: [],
     type: [String],
   })
   @IsOptional()
