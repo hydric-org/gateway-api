@@ -63,18 +63,23 @@ export class LiquidityPoolsIndexerClient {
           trackedTotalValuePooledUsd: { _gt: params.filter.minimumTotalValuePooledUsd.toString() },
         }),
 
-        ...(params.filter?.symbols && {
-          _or: [
-            {
-              normalizedSymbol:
-                params.filter.symbols.length === 1 ? { _eq: params.filter.symbols[0] } : { _in: params.filter.symbols },
-            },
-            {
-              symbol:
-                params.filter.symbols.length === 1 ? { _eq: params.filter.symbols[0] } : { _in: params.filter.symbols },
-            },
-          ],
-        }),
+        ...(params.filter?.symbols &&
+          params.filter.symbols.length > 0 && {
+            _or: [
+              {
+                normalizedSymbol:
+                  params.filter.symbols.length === 1
+                    ? { _eq: params.filter.symbols[0] }
+                    : { _in: params.filter.symbols },
+              },
+              {
+                symbol:
+                  params.filter.symbols.length === 1
+                    ? { _eq: params.filter.symbols[0] }
+                    : { _in: params.filter.symbols },
+              },
+            ],
+          }),
       },
       limit: params.limit,
       offset: params.skip,
