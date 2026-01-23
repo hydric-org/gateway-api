@@ -59,12 +59,21 @@ export class LiquidityPoolsIndexerClient {
         chainId: {
           _neq: ChainId.SEPOLIA,
         },
-        ...(params.filter?.minTotalValuePooledUsd && {
-          trackedTotalValuePooledUsd: { _gt: params.filter.minTotalValuePooledUsd.toString() },
+        ...(params.filter?.minimumTotalValuePooledUsd && {
+          trackedTotalValuePooledUsd: { _gt: params.filter.minimumTotalValuePooledUsd.toString() },
         }),
 
-        ...(params.filter?.symbol && {
-          symbol: Array.isArray(params.filter.symbol) ? { _in: params.filter.symbol } : { _eq: params.filter.symbol },
+        ...(params.filter?.symbols && {
+          _or: [
+            {
+              normalizedSymbol:
+                params.filter.symbols.length === 1 ? { _eq: params.filter.symbols[0] } : { _in: params.filter.symbols },
+            },
+            {
+              symbol:
+                params.filter.symbols.length === 1 ? { _eq: params.filter.symbols[0] } : { _in: params.filter.symbols },
+            },
+          ],
         }),
       },
       limit: params.limit,
@@ -72,7 +81,7 @@ export class LiquidityPoolsIndexerClient {
       orderBy: LiquidityPoolsIndexerRequestAdapter.tokenOrderToIndexer(params.orderBy),
     });
 
-    return LiquidityPoolsIndexerResponseAdapter.responseToIndexerTokenList(response.Token);
+    return LiquidityPoolsIndexerResponseAdapter.responseToIndexerTokenList(response.SingleChainToken);
   }
 
   async getToken(chainId: ChainId, tokenAddress: string): Promise<ISingleChainToken> {
@@ -89,19 +98,19 @@ export class LiquidityPoolsIndexerClient {
       },
     });
 
-    if (tokens.Token.length === 0) {
+    if (tokens.SingleChainToken.length === 0) {
       throw new TokenNotFoundError({
         chainId: chainId,
         tokenAddress: tokenAddress,
       });
     }
 
-    let token = tokens.Token[0];
+    let token = tokens.SingleChainToken[0];
 
     // this means that the network indexer has both native the wrapped native
     // so we return the actual requested token
-    if (tokens.Token.length > 1 && isSearchingForNative) {
-      token = tokens.Token.find((token) => token.id === `${chainId}-${tokenAddress.toLowerCase()}`)!;
+    if (tokens.SingleChainToken.length > 1 && isSearchingForNative) {
+      token = tokens.SingleChainToken.find((token) => token.id === `${chainId}-${tokenAddress.toLowerCase()}`)!;
     }
 
     return {

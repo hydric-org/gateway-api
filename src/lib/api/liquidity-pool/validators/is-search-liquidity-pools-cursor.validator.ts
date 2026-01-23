@@ -26,23 +26,9 @@ export class IsSearchLiquidityPoolsCursorConstraint implements ValidatorConstrai
     if (typeof value !== 'string') return false;
 
     try {
-      const parsed = JSON.parse(Buffer.from(value, 'base64url').toString()) as Record<string, unknown>;
-      const instance = new SearchLiquidityPoolsCursor();
+      const decoded = SearchLiquidityPoolsCursor.decode(value);
 
-      const typeOf = (v: unknown) => (v === null ? 'null' : Array.isArray(v) ? 'array' : typeof v);
-
-      for (const key of Object.keys(parsed)) {
-        if (!(key in instance)) return false;
-
-        const instVal = (instance as unknown as Record<string, unknown>)[key];
-        const parsedVal = parsed[key];
-
-        if (instVal === undefined) continue;
-
-        if (typeOf(instVal) !== typeOf(parsedVal)) return false;
-      }
-
-      return true;
+      return decoded instanceof SearchLiquidityPoolsCursor;
     } catch {
       return false;
     }

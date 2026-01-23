@@ -11,6 +11,7 @@ export enum ValidatorKey {
   IS_SEARCH_LIQUIDITY_POOLS_CURSOR = 'isPoolSearchCursor',
   IS_VALID_ADDRESS = 'isValidAddress',
   IS_PROTOCOL_ID = 'isProtocolId',
+  IS_TOKEN_LIST_CURSOR = 'isTokenListCursor',
 }
 
 export class ValidatorKeyUtils {
@@ -33,6 +34,8 @@ export class ValidatorKeyUtils {
         return new InvalidBlockchainAddressError({ blockchainAddress: value, property });
       case ValidatorKey.IS_PROTOCOL_ID:
         return new InvalidProtocolIdError({ protocolId: value });
+      case ValidatorKey.IS_TOKEN_LIST_CURSOR:
+        return new InvalidPaginationCursorError({ cursor: value });
     }
   }
 }

@@ -31,5 +31,8 @@ export function setupSwagger(app: INestApplication) {
     useGlobalPrefix: true,
     jsonDocumentUrl: '/openapi.json',
     yamlDocumentUrl: '/openapi.yaml',
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
   });
 }

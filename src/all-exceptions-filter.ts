@@ -15,6 +15,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const response = context.getResponse<Response>();
     const request = context.getRequest<Request>();
 
+    if (process.env.ENVIRONMENT === 'development') this.logger.error(exception);
+
     const traceId: string = (request.headers['x-trace-id'] as string) || uuidv4();
     const payload = ErrorMapper.map(exception, request, traceId);
 

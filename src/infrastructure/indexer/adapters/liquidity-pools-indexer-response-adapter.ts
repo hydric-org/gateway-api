@@ -6,17 +6,28 @@ import { ISlipstreamLiquidityPoolMetadata } from '@core/interfaces/liquidity-poo
 import { IV3LiquidityPoolMetadata } from '@core/interfaces/liquidity-pool/metadata/v3-liquidity-pool-metadata.interface';
 import { IV4LiquidityPoolMetadata } from '@core/interfaces/liquidity-pool/metadata/v4-liquidity-pool-metadata.interface';
 import { IIndexerToken } from '@core/interfaces/token/indexer-token.interface';
+import { IMultiChainToken } from '@core/interfaces/token/multi-chain-token.interface';
+import { TokenUtils } from '@core/token/token-utils';
 import { LiquidityPoolMetadata } from '@core/types/liquidity-pool-metadata';
-import { GetPoolsQuery_query_root_Pool_Pool, GetTokensQuery_query_root_Token_Token } from '@gen/graphql.gen';
+import {
+  GetPoolsQuery_query_root_Pool_Pool,
+  GetTokensQuery_query_root_SingleChainToken_SingleChainToken,
+} from '@gen/graphql.gen';
 
 export const LiquidityPoolsIndexerResponseAdapter = {
   responseToLiquidityPoolList,
   responseToIndexerTokenList,
+  indexerTokensToMultichainTokenList,
 };
 
-function responseToIndexerTokenList(rawTokens: GetTokensQuery_query_root_Token_Token[]): IIndexerToken[] {
+function responseToIndexerTokenList(
+  rawTokens: GetTokensQuery_query_root_SingleChainToken_SingleChainToken[],
+): IIndexerToken[] {
   return rawTokens.map(
     (token): IIndexerToken => ({
+      id: token.id,
+      normalizedName: token.normalizedName,
+      normalizedSymbol: token.normalizedSymbol,
       address: token.tokenAddress,
       decimals: token.decimals,
       name: token.name,
@@ -37,6 +48,70 @@ function responseToLiquidityPoolList(rawPools: GetPoolsQuery_query_root_Pool_Poo
   }
 
   return matchedPools;
+}
+
+function indexerTokensToMultichainTokenList(indexerTokens: IIndexerToken[]): {
+  multichainTokenList: IMultiChainToken[];
+  discardedTokens: IIndexerToken[];
+} {
+  const groups = new Map<string, IIndexerToken[]>();
+
+  for (const token of indexerTokens) {
+    if (!groups.has(token.normalizedSymbol)) {
+      groups.set(token.normalizedSymbol, []);
+    }
+
+    groups.get(token.normalizedSymbol)!.push(token);
+  }
+
+  const multichainTokenList: IMultiChainToken[] = [];
+  const processedIds = new Set<string>();
+  const discardedTokens: IIndexerToken[] = [];
+
+  for (const [_, tokens] of groups) {
+    tokens.sort((a, b) => b.trackedTotalValuePooledUsd - a.trackedTotalValuePooledUsd);
+
+    for (const anchor of tokens) {
+      if (processedIds.has(anchor.id)) continue;
+
+      const addresses: string[] = [];
+      const chainIds: number[] = [];
+      const ids: string[] = [];
+      const decimals: Record<string, number> = {};
+
+      for (const candidate of tokens) {
+        if (processedIds.has(candidate.id)) continue;
+
+        const priceDiff = Math.abs(candidate.trackedUsdPrice - anchor.trackedUsdPrice);
+        const pricePercentageDiff = anchor.trackedUsdPrice === 0 ? 0 : priceDiff / anchor.trackedUsdPrice;
+
+        if (pricePercentageDiff <= 0.2 && TokenUtils.areTokensTheSame(candidate, anchor)) {
+          addresses.push(candidate.address);
+          chainIds.push(candidate.chainId);
+          ids.push(candidate.id);
+          decimals[candidate.address] = candidate.decimals;
+        } else {
+          discardedTokens.push(candidate);
+        }
+
+        // Mark ALL candidates as processed (matched or not) to prevent duplicates
+        processedIds.add(candidate.id);
+      }
+
+      if (ids.length > 0) {
+        multichainTokenList.push({
+          addresses,
+          chainIds,
+          ids,
+          decimals,
+          name: anchor.name,
+          symbol: anchor.symbol,
+        });
+      }
+    }
+  }
+
+  return { multichainTokenList, discardedTokens };
 }
 
 function _parseRawPool(rawPool: GetPoolsQuery_query_root_Pool_Pool): ILiquidityPool {

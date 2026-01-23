@@ -1,19 +1,25 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, Max, Min } from 'class-validator';
+import { IsOptional, ValidateNested } from 'class-validator';
+import { MultiChainTokenListConfig } from '../multi-chain-token-list-config.dto';
+import { TokenFilter } from '../token-filter.dto';
 
 export class GetMultiChainTokenListRequestParams {
   @ApiPropertyOptional({
-    description: 'The number of unique multi-chain tokens to return.',
-    example: 10,
-    default: 10,
-    minimum: 1,
-    maximum: 100,
+    description: 'Configuration for the token list request such as limit, order, cursor, etc.',
+    type: MultiChainTokenListConfig,
   })
   @IsOptional()
-  @IsInt()
-  @Min(1)
-  @Max(100)
-  @Type(() => Number)
-  readonly limit: number = 10;
+  @ValidateNested()
+  @Type(() => MultiChainTokenListConfig)
+  readonly config: MultiChainTokenListConfig = new MultiChainTokenListConfig();
+
+  @ApiPropertyOptional({
+    description: 'Filters for the token list request to personalize the response.',
+    type: TokenFilter,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => TokenFilter)
+  readonly filters: TokenFilter = new TokenFilter();
 }

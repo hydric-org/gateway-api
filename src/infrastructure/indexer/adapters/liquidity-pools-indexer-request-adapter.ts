@@ -4,7 +4,7 @@ import { OrderDirection } from '@core/enums/order-direction';
 import { TokenOrderField } from '@core/enums/token/token-order-field';
 import { ILiquidityPoolOrder } from '@core/interfaces/liquidity-pool/liquidity-pool-order.interface';
 import { ITokenOrder } from '@core/interfaces/token/token-order.interface';
-import { Order_By, Pool_Order_By, PoolTimeframedStats_Order_By, Token_Order_By } from '@gen/graphql.gen';
+import { Order_By, Pool_Order_By, PoolTimeframedStats_Order_By, SingleChainToken_Order_By } from '@gen/graphql.gen';
 
 export const LiquidityPoolsIndexerRequestAdapter = {
   poolOrderToIndexer: liquidityPoolOrderToIndexer,
@@ -49,7 +49,7 @@ function liquidityPoolOrderToIndexer(order: ILiquidityPoolOrder): Pool_Order_By 
   }
 }
 
-function tokenOrderToIndexer(order: ITokenOrder): Token_Order_By {
+function tokenOrderToIndexer(order: ITokenOrder): SingleChainToken_Order_By {
   const direction = orderDirectionToIndexer(order.direction);
 
   switch (order.field) {
