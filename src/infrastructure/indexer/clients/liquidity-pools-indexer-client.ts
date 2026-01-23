@@ -57,7 +57,8 @@ export class LiquidityPoolsIndexerClient {
     >(GetTokensDocument, {
       tokenFilter: {
         chainId: {
-          _neq: ChainId.SEPOLIA,
+          // TODO: remove this when sepolia is not supported anymore in the indexer
+          _neq: 11155111,
         },
         ...(params.filter?.minimumTotalValuePooledUsd && {
           trackedTotalValuePooledUsd: { _gt: params.filter.minimumTotalValuePooledUsd.toString() },

@@ -4,7 +4,6 @@ import { NetworkToken, NetworkTokenUtils } from './network-token';
 export enum ChainId {
   ETHEREUM = 1,
   SCROLL = 534352,
-  SEPOLIA = 11155111,
   BASE = 8453,
   UNICHAIN = 130,
   HYPER_EVM = 999,
@@ -24,7 +23,6 @@ export abstract class ChainIdUtils {
   static nativeToken: Record<ChainId, ISingleChainToken> = {
     [ChainId.ETHEREUM]: NetworkTokenUtils.metadata[NetworkToken.ETH],
     [ChainId.SCROLL]: NetworkTokenUtils.metadata[NetworkToken.ETH],
-    [ChainId.SEPOLIA]: NetworkTokenUtils.metadata[NetworkToken.ETH],
     [ChainId.BASE]: NetworkTokenUtils.metadata[NetworkToken.ETH],
     [ChainId.UNICHAIN]: NetworkTokenUtils.metadata[NetworkToken.ETH],
     [ChainId.HYPER_EVM]: NetworkTokenUtils.metadata[NetworkToken.HYPE],
@@ -35,7 +33,6 @@ export abstract class ChainIdUtils {
   static chainName: Record<ChainId, string> = {
     [ChainId.ETHEREUM]: 'Ethereum',
     [ChainId.SCROLL]: 'Scroll',
-    [ChainId.SEPOLIA]: 'Sepolia',
     [ChainId.BASE]: 'Base',
     [ChainId.UNICHAIN]: 'Unichain',
     [ChainId.HYPER_EVM]: 'Hyper EVM',
