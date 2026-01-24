@@ -66,7 +66,7 @@ export class TokensService {
       const allTokensMatchingTopSymbols = await this.liquidityPoolsIndexer.getTokens({
         filter: {
           symbols: topUniqueSymbols,
-          minimumTotalValuePooledUsd: listFilters.minimumTotalValuePooledUsd,
+          ...listFilters,
         },
         orderBy: {
           direction: OrderDirection.DESC,
@@ -77,9 +77,9 @@ export class TokensService {
       const { multichainTokenList: batchMultichainTokenList, discardedTokens } =
         LiquidityPoolsIndexerResponseAdapter.indexerTokensToMultichainTokenList(allTokensMatchingTopSymbols, {
           matchAllSymbols: listConfig.matchAllSymbols,
-          minimumPriceBackingUsd: listConfig.minimumPriceBackingUsd,
-          minimumSwapsCount: listConfig.minimumSwapsCount,
-          minimumPriceBackingToTvlRatio: listConfig.minimumPriceBackingToTvlRatio,
+          minimumPriceBackingUsd: listFilters.minimumPriceBackingUsd,
+          minimumSwapsCount: listFilters.minimumSwapsCount,
+          minimumPriceBackingToTvlRatio: listFilters.minimumPriceBackingToTvlRatio,
         });
 
       const multichainTokensToAdd = batchMultichainTokenList.slice(0, listConfig.limit - multichainTokenList.length);
