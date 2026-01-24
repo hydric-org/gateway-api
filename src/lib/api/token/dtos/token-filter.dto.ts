@@ -59,7 +59,7 @@ Unlike simple volume, this metric aggregates the **Counterparty TVL** involved i
 
   @ApiPropertyOptional({
     description: `
-The minimum **Swap Volume** (USD) required for an asset to appear.
+The minimum cumulative **Swap Volume** (USD) since the asset was deployed, required for an asset to appear.
 
 This filters for assets that have sustained legitimate economic activity. While volume can be wash-traded, high volume combined with high swap counts and price backing is a strong signal of legitimacy.`,
     default: 100000,
