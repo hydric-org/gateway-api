@@ -1,11 +1,15 @@
+import { ChainId } from '@core/enums/chain-id';
 import { OrderDirection } from '@core/enums/order-direction';
 import { TokenOrderField } from '@core/enums/token/token-order-field';
 import { IMultiChainToken } from '@core/interfaces/token/multi-chain-token.interface';
+import { ISingleChainToken } from '@core/interfaces/token/single-chain-token.interface';
 import { ITokenFilter } from '@core/interfaces/token/token-filter.interface';
 import { LiquidityPoolsIndexerResponseAdapter } from '@infrastructure/indexer/adapters/liquidity-pools-indexer-response-adapter';
 import { LiquidityPoolsIndexerClient } from '@infrastructure/indexer/clients/liquidity-pools-indexer-client';
 import { MultiChainTokenListConfig } from '@lib/api/token/dtos/multi-chain-token-list-config.dto';
 import { MultiChainTokenListCursor } from '@lib/api/token/dtos/multi-chain-token-list-cursor.dto';
+import { SingleChainTokenListConfig } from '@lib/api/token/dtos/single-chain-token-list-config.dto';
+import { SingleChainTokenListCursor } from '@lib/api/token/dtos/single-chain-token-list-cursor.dto';
 import { BloomFilter } from '@lib/bloom-filter/bloom-filter';
 import { Injectable } from '@nestjs/common';
 
@@ -125,5 +129,38 @@ export class TokensService {
       tokens: multichainTokenList,
       nextCursor: nextCursorEncoded,
     };
+  }
+
+  async getSingleChainTokenList(
+    chainId: ChainId,
+    config: SingleChainTokenListConfig,
+    filters: ITokenFilter,
+  ): Promise<{ tokens: ISingleChainToken[]; nextCursor: string | null }> {
+    const decodedCursor = SingleChainTokenListCursor.decode(config.cursor);
+
+    const indexerTokens = await this.liquidityPoolsIndexer.getTokens({
+      chainId,
+      filter: filters,
+      orderBy: config.orderBy,
+      limit: config.limit,
+      skip: decodedCursor.skip,
+    });
+
+    const tokens = indexerTokens.map((token) => ({
+      address: token.address,
+      decimals: token.decimals,
+      name: token.name,
+      symbol: token.symbol,
+    }));
+
+    const nextCursor =
+      tokens.length < config.limit
+        ? null
+        : SingleChainTokenListCursor.encode({
+            ...decodedCursor,
+            skip: decodedCursor.skip + config.limit,
+          });
+
+    return { tokens, nextCursor };
   }
 }

@@ -22,18 +22,18 @@ Filter assets by a single ticker symbol or a collection of symbols.
 The minimum aggregate liquidity across all liquidity pools in USD for a token to be included in the response. 
 This filters out low-liquidity or "dust" assets across the indexed ecosystems.`,
     example: 50000,
-    default: 50000,
+    default: 10000,
     minimum: 0,
   })
   @IsOptional()
   @Type(() => Number)
   @IsNumber({ allowInfinity: false, allowNaN: false })
   @Min(0)
-  readonly minimumTotalValuePooledUsd: number = 50000;
+  readonly minimumTotalValuePooledUsd: number = 10000;
 
   @ApiPropertyOptional({
     description: `
-The minimum **Price Backing Capital** (USD) required for an asset to attain 'Canonical' status.
+The minimum **Price Backing Capital** (USD) required for an asset to be considered a valid asset to be included in the response.
 
 Unlike simple volume, this metric aggregates the **Counterparty TVL** involved in every price-impacting trade. 
 
@@ -47,11 +47,8 @@ Unlike simple volume, this metric aggregates the **Counterparty TVL** involved i
   readonly minimumPriceBackingUsd: number = 100000;
 
   @ApiPropertyOptional({
-    description: `
-The minimum cumulative swap count required for asset validation. 
-
-This ensures the asset has a demonstrated history of organic market participation and counterparty interaction before being promoted to the Unified Model.`,
-    default: 1000,
+    description: `The minimum cumulative swap count required to be considered a valid asset to be included in the response.`,
+    default: 100,
     example: 1000,
   })
   @IsOptional()
@@ -62,7 +59,7 @@ This ensures the asset has a demonstrated history of organic market participatio
 
   @ApiPropertyOptional({
     description: `
-The minimum **Swap Volume** (USD) required for an asset to appear in the list.
+The minimum **Swap Volume** (USD) required for an asset to appear.
 
 This filters for assets that have sustained legitimate economic activity. While volume can be wash-traded, high volume combined with high swap counts and price backing is a strong signal of legitimacy.`,
     default: 100000,

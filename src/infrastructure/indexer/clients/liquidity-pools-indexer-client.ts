@@ -50,6 +50,7 @@ export class LiquidityPoolsIndexerClient {
     orderBy: ITokenOrder;
     limit?: number;
     skip?: number;
+    chainId?: ChainId;
   }): Promise<IIndexerToken[]> {
     const response = await this.graphQLClients.liquidityPoolsIndexerClient.request<
       GetTokensQuery,
@@ -57,8 +58,10 @@ export class LiquidityPoolsIndexerClient {
     >(GetTokensDocument, {
       tokenFilter: {
         chainId: {
-          // TODO: remove this when sepolia is not supported anymore in the indexer
-          _neq: 11155111,
+          ...(params.chainId
+            ? { _eq: params.chainId }
+            : // TODO: remove this when sepolia is not supported anymore in the indexer
+              { _neq: 11155111 }),
         },
         ...(params.filter?.minimumTotalValuePooledUsd && {
           trackedTotalValuePooledUsd: { _gt: params.filter.minimumTotalValuePooledUsd.toString() },

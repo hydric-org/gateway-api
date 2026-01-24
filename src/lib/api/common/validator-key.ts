@@ -12,6 +12,7 @@ export enum ValidatorKey {
   IS_VALID_ADDRESS = 'isValidAddress',
   IS_PROTOCOL_ID = 'isProtocolId',
   IS_TOKEN_LIST_CURSOR = 'isTokenListCursor',
+  IS_SINGLE_CHAIN_TOKEN_LIST_CURSOR = 'isSingleChainTokenListCursor',
 }
 
 export class ValidatorKeyUtils {
@@ -35,6 +36,8 @@ export class ValidatorKeyUtils {
       case ValidatorKey.IS_PROTOCOL_ID:
         return new InvalidProtocolIdError({ protocolId: value });
       case ValidatorKey.IS_TOKEN_LIST_CURSOR:
+        return new InvalidPaginationCursorError({ cursor: value });
+      case ValidatorKey.IS_SINGLE_CHAIN_TOKEN_LIST_CURSOR:
         return new InvalidPaginationCursorError({ cursor: value });
     }
   }
