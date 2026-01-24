@@ -3,12 +3,12 @@ import { NetworkToken, NetworkTokenUtils } from './network-token';
 
 export enum ChainId {
   ETHEREUM = 1,
-  SCROLL = 534352,
-  BASE = 8453,
+  MONAD = 143,
   UNICHAIN = 130,
   HYPER_EVM = 999,
+  BASE = 8453,
   PLASMA = 9745,
-  MONAD = 143,
+  SCROLL = 534352,
 }
 
 export abstract class ChainIdUtils {
