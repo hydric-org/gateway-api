@@ -72,4 +72,17 @@ Legitimate, market-tested assets typically exhibit a ratio > 1.0, indicating tha
   @Type(() => Number)
   @Min(0)
   readonly minimumPriceBackingToTvlRatio: number = 2.0;
+
+  @ApiPropertyOptional({
+    description: `
+The minimum **Swap Volume** (USD) required for an asset to appear in the list.
+
+This filters for assets that have sustained legitimate economic activity. While volume can be wash-traded, high volume combined with high swap counts and price backing is a strong signal of legitimacy.`,
+    default: 100000,
+    example: 100000,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @Min(0)
+  readonly minimumSwapVolumeUsd: number = 100000;
 }

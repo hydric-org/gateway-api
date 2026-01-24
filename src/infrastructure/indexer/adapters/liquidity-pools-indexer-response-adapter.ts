@@ -36,6 +36,7 @@ function responseToIndexerTokenList(
       trackedUsdPrice: Number(token.trackedUsdPrice),
       trackedTotalValuePooledUsd: Number(token.trackedTotalValuePooledUsd),
       trackedPriceBackingUsd: Number(token.trackedPriceDiscoveryCapitalUsd),
+      trackedSwapVolumeUsd: Number(token.trackedSwapVolumeUsd),
       swapsCount: Number(token.swapsCount),
     }),
   );
@@ -57,6 +58,7 @@ function indexerTokensToMultichainTokenList(
   params: {
     matchAllSymbols: boolean;
     minimumPriceBackingUsd: number;
+    minimumSwapVolumeUsd: number;
     minimumSwapsCount: number;
     minimumPriceBackingToTvlRatio: number;
   },
@@ -66,6 +68,7 @@ function indexerTokensToMultichainTokenList(
 } {
   const isTokenTrusted = (token: IIndexerToken): boolean => {
     if (token.trackedPriceBackingUsd < params.minimumPriceBackingUsd) return false;
+    if (token.trackedSwapVolumeUsd < params.minimumSwapVolumeUsd) return false;
     if (token.swapsCount < params.minimumSwapsCount) return false;
 
     const backingToTvlRatio =

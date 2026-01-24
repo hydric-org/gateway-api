@@ -7,6 +7,7 @@ export interface IIndexerToken extends ISingleChainToken {
   trackedUsdPrice: number;
   trackedTotalValuePooledUsd: number;
   trackedPriceBackingUsd: number;
+  trackedSwapVolumeUsd: number;
   swapsCount: number;
   normalizedSymbol: string;
   normalizedName: string;

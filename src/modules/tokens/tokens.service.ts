@@ -78,6 +78,7 @@ export class TokensService {
         LiquidityPoolsIndexerResponseAdapter.indexerTokensToMultichainTokenList(allTokensMatchingTopSymbols, {
           matchAllSymbols: listConfig.matchAllSymbols,
           minimumPriceBackingUsd: listFilters.minimumPriceBackingUsd,
+          minimumSwapVolumeUsd: listFilters.minimumSwapVolumeUsd,
           minimumSwapsCount: listFilters.minimumSwapsCount,
           minimumPriceBackingToTvlRatio: listFilters.minimumPriceBackingToTvlRatio,
         });

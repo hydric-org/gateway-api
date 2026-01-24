@@ -72,6 +72,10 @@ export class LiquidityPoolsIndexerClient {
           _gt: params.filter?.minimumPriceBackingUsd.toString(),
         },
 
+        trackedSwapVolumeUsd: {
+          _gt: params.filter?.minimumSwapVolumeUsd.toString(),
+        },
+
         ...(params.filter?.symbols &&
           params.filter.symbols.length > 0 && {
             _or: [
