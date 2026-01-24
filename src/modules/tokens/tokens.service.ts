@@ -77,6 +77,9 @@ export class TokensService {
       const { multichainTokenList: batchMultichainTokenList, discardedTokens } =
         LiquidityPoolsIndexerResponseAdapter.indexerTokensToMultichainTokenList(allTokensMatchingTopSymbols, {
           matchAllSymbols: listConfig.matchAllSymbols,
+          minimumPriceBackingUsd: listConfig.minimumPriceBackingUsd,
+          minimumSwapsCount: listConfig.minimumSwapsCount,
+          minimumPriceBackingToTvlRatio: listConfig.minimumPriceBackingToTvlRatio,
         });
 
       const multichainTokensToAdd = batchMultichainTokenList.slice(0, listConfig.limit - multichainTokenList.length);

@@ -35,6 +35,8 @@ function responseToIndexerTokenList(
       chainId: token.chainId,
       trackedUsdPrice: Number(token.trackedUsdPrice),
       trackedTotalValuePooledUsd: Number(token.trackedTotalValuePooledUsd),
+      trackedPriceBackingUsd: Number(token.trackedPriceDiscoveryCapitalUsd),
+      swapsCount: Number(token.swapsCount),
     }),
   );
 }
@@ -53,12 +55,29 @@ function responseToLiquidityPoolList(rawPools: GetPoolsQuery_query_root_Pool_Poo
 function indexerTokensToMultichainTokenList(
   indexerTokens: IIndexerToken[],
   params: {
-    matchAllSymbols?: boolean;
+    matchAllSymbols: boolean;
+    minimumPriceBackingUsd: number;
+    minimumSwapsCount: number;
+    minimumPriceBackingToTvlRatio: number;
   },
 ): {
   multichainTokenList: IMultiChainToken[];
   discardedTokens: IIndexerToken[];
 } {
+  const isTokenTrusted = (token: IIndexerToken): boolean => {
+    if (token.trackedPriceBackingUsd < params.minimumPriceBackingUsd) return false;
+    if (token.swapsCount < params.minimumSwapsCount) return false;
+
+    const backingToTvlRatio =
+      token.trackedTotalValuePooledUsd === 0
+        ? Infinity
+        : token.trackedPriceBackingUsd / token.trackedTotalValuePooledUsd;
+
+    if (backingToTvlRatio < params.minimumPriceBackingToTvlRatio) return false;
+
+    return true;
+  };
+
   const groups = new Map<string, IIndexerToken[]>();
 
   for (const token of indexerTokens) {
@@ -79,6 +98,12 @@ function indexerTokensToMultichainTokenList(
     for (const anchor of tokens) {
       if (processedIds.has(anchor.id)) continue;
 
+      if (!isTokenTrusted(anchor)) {
+        discardedTokens.push(anchor);
+        processedIds.add(anchor.id);
+        continue;
+      }
+
       const addresses: string[] = [];
       const chainIds: number[] = [];
       const ids: string[] = [];
@@ -94,9 +119,10 @@ function indexerTokensToMultichainTokenList(
         const pricePercentageDiff = anchor.trackedUsdPrice === 0 ? 0 : priceDiff / anchor.trackedUsdPrice;
 
         const meetsMatchingCriteria = pricePercentageDiff <= 0.2 && TokenUtils.areTokensTheSame(candidate, anchor);
+        const isTrusted = isTokenTrusted(candidate);
         const chainAlreadySeen = seenChainIds.has(candidate.chainId);
 
-        if (meetsMatchingCriteria && (params.matchAllSymbols || !chainAlreadySeen)) {
+        if (meetsMatchingCriteria && isTrusted && (params.matchAllSymbols || !chainAlreadySeen)) {
           addresses.push(candidate.address);
           chainIds.push(candidate.chainId);
           ids.push(candidate.id);
