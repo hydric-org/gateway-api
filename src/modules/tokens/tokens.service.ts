@@ -21,6 +21,22 @@ export class TokensService {
     listConfig: MultiChainTokenListConfig,
     listFilters: ITokenFilter,
   ): Promise<{ tokens: IMultiChainToken[]; nextCursor: string | null }> {
+    return this.getMultichainTokens(listConfig, listFilters);
+  }
+
+  async searchMultichainTokens(
+    search: string,
+    listConfig: MultiChainTokenListConfig,
+    listFilters: ITokenFilter,
+  ): Promise<{ tokens: IMultiChainToken[]; nextCursor: string | null }> {
+    return this.getMultichainTokens(listConfig, listFilters, search);
+  }
+
+  private async getMultichainTokens(
+    listConfig: MultiChainTokenListConfig,
+    listFilters: ITokenFilter,
+    search?: string,
+  ): Promise<{ tokens: IMultiChainToken[]; nextCursor: string | null }> {
     const getTopTokensBatchSize = listConfig.limit * 1.5;
     const multichainTokenList: IMultiChainToken[] = [];
     let pastTokensBloomFilter: BloomFilter;
@@ -45,6 +61,7 @@ export class TokensService {
         skip: getTopTokensSkipCount,
         orderBy: listConfig.orderBy,
         filter: listFilters,
+        search,
       });
 
       if (topSinglechainTokens.length === 0) {

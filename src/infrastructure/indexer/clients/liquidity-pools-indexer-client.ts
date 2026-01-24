@@ -14,6 +14,7 @@ import { ITokenOrder } from '@core/interfaces/token/token-order.interface';
 import { GraphQLClients } from '@infrastructure/graphql/graphql-clients';
 import { LiquidityPoolsIndexerRequestAdapter } from '@infrastructure/indexer/adapters/liquidity-pools-indexer-request-adapter';
 import { Injectable } from '@nestjs/common';
+import { isEthereumAddress } from 'class-validator';
 import {
   GetPoolsDocument,
   GetPoolsQuery,
@@ -51,6 +52,7 @@ export class LiquidityPoolsIndexerClient {
     limit?: number;
     skip?: number;
     chainId?: ChainId;
+    search?: string;
   }): Promise<IIndexerToken[]> {
     const response = await this.graphQLClients.liquidityPoolsIndexerClient.request<
       GetTokensQuery,
@@ -78,6 +80,19 @@ export class LiquidityPoolsIndexerClient {
         trackedSwapVolumeUsd: {
           _gt: params.filter?.minimumSwapVolumeUsd.toString(),
         },
+
+        ...(params.search && {
+          ...(isEthereumAddress(params.search)
+            ? { tokenAddress: { _eq: params.search.toLowerCase() } }
+            : {
+                _or: [
+                  { name: { _ilike: `%${params.search}%` } },
+                  { normalizedName: { _ilike: `%${params.search}%` } },
+                  { symbol: { _ilike: `%${params.search}%` } },
+                  { normalizedSymbol: { _ilike: `%${params.search}%` } },
+                ],
+              }),
+        }),
 
         ...(params.filter?.symbols &&
           params.filter.symbols.length > 0 && {
