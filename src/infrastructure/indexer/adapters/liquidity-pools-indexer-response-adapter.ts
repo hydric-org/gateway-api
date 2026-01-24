@@ -50,7 +50,12 @@ function responseToLiquidityPoolList(rawPools: GetPoolsQuery_query_root_Pool_Poo
   return matchedPools;
 }
 
-function indexerTokensToMultichainTokenList(indexerTokens: IIndexerToken[]): {
+function indexerTokensToMultichainTokenList(
+  indexerTokens: IIndexerToken[],
+  params: {
+    matchAllSymbols?: boolean;
+  },
+): {
   multichainTokenList: IMultiChainToken[];
   discardedTokens: IIndexerToken[];
 } {
@@ -79,22 +84,28 @@ function indexerTokensToMultichainTokenList(indexerTokens: IIndexerToken[]): {
       const ids: string[] = [];
       const decimals: Record<string, number> = {};
 
+      // Track seen chainIds within this group to enforce one-per-chain when matchAllSymbols is false
+      const seenChainIds = new Set<number>();
+
       for (const candidate of tokens) {
         if (processedIds.has(candidate.id)) continue;
 
         const priceDiff = Math.abs(candidate.trackedUsdPrice - anchor.trackedUsdPrice);
         const pricePercentageDiff = anchor.trackedUsdPrice === 0 ? 0 : priceDiff / anchor.trackedUsdPrice;
 
-        if (pricePercentageDiff <= 0.2 && TokenUtils.areTokensTheSame(candidate, anchor)) {
+        const meetsMatchingCriteria = pricePercentageDiff <= 0.2 && TokenUtils.areTokensTheSame(candidate, anchor);
+        const chainAlreadySeen = seenChainIds.has(candidate.chainId);
+
+        if (meetsMatchingCriteria && (params.matchAllSymbols || !chainAlreadySeen)) {
           addresses.push(candidate.address);
           chainIds.push(candidate.chainId);
           ids.push(candidate.id);
           decimals[candidate.address] = candidate.decimals;
+          seenChainIds.add(candidate.chainId);
         } else {
           discardedTokens.push(candidate);
         }
 
-        // Mark ALL candidates as processed (matched or not) to prevent duplicates
         processedIds.add(candidate.id);
       }
 
