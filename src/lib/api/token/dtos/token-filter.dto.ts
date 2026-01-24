@@ -22,14 +22,14 @@ Filter assets by a single ticker symbol or a collection of symbols.
 The minimum aggregate liquidity across all liquidity pools in USD for a token to be included in the response. 
 This filters out low-liquidity or "dust" assets across the indexed ecosystems.`,
     example: 50000,
-    default: 1000,
+    default: 50000,
     minimum: 0,
   })
   @IsOptional()
   @Type(() => Number)
   @IsNumber({ allowInfinity: false, allowNaN: false })
   @Min(0)
-  readonly minimumTotalValuePooledUsd: number = 1000;
+  readonly minimumTotalValuePooledUsd: number = 50000;
 
   @ApiPropertyOptional({
     description: `
@@ -59,19 +59,6 @@ This ensures the asset has a demonstrated history of organic market participatio
   @IsInt()
   @Min(0)
   readonly minimumSwapsCount: number = 1000;
-
-  @ApiPropertyOptional({
-    description: `
-The minimum ratio of **Price Backing Capital** relative to current **TVL**.
-
-Legitimate, market-tested assets typically exhibit a ratio > 1.0, indicating that more capital has been "spent" backing the price than is currently sitting in the pool. A low ratio often signals "Quiet Liquidity" or freshly minted assets with no established market trust.`,
-    default: 2.0,
-    example: 2.0,
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @Min(0)
-  readonly minimumPriceBackingToTvlRatio: number = 2.0;
 
   @ApiPropertyOptional({
     description: `

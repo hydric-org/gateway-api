@@ -60,7 +60,6 @@ function indexerTokensToMultichainTokenList(
     minimumPriceBackingUsd: number;
     minimumSwapVolumeUsd: number;
     minimumSwapsCount: number;
-    minimumPriceBackingToTvlRatio: number;
   },
 ): {
   multichainTokenList: IMultiChainToken[];
@@ -70,13 +69,6 @@ function indexerTokensToMultichainTokenList(
     if (token.trackedPriceBackingUsd < params.minimumPriceBackingUsd) return false;
     if (token.trackedSwapVolumeUsd < params.minimumSwapVolumeUsd) return false;
     if (token.swapsCount < params.minimumSwapsCount) return false;
-
-    const backingToTvlRatio =
-      token.trackedTotalValuePooledUsd === 0
-        ? Infinity
-        : token.trackedPriceBackingUsd / token.trackedTotalValuePooledUsd;
-
-    if (backingToTvlRatio < params.minimumPriceBackingToTvlRatio) return false;
 
     return true;
   };

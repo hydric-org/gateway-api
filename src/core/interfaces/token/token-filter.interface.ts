@@ -3,6 +3,5 @@ export interface ITokenFilter {
   minimumTotalValuePooledUsd: number;
   minimumPriceBackingUsd: number;
   minimumSwapsCount: number;
-  minimumPriceBackingToTvlRatio: number;
   minimumSwapVolumeUsd: number;
 }

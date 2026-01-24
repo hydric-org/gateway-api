@@ -80,7 +80,6 @@ export class TokensService {
           minimumPriceBackingUsd: listFilters.minimumPriceBackingUsd,
           minimumSwapVolumeUsd: listFilters.minimumSwapVolumeUsd,
           minimumSwapsCount: listFilters.minimumSwapsCount,
-          minimumPriceBackingToTvlRatio: listFilters.minimumPriceBackingToTvlRatio,
         });
 
       const multichainTokensToAdd = batchMultichainTokenList.slice(0, listConfig.limit - multichainTokenList.length);
