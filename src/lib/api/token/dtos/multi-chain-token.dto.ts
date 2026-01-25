@@ -12,11 +12,9 @@ hydric aggregates fragmented chain-specific metadata into this unified model to 
 @ObjectCost(15)
 export class MultiChainTokenDTO implements IMultiChainToken {
   @ApiProperty({
-    description: `
-    The unique identifiers of the token across chains.
+    description: `The unique identifiers of the token across chains.
     - **Format:** \`{chainId}-{address}\`
-    - **Native Assets:** Represented by the "Zero Address" (\`0x000...000\`).
-    `,
+    - **Native Assets:** Represented by the "Zero Address" (\`0x000...000\`).`,
     example: ['1-0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', '8453-0xdbfefd2e8460a6ee4955a68582f85708baea60a3'],
     type: [String],
   })
