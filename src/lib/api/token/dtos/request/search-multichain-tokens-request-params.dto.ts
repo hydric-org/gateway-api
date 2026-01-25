@@ -2,15 +2,14 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsNotEmpty, IsOptional, IsString, MinLength, ValidateNested } from 'class-validator';
 import { MultiChainTokenListConfig } from '../multi-chain-token-list-config.dto';
-import { TokenFilter } from '../token-filter.dto';
+import { SearchTokenFilter } from '../search-token-filter.dto';
 
 export class SearchMultichainTokensRequestParams {
   @ApiProperty({
     description: `
-The search term to filter assets. This can be:
-- **Ticker Symbol or Name:** (e.g., 'ETH', 'USD', 'Wrapped') — Case-insensitive substring match.
-- **Contract Address:** (e.g., '0xC02aa...') — Exact match if a valid Ethereum address format is provided.`,
-    examples: ['ETH', '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599'],
+The search term to filter assets by ticker symbol or name.
+- **Ticker Symbol or Name:** (e.g., 'ETH', 'USD', 'Wrapped') — Case-insensitive substring match.`,
+    example: 'ETH',
     minLength: 1,
   })
   @IsNotEmpty()
@@ -29,10 +28,10 @@ The search term to filter assets. This can be:
 
   @ApiPropertyOptional({
     description: 'Additional filters to personalize the search results.',
-    type: TokenFilter,
+    type: SearchTokenFilter,
   })
   @IsOptional()
   @ValidateNested()
-  @Type(() => TokenFilter)
-  readonly filters: TokenFilter = new TokenFilter();
+  @Type(() => SearchTokenFilter)
+  readonly filters: SearchTokenFilter = new SearchTokenFilter();
 }

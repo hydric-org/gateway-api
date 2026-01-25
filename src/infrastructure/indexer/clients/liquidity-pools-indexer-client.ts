@@ -14,7 +14,6 @@ import { ITokenOrder } from '@core/interfaces/token/token-order.interface';
 import { GraphQLClients } from '@infrastructure/graphql/graphql-clients';
 import { LiquidityPoolsIndexerRequestAdapter } from '@infrastructure/indexer/adapters/liquidity-pools-indexer-request-adapter';
 import { Injectable } from '@nestjs/common';
-import { isEthereumAddress } from 'class-validator';
 import {
   GetPoolsDocument,
   GetPoolsQuery,
@@ -51,8 +50,9 @@ export class LiquidityPoolsIndexerClient {
     orderBy: ITokenOrder;
     limit?: number;
     skip?: number;
-    chainId?: ChainId;
+    chainIds?: ChainId[];
     search?: string;
+    tokenAddress?: string;
   }): Promise<IIndexerToken[]> {
     const response = await this.graphQLClients.liquidityPoolsIndexerClient.request<
       GetTokensQuery,
@@ -60,8 +60,10 @@ export class LiquidityPoolsIndexerClient {
     >(GetTokensDocument, {
       tokenFilter: {
         chainId: {
-          ...(params.chainId
-            ? { _eq: params.chainId }
+          ...(params.chainIds
+            ? params.chainIds.length > 1
+              ? { _in: params.chainIds }
+              : { _eq: params.chainIds[0] }
             : // TODO: remove this when sepolia is not supported anymore in the indexer
               { _neq: 11155111 }),
         },
@@ -82,16 +84,16 @@ export class LiquidityPoolsIndexerClient {
         },
 
         ...(params.search && {
-          ...(isEthereumAddress(params.search)
-            ? { tokenAddress: { _eq: params.search.toLowerCase() } }
-            : {
-                _or: [
-                  { name: { _ilike: `%${params.search}%` } },
-                  { normalizedName: { _ilike: `%${params.search}%` } },
-                  { symbol: { _ilike: `%${params.search}%` } },
-                  { normalizedSymbol: { _ilike: `%${params.search}%` } },
-                ],
-              }),
+          _or: [
+            { name: { _ilike: `%${params.search}%` } },
+            { normalizedName: { _ilike: `%${params.search}%` } },
+            { symbol: { _ilike: `%${params.search}%` } },
+            { normalizedSymbol: { _ilike: `%${params.search}%` } },
+          ],
+        }),
+
+        ...(params.tokenAddress && {
+          tokenAddress: { _eq: params.tokenAddress },
         }),
 
         ...(params.filter?.symbols &&
@@ -150,6 +152,7 @@ export class LiquidityPoolsIndexerClient {
     }
 
     return {
+      chainId: token.chainId,
       address: token.tokenAddress,
       decimals: token.decimals,
       name: token.name,

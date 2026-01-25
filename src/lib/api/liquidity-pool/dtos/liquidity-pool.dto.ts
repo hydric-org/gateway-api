@@ -14,6 +14,7 @@ import { LiquidityPoolWindowedStats } from './liquidity-pool-windowed-stats.dto'
 import { V4LiquidityPoolMetadataExample } from './metadata/v4-liquidity-pool-metadata.dto';
 
 const token0: ISingleChainToken = {
+  chainId: ChainId.ETHEREUM,
   address: '0x0000000000000000000000000000000000000000',
   decimals: 18,
   name: 'Ether',
@@ -21,6 +22,7 @@ const token0: ISingleChainToken = {
 };
 
 const token1: ISingleChainToken = {
+  chainId: ChainId.ETHEREUM,
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   decimals: 18,
   name: 'USDC',

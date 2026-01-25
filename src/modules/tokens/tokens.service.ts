@@ -164,6 +164,7 @@ export class TokensService {
     });
 
     const tokens = indexerTokens.map((token) => ({
+      chainId: token.chainId,
       address: token.address,
       decimals: token.decimals,
       name: token.name,
@@ -179,5 +180,30 @@ export class TokensService {
           });
 
     return { tokens, nextCursor };
+  }
+
+  async getTokensByAddress(tokenAddress: string, chainIds?: ChainId[]): Promise<ISingleChainToken[]> {
+    const indexerTokens = await this.liquidityPoolsIndexer.getTokens({
+      filter: {
+        minimumTotalValuePooledUsd: 0,
+        minimumPriceBackingUsd: 0,
+        minimumSwapsCount: 0,
+        minimumSwapVolumeUsd: 0,
+      },
+      orderBy: {
+        field: TokenOrderField.TVL,
+        direction: OrderDirection.DESC,
+      },
+      tokenAddress: tokenAddress.toLowerCase(),
+      chainIds: chainIds,
+    });
+
+    return indexerTokens.map((token) => ({
+      chainId: token.chainId,
+      address: token.address,
+      decimals: token.decimals,
+      name: token.name,
+      symbol: token.symbol,
+    }));
   }
 }

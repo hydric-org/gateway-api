@@ -1,8 +1,10 @@
+import { ChainId } from '@core/enums/chain-id';
 import { ISingleChainToken } from '@core/interfaces/token/single-chain-token.interface';
 import { ObjectCost } from '@lib/api/pricing/decorators/object-cost.decorator';
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 
 export const SingleChainTokenExample = {
+  chainId: ChainId.ETHEREUM,
   address: '0x0000000000000000000000000000000000000000',
   decimals: 18,
   name: 'Ether',
@@ -14,6 +16,13 @@ export const SingleChainTokenExample = {
 })
 @ObjectCost(5)
 export class SingleChainToken implements ISingleChainToken {
+  @ApiProperty({
+    description: 'The chain id of the network where the token resides.',
+    example: SingleChainTokenExample.chainId,
+    enum: ChainId,
+  })
+  readonly chainId!: ChainId;
+
   @ApiProperty({
     description: `
 The contract address of the token on its host network.

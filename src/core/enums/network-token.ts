@@ -9,7 +9,7 @@ export enum NetworkToken {
 }
 
 export class NetworkTokenUtils {
-  static readonly metadata: Record<NetworkToken, ISingleChainToken> = {
+  static readonly metadata: Record<NetworkToken, Omit<ISingleChainToken, 'chainId'>> = {
     [NetworkToken.ETH]: {
       address: ZERO_ETHEREUM_ADDRESS,
       decimals: 18,

@@ -150,6 +150,7 @@ function _parseRawPool(rawPool: GetPoolsQuery_query_root_Pool_Pool): ILiquidityP
   const poolTokens = [rawPool.token0!, rawPool.token1!];
 
   const poolTokensMapped = poolTokens.map((token) => ({
+    chainId: rawPool.chainId,
     address: token.tokenAddress,
     decimals: token.decimals,
     name: token.name,

@@ -1,3 +1,4 @@
+import { ChainId } from '@core/enums/chain-id';
 import { ILiquidityPoolBalance } from '@core/interfaces/liquidity-pool/balance/liquidity-pool-balance.interface';
 import { RoundUsd } from '@lib/api/common/transformers/round-usd-transformer';
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
@@ -10,6 +11,7 @@ export const LiqudityPoolBalanceExample = {
       amount: 21.3,
       amountUsd: 113000.21,
       token: {
+        chainId: ChainId.ETHEREUM,
         address: '0x0000000000000000000000000000000000000000',
         decimals: 18,
         name: 'Ether',
@@ -20,6 +22,7 @@ export const LiqudityPoolBalanceExample = {
       amount: 21.3,
       amountUsd: 21.4,
       token: {
+        chainId: ChainId.ETHEREUM,
         address: '0xdac17f958d2ee523a2206206994597c13d831ec7',
         decimals: 6,
         name: 'USDT',

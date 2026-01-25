@@ -21,13 +21,13 @@ export abstract class ChainIdUtils {
   }
 
   static nativeToken: Record<ChainId, ISingleChainToken> = {
-    [ChainId.ETHEREUM]: NetworkTokenUtils.metadata[NetworkToken.ETH],
-    [ChainId.SCROLL]: NetworkTokenUtils.metadata[NetworkToken.ETH],
-    [ChainId.BASE]: NetworkTokenUtils.metadata[NetworkToken.ETH],
-    [ChainId.UNICHAIN]: NetworkTokenUtils.metadata[NetworkToken.ETH],
-    [ChainId.HYPER_EVM]: NetworkTokenUtils.metadata[NetworkToken.HYPE],
-    [ChainId.PLASMA]: NetworkTokenUtils.metadata[NetworkToken.XPL],
-    [ChainId.MONAD]: NetworkTokenUtils.metadata[NetworkToken.MON],
+    [ChainId.ETHEREUM]: { ...NetworkTokenUtils.metadata[NetworkToken.ETH], chainId: ChainId.ETHEREUM },
+    [ChainId.SCROLL]: { ...NetworkTokenUtils.metadata[NetworkToken.ETH], chainId: ChainId.SCROLL },
+    [ChainId.BASE]: { ...NetworkTokenUtils.metadata[NetworkToken.ETH], chainId: ChainId.BASE },
+    [ChainId.UNICHAIN]: { ...NetworkTokenUtils.metadata[NetworkToken.ETH], chainId: ChainId.UNICHAIN },
+    [ChainId.HYPER_EVM]: { ...NetworkTokenUtils.metadata[NetworkToken.HYPE], chainId: ChainId.HYPER_EVM },
+    [ChainId.PLASMA]: { ...NetworkTokenUtils.metadata[NetworkToken.XPL], chainId: ChainId.PLASMA },
+    [ChainId.MONAD]: { ...NetworkTokenUtils.metadata[NetworkToken.MON], chainId: ChainId.MONAD },
   };
 
   static chainName: Record<ChainId, string> = {
