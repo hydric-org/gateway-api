@@ -156,11 +156,47 @@ export class TokensService {
     const decodedCursor = SingleChainTokenListCursor.decode(config.cursor);
 
     const indexerTokens = await this.liquidityPoolsIndexer.getTokens({
-      chainId,
+      chainIds: [chainId],
       filter: filters,
       orderBy: config.orderBy,
       limit: config.limit,
       skip: decodedCursor.skip,
+    });
+
+    const tokens = indexerTokens.map((token) => ({
+      chainId: token.chainId,
+      address: token.address,
+      decimals: token.decimals,
+      name: token.name,
+      symbol: token.symbol,
+    }));
+
+    const nextCursor =
+      tokens.length < config.limit
+        ? null
+        : SingleChainTokenListCursor.encode({
+            ...decodedCursor,
+            skip: decodedCursor.skip + config.limit,
+          });
+
+    return { tokens, nextCursor };
+  }
+
+  async searchSingleChainTokens(
+    chainId: ChainId,
+    search: string,
+    config: SingleChainTokenListConfig,
+    filters: ITokenFilter,
+  ): Promise<{ tokens: ISingleChainToken[]; nextCursor: string | null }> {
+    const decodedCursor = SingleChainTokenListCursor.decode(config.cursor);
+
+    const indexerTokens = await this.liquidityPoolsIndexer.getTokens({
+      chainIds: [chainId],
+      filter: filters,
+      orderBy: config.orderBy,
+      limit: config.limit,
+      skip: decodedCursor.skip,
+      search,
     });
 
     const tokens = indexerTokens.map((token) => ({
