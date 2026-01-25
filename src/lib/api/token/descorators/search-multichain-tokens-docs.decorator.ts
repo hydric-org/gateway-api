@@ -8,13 +8,7 @@ export function ApiSearchMultichainTokensDocs() {
   return applyDecorators(
     ApiOperation({
       summary: 'Search for multi-chain assets',
-      description: `
-Searches for assets across all supported blockchains by keyword (name or symbol) or by contract address.
-
-### Features:
-- **Intelligent Detection:** Automatically switches between substring keyword search and exact address lookup.
-- **Cross-Chain Aggregation:** Returns a single unified model for each asset, showing its presence and metadata on all networks.
-- **Rich Filtering:** Apply liquidity, volume, and swap count thresholds to separate legitimate assets from "noise".`,
+      description: 'Searches for assets across all supported blockchains by keyword (name or symbol).',
     }),
     ApiOkResponse({
       description: 'The search results were successfully retrieved.',
