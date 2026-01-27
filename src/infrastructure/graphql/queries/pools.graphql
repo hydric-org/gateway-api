@@ -80,12 +80,14 @@ query GetPools($poolsFilter: Pool_bool_exp, $limit: Int, $offset: Int, $orderBy:
       symbol
       name
       decimals
+      trackedTotalValuePooledUsd
     }
     token1 {
       tokenAddress
       symbol
       name
       decimals
+      trackedTotalValuePooledUsd
     }
   }
 }

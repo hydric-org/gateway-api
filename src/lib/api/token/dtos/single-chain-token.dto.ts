@@ -1,6 +1,7 @@
 import { TOKEN_LOGO } from '@core/constants';
 import { ChainId } from '@core/enums/chain-id';
 import { ISingleChainToken } from '@core/interfaces/token/single-chain-token.interface';
+import { RoundUsd } from '@lib/api/common/transformers/round-usd-transformer';
 import { ObjectCost } from '@lib/api/pricing/decorators/object-cost.decorator';
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 
@@ -11,6 +12,7 @@ export const SingleChainTokenExample = {
   name: 'Ether',
   symbol: 'ETH',
   logoUrl: TOKEN_LOGO(1, '0x0000000000000000000000000000000000000000'),
+  totalValuePooledUsd: 154000000.5,
 } satisfies SingleChainToken;
 
 @ApiSchema({
@@ -61,4 +63,13 @@ The contract address of the token on its host network.
     example: SingleChainTokenExample.logoUrl,
   })
   readonly logoUrl!: string;
+
+  @ApiProperty({
+    description: `**Estimated Total Value Pooled (USD)**
+
+Represents the total USD value of this token currently locked in liquidity pools indexed by hydric.`,
+    example: 154000000.5,
+  })
+  @RoundUsd()
+  readonly totalValuePooledUsd!: number;
 }

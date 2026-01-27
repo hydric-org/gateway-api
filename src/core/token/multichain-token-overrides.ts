@@ -1,6 +1,8 @@
 import { TOKEN_LOGO } from '@core/constants';
 import { IIndexerToken } from '@core/interfaces/token/indexer-token.interface';
 import { IMultiChainToken } from '@core/interfaces/token/multi-chain-token.interface';
+import { ITokenOrder } from '@core/interfaces/token/token-order.interface';
+import { TokenUtils } from './token-utils';
 
 /**
  * A map of Token ID ({chainId}-{address}) to its override configuration.
@@ -27,6 +29,7 @@ export function applyMultichainTokenOverrides(
   existingGroups: IMultiChainToken[],
   existingDiscarded: IIndexerToken[],
   allTokens: IIndexerToken[],
+  order: ITokenOrder,
 ): {
   multichainTokenList: IMultiChainToken[];
   discardedTokens: IIndexerToken[];
@@ -66,7 +69,6 @@ export function applyMultichainTokenOverrides(
       continue;
     }
 
-    // Inclusion: Break away from standard group first and treat as new singleton to be merged later
     if (override.partOf && override.partOf.length >= 0) {
       overrideTokens.push(token);
       _removeTokenFromCluster(token.id, idToCluster);
@@ -121,6 +123,8 @@ export function applyMultichainTokenOverrides(
     if (t) finalDiscardedList.push(t);
   }
 
+  if (order) TokenUtils.sortMultichainTokenList(finalMultichainList, order);
+
   return { multichainTokenList: finalMultichainList, discardedTokens: finalDiscardedList };
 }
 
@@ -158,6 +162,8 @@ function _convertClusterToMultichainToken(groupTokens: IIndexerToken[]): IMultiC
   groupTokens.sort((a, b) => b.trackedTotalValuePooledUsd - a.trackedTotalValuePooledUsd);
   const anchor = groupTokens[0];
 
+  const totalValuePooledUsd = TokenUtils.sumTotalValuePooledUsd(groupTokens);
+
   const group: IMultiChainToken = {
     ids: groupTokens.map((t) => t.id),
     addresses: groupTokens.map((t) => t.address),
@@ -166,6 +172,7 @@ function _convertClusterToMultichainToken(groupTokens: IIndexerToken[]): IMultiC
     name: anchor.name,
     symbol: anchor.symbol,
     logoUrl: TOKEN_LOGO(anchor.chainId, anchor.address),
+    totalValuePooledUsd,
   };
 
   for (const t of groupTokens) {

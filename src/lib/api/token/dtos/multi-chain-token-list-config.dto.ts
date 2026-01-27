@@ -37,7 +37,13 @@ Toggles the inclusion of multiple assets sharing the exact same ticker symbol.
   readonly limit: number = 10;
 
   @ApiPropertyOptional({
-    description: 'Ordering configuration. Note: Changing this while using a cursor may yield inconsistent results.',
+    description: `
+Ordering configuration for the result.
+
+**Critical Notes:**
+- **Sequence Integrity:** Do not expect a 100% perfect sequence. Because multi-chain data is computed on-the-fly, some tokens may appear slightly out of order. This is an approximation used to maintain high-speed responses.
+- **Pagination Warning:** Changing the sorting parameters while using a cursor will break your pagination flow and return inconsistent results.
+    `,
     type: TokenOrder,
   })
   @IsOptional()

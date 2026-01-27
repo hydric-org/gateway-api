@@ -1,6 +1,30 @@
+import { OrderDirection } from '@core/enums/order-direction';
+import { TokenOrderField } from '@core/enums/token/token-order-field';
+import { ITokenOrder } from '@core/interfaces/token/token-order.interface';
+
 export const TokenUtils = {
   areTokensTheSame,
+  sumTotalValuePooledUsd,
+  sortMultichainTokenList,
 };
+
+function sumTotalValuePooledUsd(tokens: { trackedTotalValuePooledUsd: number }[]): number {
+  return tokens.reduce((sum, token) => sum + token.trackedTotalValuePooledUsd, 0);
+}
+
+function sortMultichainTokenList(tokens: { totalValuePooledUsd: number }[], order: ITokenOrder): void {
+  tokens.sort((a, b) => {
+    let comparison = 0;
+
+    switch (order.field) {
+      case TokenOrderField.TVL:
+        comparison = (a.totalValuePooledUsd ?? 0) - (b.totalValuePooledUsd ?? 0);
+        break;
+    }
+
+    return order.direction === OrderDirection.ASC ? comparison : -comparison;
+  });
+}
 
 function areTokensTheSame(
   token1: { normalizedName: string; normalizedSymbol: string },

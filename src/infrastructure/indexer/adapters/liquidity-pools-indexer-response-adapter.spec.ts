@@ -1,3 +1,5 @@
+import { OrderDirection } from '@core/enums/order-direction';
+import { TokenOrderField } from '@core/enums/token/token-order-field';
 import { IIndexerToken } from '@core/interfaces/token/indexer-token.interface';
 import { MULTICHAIN_TOKEN_OVERRIDES } from '@core/token/multichain-token-overrides';
 import { LiquidityPoolsIndexerResponseAdapter } from './liquidity-pools-indexer-response-adapter';
@@ -21,6 +23,7 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
       trackedSwapVolumeUsd: 100000,
       trackedTotalValuePooledUsd: 100000,
       trackedUsdPrice: 1.0,
+      totalValuePooledUsd: 100000,
       ...overrides,
     });
 
@@ -29,6 +32,10 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
       minimumPriceBackingUsd: 0,
       minimumSwapVolumeUsd: 0,
       minimumSwapsCount: 0,
+      order: {
+        field: TokenOrderField.TVL,
+        direction: OrderDirection.DESC,
+      },
     };
 
     beforeEach(() => {
@@ -241,6 +248,48 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
       expect(groupWithB).toBeDefined();
       expect(groupWithC).toBeDefined();
       expect(groupWithA).toBe(groupWithC);
+    });
+
+    it('should correctly sort multichain tokens by TVL DESC', () => {
+      const tokenHighTvl = createMockToken({
+        id: '1-0xHigh',
+        symbol: 'HIGH',
+        normalizedSymbol: 'HIGH',
+        trackedTotalValuePooledUsd: 1000000,
+        totalValuePooledUsd: 1000000,
+      });
+      const tokenLowTvl = createMockToken({
+        id: '1-0xLow',
+        symbol: 'LOW',
+        normalizedSymbol: 'LOW',
+        trackedTotalValuePooledUsd: 100,
+        totalValuePooledUsd: 100,
+      });
+      const tokenZeroTvl = createMockToken({
+        id: '1-0xZero',
+        symbol: 'ZERO',
+        normalizedSymbol: 'ZERO',
+        trackedTotalValuePooledUsd: 0,
+        totalValuePooledUsd: 0,
+      });
+
+      const params = {
+        ...defaultParams,
+        order: {
+          field: TokenOrderField.TVL,
+          direction: OrderDirection.DESC,
+        },
+      };
+
+      const result = LiquidityPoolsIndexerResponseAdapter.indexerTokensToMultichainTokenList(
+        [tokenZeroTvl, tokenHighTvl, tokenLowTvl],
+        params,
+      );
+
+      expect(result.multichainTokenList).toHaveLength(3);
+      expect(result.multichainTokenList[0].symbol).toBe('HIGH');
+      expect(result.multichainTokenList[1].symbol).toBe('LOW');
+      expect(result.multichainTokenList[2].symbol).toBe('ZERO');
     });
   });
 });

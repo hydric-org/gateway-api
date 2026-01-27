@@ -1,4 +1,4 @@
-import { ZERO_ETHEREUM_ADDRESS } from '@core/constants';
+import { TOKEN_LOGO, ZERO_ETHEREUM_ADDRESS } from '@core/constants';
 import { ChainId } from '@core/enums/chain-id';
 import { LiquidityPoolNotFoundError } from '@core/errors/liquidity-pool-not-found.error';
 import { TokenNotFoundError } from '@core/errors/token-not-found-error';
@@ -157,6 +157,8 @@ export class LiquidityPoolsIndexerClient {
       decimals: token.decimals,
       name: token.name,
       symbol: token.symbol,
+      logoUrl: TOKEN_LOGO(token.chainId, token.tokenAddress),
+      totalValuePooledUsd: Number(token.trackedTotalValuePooledUsd),
     };
   }
 

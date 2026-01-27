@@ -7,6 +7,8 @@ import { IV3LiquidityPoolMetadata } from '@core/interfaces/liquidity-pool/metada
 import { IV4LiquidityPoolMetadata } from '@core/interfaces/liquidity-pool/metadata/v4-liquidity-pool-metadata.interface';
 import { IIndexerToken } from '@core/interfaces/token/indexer-token.interface';
 import { IMultiChainToken } from '@core/interfaces/token/multi-chain-token.interface';
+import { ISingleChainToken } from '@core/interfaces/token/single-chain-token.interface';
+import { ITokenOrder } from '@core/interfaces/token/token-order.interface';
 import { applyMultichainTokenOverrides } from '@core/token/multichain-token-overrides';
 import { TokenUtils } from '@core/token/token-utils';
 import { LiquidityPoolMetadata } from '@core/types/liquidity-pool-metadata';
@@ -40,6 +42,7 @@ function responseToIndexerTokenList(
       trackedSwapVolumeUsd: Number(token.trackedSwapVolumeUsd),
       swapsCount: Number(token.swapsCount),
       logoUrl: TOKEN_LOGO(token.chainId, token.tokenAddress),
+      totalValuePooledUsd: Number(token.trackedTotalValuePooledUsd),
     }),
   );
 }
@@ -62,6 +65,7 @@ function indexerTokensToMultichainTokenList(
     minimumPriceBackingUsd: number;
     minimumSwapVolumeUsd: number;
     minimumSwapsCount: number;
+    order: ITokenOrder;
   },
 ): {
   multichainTokenList: IMultiChainToken[];
@@ -73,6 +77,7 @@ function indexerTokensToMultichainTokenList(
     heuristicResult.multichainTokenList,
     heuristicResult.discardedTokens,
     indexerTokens,
+    params.order,
   );
 }
 
@@ -129,6 +134,7 @@ function _groupTokensBySymbolAndPriceStrategy(
         name: anchor.name,
         symbol: anchor.symbol,
         logoUrl: TOKEN_LOGO(anchor.chainId, anchor.address),
+        totalValuePooledUsd: 0,
       };
 
       const seenChainIds = new Set<number>();
@@ -169,13 +175,14 @@ function _groupTokensBySymbolAndPriceStrategy(
 function _parseRawPool(rawPool: GetPoolsQuery_query_root_Pool_Pool): ILiquidityPool {
   const poolTokens = [rawPool.token0!, rawPool.token1!];
 
-  const poolTokensMapped = poolTokens.map((token) => ({
+  const poolTokensMapped: ISingleChainToken[] = poolTokens.map((token) => ({
     chainId: rawPool.chainId,
     address: token.tokenAddress,
     decimals: token.decimals,
     name: token.name,
     symbol: token.symbol,
     logoUrl: TOKEN_LOGO(rawPool.chainId, token.tokenAddress),
+    totalValuePooledUsd: Number(token.trackedTotalValuePooledUsd),
   }));
 
   return {

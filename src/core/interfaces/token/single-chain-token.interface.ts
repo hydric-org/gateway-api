@@ -7,4 +7,5 @@ export interface ISingleChainToken {
   name: string;
   symbol: string;
   logoUrl: string;
+  totalValuePooledUsd: number;
 }

@@ -8,4 +8,5 @@ export interface IMultiChainToken {
   symbol: string;
   name: string;
   logoUrl: string;
+  totalValuePooledUsd: number;
 }

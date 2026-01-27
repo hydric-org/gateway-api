@@ -102,6 +102,7 @@ export class TokensService {
           minimumPriceBackingUsd: listFilters.minimumPriceBackingUsd,
           minimumSwapVolumeUsd: listFilters.minimumSwapVolumeUsd,
           minimumSwapsCount: listFilters.minimumSwapsCount,
+          order: listConfig.orderBy,
         });
 
       const multichainTokensToAdd = batchMultichainTokenList.slice(0, listConfig.limit - multichainTokenList.length);
@@ -171,6 +172,7 @@ export class TokensService {
       name: token.name,
       symbol: token.symbol,
       logoUrl: TOKEN_LOGO(token.chainId, token.address),
+      totalValuePooledUsd: token.totalValuePooledUsd,
     }));
 
     const nextCursor =
@@ -208,6 +210,7 @@ export class TokensService {
       name: token.name,
       symbol: token.symbol,
       logoUrl: TOKEN_LOGO(token.chainId, token.address),
+      totalValuePooledUsd: token.totalValuePooledUsd,
     }));
 
     const nextCursor =
@@ -244,6 +247,7 @@ export class TokensService {
       name: token.name,
       symbol: token.symbol,
       logoUrl: TOKEN_LOGO(token.chainId, token.address),
+      totalValuePooledUsd: token.totalValuePooledUsd,
     }));
   }
 }
