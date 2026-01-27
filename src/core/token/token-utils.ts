@@ -20,9 +20,9 @@ function areTokensTheSame(
   // 1. Identity Match (Names match exactly)
   if (name1 === name2) return true;
 
-  // 2. Cross-Match (Name is just the symbol)
-  // Handles: Name "WETH" vs Name "Wrapped Ether" (Symbol WETH)
-  if (name1 === symbol2 || name2 === symbol1) return true;
+  // 2. Cross-Match (Name contains the symbol)
+  // Handles: Name "Wrapped Ether" vs Symbol "WETH" and "Wrapped Ether" vs "Ether" (Symbol "ETH")
+  if (name1.includes(symbol2) || name2.includes(symbol1)) return true;
 
   // 3. Acronym Check
   // Handles: "USD Coin" (First word 'USD') vs "USDC" (First word 'USDC')
