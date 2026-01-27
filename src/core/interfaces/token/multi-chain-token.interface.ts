@@ -7,4 +7,5 @@ export interface IMultiChainToken {
   decimals: Record<string, number>;
   symbol: string;
   name: string;
+  logoUrl: string;
 }

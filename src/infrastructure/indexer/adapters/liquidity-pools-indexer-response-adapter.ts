@@ -1,4 +1,4 @@
-import { ZERO_ETHEREUM_ADDRESS } from '@core/constants';
+import { TOKEN_LOGO, ZERO_ETHEREUM_ADDRESS } from '@core/constants';
 import { LiquidityPoolType } from '@core/enums/liquidity-pool/liquidity-pool-type';
 import { ILiquidityPool } from '@core/interfaces/liquidity-pool/liquidity-pool.interface';
 import { IAlgebraLiquidityPoolMetadata } from '@core/interfaces/liquidity-pool/metadata/algebra-liquidity-pool-metadata.interface';
@@ -38,6 +38,7 @@ function responseToIndexerTokenList(
       trackedPriceBackingUsd: Number(token.trackedPriceDiscoveryCapitalUsd),
       trackedSwapVolumeUsd: Number(token.trackedSwapVolumeUsd),
       swapsCount: Number(token.swapsCount),
+      logoUrl: TOKEN_LOGO(token.chainId, token.tokenAddress),
     }),
   );
 }
@@ -87,7 +88,7 @@ function indexerTokensToMultichainTokenList(
   const processedIds = new Set<string>();
   const discardedTokens: IIndexerToken[] = [];
 
-  for (const [_, tokens] of groups) {
+  for (const [, tokens] of groups) {
     tokens.sort((a, b) => b.trackedTotalValuePooledUsd - a.trackedTotalValuePooledUsd);
 
     for (const anchor of tokens) {
@@ -138,6 +139,7 @@ function indexerTokensToMultichainTokenList(
           decimals,
           name: anchor.name,
           symbol: anchor.symbol,
+          logoUrl: TOKEN_LOGO(anchor.chainId, anchor.address),
         });
       }
     }
@@ -155,6 +157,7 @@ function _parseRawPool(rawPool: GetPoolsQuery_query_root_Pool_Pool): ILiquidityP
     decimals: token.decimals,
     name: token.name,
     symbol: token.symbol,
+    logoUrl: TOKEN_LOGO(rawPool.chainId, token.tokenAddress),
   }));
 
   return {
@@ -283,7 +286,7 @@ function _buildLiquidityPoolTypeMetadata(rawPool: GetPoolsQuery_query_root_Pool_
     }
 
     default: {
-      throw new Error(`Unknown liquidity pool type: ${rawPool.poolType} cannot be parsed`);
+      throw new Error(`Unknown liquidity pool type: ${rawPool.poolType as any} cannot be parsed`);
     }
   }
 }

@@ -1,3 +1,4 @@
+import { TOKEN_LOGO } from '@core/constants';
 import { ChainId } from '@core/enums/chain-id';
 import { ISingleChainToken } from '@core/interfaces/token/single-chain-token.interface';
 import { ObjectCost } from '@lib/api/pricing/decorators/object-cost.decorator';
@@ -9,6 +10,7 @@ export const SingleChainTokenExample = {
   decimals: 18,
   name: 'Ether',
   symbol: 'ETH',
+  logoUrl: TOKEN_LOGO(1, '0x0000000000000000000000000000000000000000'),
 } satisfies SingleChainToken;
 
 @ApiSchema({
@@ -53,4 +55,10 @@ The contract address of the token on its host network.
     example: SingleChainTokenExample.symbol,
   })
   readonly symbol!: string;
+
+  @ApiProperty({
+    description: 'The URL of the token logo.',
+    example: SingleChainTokenExample.logoUrl,
+  })
+  readonly logoUrl!: string;
 }

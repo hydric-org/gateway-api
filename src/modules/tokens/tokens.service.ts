@@ -1,3 +1,4 @@
+import { TOKEN_LOGO } from '@core/constants';
 import { ChainId } from '@core/enums/chain-id';
 import { OrderDirection } from '@core/enums/order-direction';
 import { TokenOrderField } from '@core/enums/token/token-order-field';
@@ -169,6 +170,7 @@ export class TokensService {
       decimals: token.decimals,
       name: token.name,
       symbol: token.symbol,
+      logoUrl: TOKEN_LOGO(token.chainId, token.address),
     }));
 
     const nextCursor =
@@ -205,6 +207,7 @@ export class TokensService {
       decimals: token.decimals,
       name: token.name,
       symbol: token.symbol,
+      logoUrl: TOKEN_LOGO(token.chainId, token.address),
     }));
 
     const nextCursor =
@@ -240,6 +243,7 @@ export class TokensService {
       decimals: token.decimals,
       name: token.name,
       symbol: token.symbol,
+      logoUrl: TOKEN_LOGO(token.chainId, token.address),
     }));
   }
 }

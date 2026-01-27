@@ -6,4 +6,5 @@ export interface ISingleChainToken {
   decimals: number;
   name: string;
   symbol: string;
+  logoUrl: string;
 }

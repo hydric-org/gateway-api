@@ -1,3 +1,4 @@
+import { TOKEN_LOGO } from '@core/constants';
 import { ChainId } from '@core/enums/chain-id';
 import { IMultiChainToken } from '@core/interfaces/token/multi-chain-token.interface';
 import { ObjectCost } from '@lib/api/pricing/decorators/object-cost.decorator';
@@ -60,4 +61,10 @@ For example, if tokens are ordered by TVL, the name corresponds to the token wit
     example: 'USD Coin',
   })
   name!: string;
+
+  @ApiProperty({
+    description: 'The URL of the token logo. This is derived from the most liquid chain where the token is available.',
+    example: TOKEN_LOGO(1, '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'),
+  })
+  logoUrl!: string;
 }
