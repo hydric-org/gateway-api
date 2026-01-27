@@ -7,6 +7,7 @@ import { IV3LiquidityPoolMetadata } from '@core/interfaces/liquidity-pool/metada
 import { IV4LiquidityPoolMetadata } from '@core/interfaces/liquidity-pool/metadata/v4-liquidity-pool-metadata.interface';
 import { IIndexerToken } from '@core/interfaces/token/indexer-token.interface';
 import { IMultiChainToken } from '@core/interfaces/token/multi-chain-token.interface';
+import { applyMultichainTokenOverrides } from '@core/token/multichain-token-overrides';
 import { TokenUtils } from '@core/token/token-utils';
 import { LiquidityPoolMetadata } from '@core/types/liquidity-pool-metadata';
 import {
@@ -66,29 +67,49 @@ function indexerTokensToMultichainTokenList(
   multichainTokenList: IMultiChainToken[];
   discardedTokens: IIndexerToken[];
 } {
+  const heuristicResult = _groupTokensBySymbolAndPriceStrategy(indexerTokens, params);
+
+  return applyMultichainTokenOverrides(
+    heuristicResult.multichainTokenList,
+    heuristicResult.discardedTokens,
+    indexerTokens,
+  );
+}
+
+function _groupTokensBySymbolAndPriceStrategy(
+  indexerTokens: IIndexerToken[],
+  params: {
+    matchAllSymbols: boolean;
+    minimumPriceBackingUsd: number;
+    minimumSwapVolumeUsd: number;
+    minimumSwapsCount: number;
+  },
+): {
+  multichainTokenList: IMultiChainToken[];
+  discardedTokens: IIndexerToken[];
+} {
   const isTokenTrusted = (token: IIndexerToken): boolean => {
     if (token.trackedPriceBackingUsd < params.minimumPriceBackingUsd) return false;
     if (token.trackedSwapVolumeUsd < params.minimumSwapVolumeUsd) return false;
     if (token.swapsCount < params.minimumSwapsCount) return false;
-
     return true;
   };
 
-  const groups = new Map<string, IIndexerToken[]>();
+  const symbolGroups = new Map<string, IIndexerToken[]>();
 
   for (const token of indexerTokens) {
-    if (!groups.has(token.normalizedSymbol)) {
-      groups.set(token.normalizedSymbol, []);
+    if (!symbolGroups.has(token.normalizedSymbol)) {
+      symbolGroups.set(token.normalizedSymbol, []);
     }
-
-    groups.get(token.normalizedSymbol)!.push(token);
+    symbolGroups.get(token.normalizedSymbol)!.push(token);
   }
 
   const multichainTokenList: IMultiChainToken[] = [];
-  const processedIds = new Set<string>();
   const discardedTokens: IIndexerToken[] = [];
+  const processedIds = new Set<string>();
 
-  for (const [, tokens] of groups) {
+  for (const [, tokens] of symbolGroups) {
+    // Sort by TVL to determine anchor (highest TVL is usually the most reliable)
     tokens.sort((a, b) => b.trackedTotalValuePooledUsd - a.trackedTotalValuePooledUsd);
 
     for (const anchor of tokens) {
@@ -100,12 +121,16 @@ function indexerTokensToMultichainTokenList(
         continue;
       }
 
-      const addresses: string[] = [];
-      const chainIds: number[] = [];
-      const ids: string[] = [];
-      const decimals: Record<string, number> = {};
+      const currentGroup: IMultiChainToken = {
+        ids: [],
+        addresses: [],
+        chainIds: [],
+        decimals: {},
+        name: anchor.name,
+        symbol: anchor.symbol,
+        logoUrl: TOKEN_LOGO(anchor.chainId, anchor.address),
+      };
 
-      // Track seen chainIds within this group to enforce one-per-chain when matchAllSymbols is false
       const seenChainIds = new Set<number>();
 
       for (const candidate of tokens) {
@@ -119,10 +144,11 @@ function indexerTokensToMultichainTokenList(
         const chainAlreadySeen = seenChainIds.has(candidate.chainId);
 
         if (meetsMatchingCriteria && isTrusted && (params.matchAllSymbols || !chainAlreadySeen)) {
-          addresses.push(candidate.address);
-          chainIds.push(candidate.chainId);
-          ids.push(candidate.id);
-          decimals[candidate.address] = candidate.decimals;
+          currentGroup.ids.push(candidate.id);
+          currentGroup.addresses.push(candidate.address);
+          currentGroup.chainIds.push(candidate.chainId);
+          currentGroup.decimals[candidate.address] = candidate.decimals;
+
           seenChainIds.add(candidate.chainId);
         } else {
           discardedTokens.push(candidate);
@@ -131,16 +157,8 @@ function indexerTokensToMultichainTokenList(
         processedIds.add(candidate.id);
       }
 
-      if (ids.length > 0) {
-        multichainTokenList.push({
-          addresses,
-          chainIds,
-          ids,
-          decimals,
-          name: anchor.name,
-          symbol: anchor.symbol,
-          logoUrl: TOKEN_LOGO(anchor.chainId, anchor.address),
-        });
+      if (currentGroup.ids.length > 0) {
+        multichainTokenList.push(currentGroup);
       }
     }
   }
