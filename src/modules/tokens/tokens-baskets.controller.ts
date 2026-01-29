@@ -11,7 +11,7 @@ import { Controller, Get, Param } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { TokensBasketsService } from './tokens-baskets.service';
 
-@ApiTags('Tokens')
+@ApiTags('Token Baskets')
 @Controller('tokens/baskets')
 export class TokensBasketsController {
   constructor(private readonly tokensBasketsService: TokensBasketsService) {}
