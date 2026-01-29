@@ -47,12 +47,13 @@ export class LiquidityPoolsIndexerClient {
 
   async getTokens(params: {
     filter?: ITokenFilter;
-    orderBy: ITokenOrder;
+    orderBy?: ITokenOrder;
     limit?: number;
     skip?: number;
     chainIds?: ChainId[];
     search?: string;
     tokenAddress?: string;
+    ids?: string[];
   }): Promise<IIndexerToken[]> {
     const response = await this.graphQLClients.liquidityPoolsIndexerClient.request<
       GetTokensQuery,
@@ -60,13 +61,14 @@ export class LiquidityPoolsIndexerClient {
     >(GetTokensDocument, {
       tokenFilter: {
         chainId: {
-          ...(params.chainIds
-            ? params.chainIds.length > 1
-              ? { _in: params.chainIds }
-              : { _eq: params.chainIds[0] }
-            : // TODO: remove this when sepolia is not supported anymore in the indexer
-              { _neq: 11155111 }),
+          ...(params.chainIds && {
+            _in: params.chainIds.length > 1 ? params.chainIds : undefined,
+            _eq: params.chainIds.length === 1 ? params.chainIds[0] : undefined,
+          }),
         },
+        ...(params.ids && {
+          id: { _in: params.ids },
+        }),
         ...(params.filter?.minimumTotalValuePooledUsd && {
           trackedTotalValuePooledUsd: { _gt: params.filter.minimumTotalValuePooledUsd.toString() },
         }),
@@ -116,7 +118,9 @@ export class LiquidityPoolsIndexerClient {
       },
       limit: params.limit,
       offset: params.skip,
-      orderBy: LiquidityPoolsIndexerRequestAdapter.tokenOrderToIndexer(params.orderBy),
+      ...(params.orderBy && {
+        orderBy: LiquidityPoolsIndexerRequestAdapter.tokenOrderToIndexer(params.orderBy),
+      }),
     });
 
     return LiquidityPoolsIndexerResponseAdapter.responseToIndexerTokenList(response.SingleChainToken);

@@ -1,6 +1,6 @@
 import { IBaseError } from '@core/interfaces/error/base-error.interface';
 
-export abstract class BaseError implements IBaseError {
+export abstract class BaseError extends Error implements IBaseError {
   constructor(
     public readonly params: {
       message: string;
@@ -9,13 +9,14 @@ export abstract class BaseError implements IBaseError {
       metadata: Record<string, any>;
     },
   ) {
-    this.message = params.message;
+    super(params.message);
     this.errorCode = params.errorCode;
     this.details = params.details;
     this.metadata = params.metadata;
+
+    Object.setPrototypeOf(this, new.target.prototype);
   }
 
-  message: string;
   errorCode: string;
   details: string;
   metadata: Record<string, any>;

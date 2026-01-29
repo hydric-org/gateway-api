@@ -5,7 +5,7 @@ import { RoundUsd } from '@lib/api/common/transformers/round-usd-transformer';
 import { ObjectCost } from '@lib/api/pricing/decorators/object-cost.decorator';
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 
-export const SingleChainTokenExample = {
+export const SingleChainTokenExample: ISingleChainToken = {
   chainId: ChainId.ETHEREUM,
   address: '0x0000000000000000000000000000000000000000',
   decimals: 18,

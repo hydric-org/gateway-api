@@ -31,6 +31,8 @@ export class ApiErrorCodeUtils {
     API_KEY_NOT_FOUND: HttpStatus.UNAUTHORIZED,
     API_KEY_INVALID: HttpStatus.UNAUTHORIZED,
     API_KEY_MISSING: HttpStatus.UNAUTHORIZED,
+    INVALID_BASKET_ID: HttpStatus.BAD_REQUEST,
+    TOKEN_BASKET_NOT_FOUND: HttpStatus.NOT_FOUND,
   };
 
   static toTitle: Record<Exclude<ApiErrorCode, 'HTTP_EXCEPTION'>, string> = {
@@ -49,6 +51,8 @@ export class ApiErrorCodeUtils {
     API_KEY_NOT_FOUND: 'Authentication Failed',
     API_KEY_INVALID: 'Authentication Failed',
     API_KEY_MISSING: 'Authentication Failed',
+    INVALID_BASKET_ID: 'Invalid Parameters',
+    TOKEN_BASKET_NOT_FOUND: 'Not Found',
   };
 
   static toDescription: Record<Exclude<ApiErrorCode, 'HTTP_EXCEPTION'>, string> = {
@@ -73,5 +77,7 @@ export class ApiErrorCodeUtils {
     API_KEY_NOT_FOUND: 'The provided API key does not exist.',
     API_KEY_INVALID: 'The provided API key is invalid.',
     API_KEY_MISSING: 'The request lacks an API key. Provide one in the Authorization header.',
+    INVALID_BASKET_ID: 'The provided basket identifier is not recognized.',
+    TOKEN_BASKET_NOT_FOUND: 'The requested token basket could not be found.',
   };
 }

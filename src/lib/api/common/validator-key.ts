@@ -4,6 +4,7 @@ import { InvalidPaginationCursorError } from '../error/errors/invalid-pagination
 import { InvalidLiquidityPoolAddressError } from '../liquidity-pool/errors/invalid-liquidity-pool-address.error';
 import { UnsupportedChainIdError } from '../network/errors/unsupported-chain-id.error';
 import { InvalidProtocolIdError } from '../protocol/errors/invalid-protocol-id.error';
+import { InvalidBasketIdError } from '../token/errors/invalid-basket-id.error';
 
 export enum ValidatorKey {
   IS_SUPPORTED_CHAIN_ID = 'isSupportedChainId',
@@ -13,6 +14,7 @@ export enum ValidatorKey {
   IS_PROTOCOL_ID = 'isProtocolId',
   IS_TOKEN_LIST_CURSOR = 'isTokenListCursor',
   IS_SINGLE_CHAIN_TOKEN_LIST_CURSOR = 'isSingleChainTokenListCursor',
+  IS_SUPPORTED_BASKET_ID = 'isSupportedBasketId',
 }
 
 export class ValidatorKeyUtils {
@@ -39,6 +41,8 @@ export class ValidatorKeyUtils {
         return new InvalidPaginationCursorError({ cursor: value });
       case ValidatorKey.IS_SINGLE_CHAIN_TOKEN_LIST_CURSOR:
         return new InvalidPaginationCursorError({ cursor: value });
+      case ValidatorKey.IS_SUPPORTED_BASKET_ID:
+        return new InvalidBasketIdError({ basketId: value });
     }
   }
 }

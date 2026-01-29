@@ -113,7 +113,9 @@
     "moduleNameMapper": {
       "^src/(.*)$": "<rootDir>/src/$1",
       "^@lib/(.*)$": "<rootDir>/src/lib/$1",
-      "^@core/(.*)$": "<rootDir>/src/core/$1"
+      "^@core/(.*)$": "<rootDir>/src/core/$1",
+      "^@infrastructure/(.*)$": "<rootDir>/src/infrastructure/$1",
+      "^@gen/(.*)$": "<rootDir>/src/gen/$1"
     }
   },
   "lint-staged": {

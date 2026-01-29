@@ -1,4 +1,5 @@
 import { ChainId, ChainIdUtils } from '@core/enums/chain-id';
+import { UnsupportedChainIdError } from '@lib/api/network/errors/unsupported-chain-id.error';
 import { BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
 
 @Injectable()
@@ -22,10 +23,9 @@ export class ParseChainIdArrayPipe implements PipeTransform<string | string[] | 
       }
 
       if (!ChainIdUtils.includes(chainId)) {
-        const supportedChains = ChainIdUtils.values().join(', ');
-        throw new BadRequestException(
-          `Validation failed: Chain ID ${chainId} is not supported. Supported networks: [${supportedChains}]`,
-        );
+        throw new UnsupportedChainIdError({
+          chainId,
+        });
       }
 
       chainIds.push(chainId as ChainId);
