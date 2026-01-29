@@ -77,7 +77,7 @@ export class ApiErrorCodeUtils {
     API_KEY_NOT_FOUND: 'The provided API key does not exist.',
     API_KEY_INVALID: 'The provided API key is invalid.',
     API_KEY_MISSING: 'The request lacks an API key. Provide one in the Authorization header.',
-    INVALID_BASKET_ID: 'The provided basket identifier is not recognized.',
+    INVALID_BASKET_ID: 'The provided basket identifier is not one of the supported ones.',
     TOKEN_BASKET_NOT_FOUND: 'The requested token basket could not be found.',
   };
 }

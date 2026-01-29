@@ -5,8 +5,8 @@ on:
     branches:
       - main
     paths:
-      - 'src/lib/api/error/api-error-codes.ts'
-      - 'src/core/enums/chain-id.ts'
+      - "src/lib/api/error/error-codes/pi-error-codes.ts"
+      - "src/core/enums/chain-id.ts"
 
 jobs:
   sync-docs:
@@ -20,7 +20,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Enable Corepack
         run: corepack enable
