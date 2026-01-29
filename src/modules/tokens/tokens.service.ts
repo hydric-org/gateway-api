@@ -166,6 +166,7 @@ export class TokensService {
     });
 
     const tokens = indexerTokens.map((token) => ({
+      id: token.id,
       chainId: token.chainId,
       address: token.address,
       decimals: token.decimals,
@@ -204,6 +205,7 @@ export class TokensService {
     });
 
     const tokens = indexerTokens.map((token) => ({
+      id: token.id,
       chainId: token.chainId,
       address: token.address,
       decimals: token.decimals,
@@ -241,6 +243,7 @@ export class TokensService {
     });
 
     return indexerTokens.map((token) => ({
+      id: token.id,
       chainId: token.chainId,
       address: token.address,
       decimals: token.decimals,

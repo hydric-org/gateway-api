@@ -152,6 +152,7 @@ function _groupTokensBySymbolAndPriceStrategy(
           currentGroup.tokenIds.push(candidate.id);
           currentGroup.chainIds.push(candidate.chainId);
           currentGroup.tokens.push({
+            id: candidate.id,
             chainId: candidate.chainId,
             address: candidate.address,
             decimals: candidate.decimals,
@@ -182,6 +183,7 @@ function _parseRawPool(rawPool: GetPoolsQuery_query_root_Pool_Pool): ILiquidityP
   const poolTokens = [rawPool.token0!, rawPool.token1!];
 
   const poolTokensMapped: ISingleChainToken[] = poolTokens.map((token) => ({
+    id: `${rawPool.chainId}-${token.tokenAddress}`,
     chainId: rawPool.chainId,
     address: token.tokenAddress,
     decimals: token.decimals,

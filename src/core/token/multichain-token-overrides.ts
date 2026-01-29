@@ -172,6 +172,7 @@ function _convertClusterToMultichainToken(groupTokens: IIndexerToken[]): IMultiC
     logoUrl: TOKEN_LOGO(anchor.chainId, anchor.address),
     totalValuePooledUsd,
     tokens: groupTokens.map((t) => ({
+      id: t.id,
       chainId: t.chainId,
       address: t.address,
       decimals: t.decimals,
