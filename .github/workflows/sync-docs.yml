@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - "src/lib/api/error/error-codes/pi-error-codes.ts"
+      - "src/lib/api/error/error-codes/api-error-codes.ts"
       - "src/core/enums/chain-id.ts"
 
 jobs:
