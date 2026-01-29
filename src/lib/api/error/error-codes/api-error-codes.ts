@@ -75,7 +75,7 @@ export class ApiErrorCodeUtils {
     API_KEY_DISABLED: 'The provided API key exists but is disabled.',
     API_KEY_EXPIRED: 'The provided API key exists but has expired.',
     API_KEY_NOT_FOUND: 'The provided API key does not exist.',
-    API_KEY_INVALID: 'The provided API key is invalid.',
+    API_KEY_INVALID: 'The provided API key is not valid.',
     API_KEY_MISSING: 'The request lacks an API key. Provide one in the Authorization header.',
     INVALID_BASKET_ID: 'The provided basket identifier is not one of the supported ones.',
     TOKEN_BASKET_NOT_FOUND: 'The requested token basket could not be found.',
