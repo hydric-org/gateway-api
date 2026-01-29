@@ -6,7 +6,6 @@ import { ObjectCost } from '@lib/api/pricing/decorators/object-cost.decorator';
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 
 export const SingleChainTokenExample = {
-  id: '1-0x0000000000000000000000000000000000000000',
   chainId: ChainId.ETHEREUM,
   address: '0x0000000000000000000000000000000000000000',
   decimals: 18,
@@ -21,12 +20,6 @@ export const SingleChainTokenExample = {
 })
 @ObjectCost(5)
 export class SingleChainToken implements ISingleChainToken {
-  @ApiProperty({
-    description: 'The unique identifier of the token ({chainId}-{tokenAddress})',
-    example: SingleChainTokenExample.id,
-  })
-  readonly id!: string;
-
   @ApiProperty({
     description: 'The chain id of the network where the token resides.',
     example: SingleChainTokenExample.chainId,

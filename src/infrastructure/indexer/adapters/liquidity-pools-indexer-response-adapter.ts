@@ -127,13 +127,12 @@ function _groupTokensBySymbolAndPriceStrategy(
       }
 
       const currentGroup: IMultiChainToken = {
-        tokenIds: [],
+        addresses: [],
         chainIds: [],
         name: anchor.name,
         symbol: anchor.symbol,
         logoUrl: TOKEN_LOGO(anchor.chainId, anchor.address),
         totalValuePooledUsd: 0,
-        tokens: [],
       };
 
       const seenChainIds = new Set<number>();
@@ -149,18 +148,8 @@ function _groupTokensBySymbolAndPriceStrategy(
         const chainAlreadySeen = seenChainIds.has(candidate.chainId);
 
         if (meetsMatchingCriteria && isTrusted && (params.matchAllSymbols || !chainAlreadySeen)) {
-          currentGroup.tokenIds.push(candidate.id);
+          currentGroup.addresses.push({ chainId: candidate.chainId, address: candidate.address });
           currentGroup.chainIds.push(candidate.chainId);
-          currentGroup.tokens.push({
-            id: candidate.id,
-            chainId: candidate.chainId,
-            address: candidate.address,
-            decimals: candidate.decimals,
-            name: candidate.name,
-            symbol: candidate.symbol,
-            logoUrl: TOKEN_LOGO(candidate.chainId, candidate.address),
-            totalValuePooledUsd: Number(candidate.trackedTotalValuePooledUsd),
-          });
 
           seenChainIds.add(candidate.chainId);
         } else {
@@ -170,7 +159,7 @@ function _groupTokensBySymbolAndPriceStrategy(
         processedIds.add(candidate.id);
       }
 
-      if (currentGroup.tokenIds.length > 0) {
+      if (currentGroup.addresses.length > 0) {
         multichainTokenList.push(currentGroup);
       }
     }
@@ -183,7 +172,6 @@ function _parseRawPool(rawPool: GetPoolsQuery_query_root_Pool_Pool): ILiquidityP
   const poolTokens = [rawPool.token0!, rawPool.token1!];
 
   const poolTokensMapped: ISingleChainToken[] = poolTokens.map((token) => ({
-    id: `${rawPool.chainId}-${token.tokenAddress}`,
     chainId: rawPool.chainId,
     address: token.tokenAddress,
     decimals: token.decimals,

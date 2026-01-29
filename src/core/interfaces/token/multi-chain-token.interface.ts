@@ -1,12 +1,11 @@
 import { ChainId } from '@core/enums/chain-id';
-import { ISingleChainToken } from './single-chain-token.interface';
+import { IBlockchainAddress } from '../blockchain-address.interface';
 
 export interface IMultiChainToken {
-  tokenIds: string[];
+  addresses: IBlockchainAddress[];
+  chainIds: ChainId[];
   symbol: string;
   name: string;
   logoUrl: string;
   totalValuePooledUsd: number;
-  chainIds: ChainId[];
-  tokens: ISingleChainToken[];
 }

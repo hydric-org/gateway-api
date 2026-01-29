@@ -123,7 +123,7 @@ export class TokensService {
           continue;
         }
 
-        token.tokenIds.forEach((id) => pastTokensBloomFilter.add(id));
+        token.addresses.forEach((addr) => pastTokensBloomFilter.add(`${addr.chainId}-${addr.address}`));
       }
 
       for (const token of discardedTokens) pastTokensBloomFilter.add(token.id);
@@ -166,7 +166,6 @@ export class TokensService {
     });
 
     const tokens = indexerTokens.map((token) => ({
-      id: token.id,
       chainId: token.chainId,
       address: token.address,
       decimals: token.decimals,
@@ -205,7 +204,6 @@ export class TokensService {
     });
 
     const tokens = indexerTokens.map((token) => ({
-      id: token.id,
       chainId: token.chainId,
       address: token.address,
       decimals: token.decimals,
@@ -243,7 +241,6 @@ export class TokensService {
     });
 
     return indexerTokens.map((token) => ({
-      id: token.id,
       chainId: token.chainId,
       address: token.address,
       decimals: token.decimals,

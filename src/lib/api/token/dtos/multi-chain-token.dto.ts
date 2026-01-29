@@ -1,9 +1,9 @@
 import { TOKEN_LOGO } from '@core/constants';
 import { ChainId } from '@core/enums/chain-id';
 import { IMultiChainToken } from '@core/interfaces/token/multi-chain-token.interface';
+import { BlockchainAddress } from '@lib/api/address/blockchain-address.dto';
 import { RoundUsd } from '@lib/api/common/transformers/round-usd-transformer';
 import { ObjectCost } from '@lib/api/pricing/decorators/object-cost.decorator';
-import { SingleChainToken } from '@lib/api/token/dtos/single-chain-token.dto';
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 
 @ApiSchema({
@@ -15,13 +15,10 @@ hydric aggregates fragmented chain-specific metadata into this unified model to 
 @ObjectCost(15)
 export class MultiChainTokenDTO implements IMultiChainToken {
   @ApiProperty({
-    description: `The unique identifiers of the token across chains.
-    - **Format:** {chainId}-{address}
-    - **Native Assets:** Represented by the "Zero Address" (0x000...000).`,
-    example: ['1-0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', '8453-0xdbfefd2e8460a6ee4955a68582f85708baea60a3'],
-    type: [String],
+    description: 'The collection of underlying contract addresses for this asset across all supported networks.',
+    type: [BlockchainAddress],
   })
-  tokenIds!: string[];
+  addresses!: BlockchainAddress[];
 
   @ApiProperty({
     description: `**The representative token symbol across all chains.**
@@ -64,10 +61,4 @@ Calculated as the sum of Total Value Pooled of each individual single-chain toke
     example: [ChainId.ETHEREUM, ChainId.BASE],
   })
   chainIds!: ChainId[];
-
-  @ApiProperty({
-    description: 'The detailed list of token instances across different chains.',
-    type: [SingleChainToken],
-  })
-  tokens!: SingleChainToken[];
 }
