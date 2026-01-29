@@ -123,7 +123,7 @@ export class TokensService {
           continue;
         }
 
-        token.ids.forEach((id) => pastTokensBloomFilter.add(id));
+        token.tokenIds.forEach((id) => pastTokensBloomFilter.add(id));
       }
 
       for (const token of discardedTokens) pastTokensBloomFilter.add(token.id);

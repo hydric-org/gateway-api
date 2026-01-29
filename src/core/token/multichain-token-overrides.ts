@@ -43,9 +43,9 @@ export function applyMultichainTokenOverrides(
   }
 
   for (const group of existingGroups) {
-    const cluster: _ITokenCluster = { ids: new Set(group.ids), isActive: true };
+    const cluster: _ITokenCluster = { ids: new Set(group.tokenIds), isActive: true };
     clusters.push(cluster);
-    for (const id of group.ids) {
+    for (const id of group.tokenIds) {
       idToCluster.set(id, cluster);
     }
   }
@@ -165,19 +165,22 @@ function _convertClusterToMultichainToken(groupTokens: IIndexerToken[]): IMultiC
   const totalValuePooledUsd = TokenUtils.sumTotalValuePooledUsd(groupTokens);
 
   const group: IMultiChainToken = {
-    ids: groupTokens.map((t) => t.id),
-    addresses: groupTokens.map((t) => t.address),
+    tokenIds: groupTokens.map((t) => t.id),
     chainIds: groupTokens.map((t) => t.chainId),
-    decimals: {},
     name: anchor.name,
     symbol: anchor.symbol,
     logoUrl: TOKEN_LOGO(anchor.chainId, anchor.address),
     totalValuePooledUsd,
+    tokens: groupTokens.map((t) => ({
+      chainId: t.chainId,
+      address: t.address,
+      decimals: t.decimals,
+      name: t.name,
+      symbol: t.symbol,
+      logoUrl: TOKEN_LOGO(t.chainId, t.address),
+      totalValuePooledUsd: Number(t.trackedTotalValuePooledUsd),
+    })),
   };
-
-  for (const t of groupTokens) {
-    group.decimals[t.address] = t.decimals;
-  }
 
   return group;
 }

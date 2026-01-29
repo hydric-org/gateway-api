@@ -67,7 +67,7 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
       );
 
       expect(result.multichainTokenList).toHaveLength(1);
-      expect(result.multichainTokenList[0].ids).toEqual(expect.arrayContaining([token1.id, token2.id]));
+      expect(result.multichainTokenList[0].tokenIds).toEqual(expect.arrayContaining([token1.id, token2.id]));
       expect(result.discardedTokens).toHaveLength(0);
     });
 
@@ -94,7 +94,7 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
 
       expect(resultFixed.multichainTokenList.length).toBeGreaterThanOrEqual(1);
       const groupAll = resultFixed.multichainTokenList.find(
-        (g) => g.ids.includes(token1.id) && g.ids.includes(token2Fixed.id),
+        (g) => g.tokenIds.includes(token1.id) && g.tokenIds.includes(token2Fixed.id),
       );
       expect(groupAll).toBeUndefined();
     });
@@ -120,8 +120,8 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
 
       expect(result.multichainTokenList).toHaveLength(1);
       const group = result.multichainTokenList[0];
-      expect(group.ids).toContain(tokenA.id);
-      expect(group.ids).toContain(tokenB.id);
+      expect(group.tokenIds).toContain(tokenA.id);
+      expect(group.tokenIds).toContain(tokenB.id);
     });
 
     it('should FORCE JOIN tokens via override even if prices differ', () => {
@@ -148,7 +148,7 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
       );
 
       expect(result.multichainTokenList).toHaveLength(1);
-      expect(result.multichainTokenList[0].ids).toEqual(expect.arrayContaining([tokenA.id, tokenB.id]));
+      expect(result.multichainTokenList[0].tokenIds).toEqual(expect.arrayContaining([tokenA.id, tokenB.id]));
     });
 
     it('should DISCARD token if partOf is NULL', () => {
@@ -172,10 +172,10 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
       );
 
       expect(result.multichainTokenList).toHaveLength(1);
-      expect(result.multichainTokenList[0].ids).toEqual([tokenA.id]);
+      expect(result.multichainTokenList[0].tokenIds).toEqual([tokenA.id]);
       expect(result.discardedTokens).toContainEqual(tokenB);
 
-      const allGroupedIds = result.multichainTokenList.flatMap((g) => g.ids);
+      const allGroupedIds = result.multichainTokenList.flatMap((g) => g.tokenIds);
       expect(allGroupedIds).not.toContain(tokenB.id);
     });
 
@@ -201,13 +201,13 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
 
       expect(result.multichainTokenList).toHaveLength(2);
 
-      const groupA = result.multichainTokenList.find((g) => g.ids.includes(tokenA.id));
-      const groupB = result.multichainTokenList.find((g) => g.ids.includes(tokenB.id));
+      const groupA = result.multichainTokenList.find((g) => g.tokenIds.includes(tokenA.id));
+      const groupB = result.multichainTokenList.find((g) => g.tokenIds.includes(tokenB.id));
 
       expect(groupA).toBeDefined();
       expect(groupB).toBeDefined();
-      expect(groupA?.ids).toEqual([tokenA.id]);
-      expect(groupB?.ids).toEqual([tokenB.id]);
+      expect(groupA?.tokenIds).toEqual([tokenA.id]);
+      expect(groupB?.tokenIds).toEqual([tokenB.id]);
     });
 
     it('should MERGE multiple override tokens into the same group', () => {
@@ -224,7 +224,7 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
       );
 
       expect(result.multichainTokenList).toHaveLength(1);
-      expect(result.multichainTokenList[0].ids).toEqual(expect.arrayContaining([tokenA.id, tokenB.id, tokenC.id]));
+      expect(result.multichainTokenList[0].tokenIds).toEqual(expect.arrayContaining([tokenA.id, tokenB.id, tokenC.id]));
     });
 
     it('should handle complex chain: A joins B, B joins C (Transitiveness)', () => {
@@ -240,9 +240,9 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
         defaultParams,
       );
 
-      const groupWithA = result.multichainTokenList.find((g) => g.ids.includes(tokenA.id));
-      const groupWithB = result.multichainTokenList.find((g) => g.ids.includes(tokenB.id));
-      const groupWithC = result.multichainTokenList.find((g) => g.ids.includes(tokenC.id));
+      const groupWithA = result.multichainTokenList.find((g) => g.tokenIds.includes(tokenA.id));
+      const groupWithB = result.multichainTokenList.find((g) => g.tokenIds.includes(tokenB.id));
+      const groupWithC = result.multichainTokenList.find((g) => g.tokenIds.includes(tokenC.id));
 
       expect(groupWithA).toBeDefined();
       expect(groupWithB).toBeDefined();

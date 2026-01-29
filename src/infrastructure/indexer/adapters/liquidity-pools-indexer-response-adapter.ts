@@ -127,14 +127,13 @@ function _groupTokensBySymbolAndPriceStrategy(
       }
 
       const currentGroup: IMultiChainToken = {
-        ids: [],
-        addresses: [],
+        tokenIds: [],
         chainIds: [],
-        decimals: {},
         name: anchor.name,
         symbol: anchor.symbol,
         logoUrl: TOKEN_LOGO(anchor.chainId, anchor.address),
         totalValuePooledUsd: 0,
+        tokens: [],
       };
 
       const seenChainIds = new Set<number>();
@@ -150,10 +149,17 @@ function _groupTokensBySymbolAndPriceStrategy(
         const chainAlreadySeen = seenChainIds.has(candidate.chainId);
 
         if (meetsMatchingCriteria && isTrusted && (params.matchAllSymbols || !chainAlreadySeen)) {
-          currentGroup.ids.push(candidate.id);
-          currentGroup.addresses.push(candidate.address);
+          currentGroup.tokenIds.push(candidate.id);
           currentGroup.chainIds.push(candidate.chainId);
-          currentGroup.decimals[candidate.address] = candidate.decimals;
+          currentGroup.tokens.push({
+            chainId: candidate.chainId,
+            address: candidate.address,
+            decimals: candidate.decimals,
+            name: candidate.name,
+            symbol: candidate.symbol,
+            logoUrl: TOKEN_LOGO(candidate.chainId, candidate.address),
+            totalValuePooledUsd: Number(candidate.trackedTotalValuePooledUsd),
+          });
 
           seenChainIds.add(candidate.chainId);
         } else {
@@ -163,7 +169,7 @@ function _groupTokensBySymbolAndPriceStrategy(
         processedIds.add(candidate.id);
       }
 
-      if (currentGroup.ids.length > 0) {
+      if (currentGroup.tokenIds.length > 0) {
         multichainTokenList.push(currentGroup);
       }
     }
