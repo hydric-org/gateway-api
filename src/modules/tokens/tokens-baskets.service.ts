@@ -1,5 +1,5 @@
-import { ChainId, ChainIdUtils } from '@core/enums/chain-id';
-import { BasketId, BasketIdUtils } from '@core/enums/token/basket-id.enum';
+import { ChainId } from '@core/enums/chain-id';
+import { BasketId } from '@core/enums/token/basket-id.enum';
 import { TokenBasketNotFoundError } from '@core/errors/token-basket-not-found.error';
 import { ISingleChainToken } from '@core/interfaces/token/single-chain-token.interface';
 import { ITokenBasketConfiguration } from '@core/interfaces/token/token-basket-configuration.interface';
@@ -16,63 +16,49 @@ export class TokensBasketsService {
   ) {}
 
   async getMultiChainBaskets(): Promise<ITokenBasket[]> {
-    const supportedBaskets = BasketIdUtils.values();
-    const supportedChains = ChainIdUtils.values();
-
-    const promises: Promise<ITokenBasketConfiguration | null>[] = [];
-
-    for (const basketId of supportedBaskets) {
-      for (const chainId of supportedChains) promises.push(this.tokenBasketsClient.getBasket(chainId, basketId));
-    }
-
-    console.log('getting baskets');
-    const results = await Promise.all(promises);
-    console.log('got baskets');
-    const validBaskets = results.filter((basket) => basket !== null);
-
-    if (validBaskets.length === 0) return [];
-
-    console.log('merging baskets');
-    const mergedBaskets = this._mergeBaskets(validBaskets);
-    console.log('hydrating baskets');
-    return this._getTokensForTokenBasket(mergedBaskets);
+    const allBaskets = await this.tokenBasketsClient.getAllBaskets();
+    return this._getTokensForTokenBasket(allBaskets);
   }
 
   async getSingleChainBaskets(chainId: ChainId): Promise<ITokenBasket[]> {
-    const supportedBaskets = BasketIdUtils.values();
+    const allBaskets = await this.tokenBasketsClient.getAllBaskets();
 
-    const promises = supportedBaskets.map((basketId) => this.tokenBasketsClient.getBasket(chainId, basketId));
+    const chainBaskets = allBaskets
+      .filter((basket) => basket.chainIds.includes(Number(chainId)))
+      .map((basket) => ({
+        ...basket,
+        chainIds: [chainId],
+        addresses: basket.addresses.filter((addr) => addr.chainId === chainId),
+      }));
 
-    const results = await Promise.all(promises);
-    const validBaskets = results.filter((basket) => basket !== null);
+    if (chainBaskets.length === 0) return [];
 
-    return this._getTokensForTokenBasket(validBaskets);
+    return this._getTokensForTokenBasket(chainBaskets);
   }
 
   async getSingleMultiChainBasket(basketId: BasketId): Promise<ITokenBasket> {
-    const supportedChains = ChainIdUtils.values();
+    const basket = await this.tokenBasketsClient.getBasket(basketId);
 
-    const promises = supportedChains.map((chainId) => this.tokenBasketsClient.getBasket(chainId, basketId));
+    if (!basket) throw new TokenBasketNotFoundError({ basketId });
 
-    const results = await Promise.all(promises);
-    const validBaskets = results.filter((basket) => basket !== null);
-
-    if (validBaskets.length === 0) throw new TokenBasketNotFoundError({ basketId });
-
-    const mergedBaskets = this._mergeBaskets(validBaskets);
-    const [hydratedBasket] = await this._getTokensForTokenBasket(mergedBaskets);
-
+    const [hydratedBasket] = await this._getTokensForTokenBasket([basket]);
     return hydratedBasket;
   }
 
   async getSingleChainBasket(chainId: ChainId, basketId: BasketId): Promise<ITokenBasket> {
-    const basket = await this.tokenBasketsClient.getBasket(chainId, basketId);
+    const basket = await this.tokenBasketsClient.getBasket(basketId);
 
-    // Since the user is asking for a specific resource (Chain+Basket),
-    // we throw 404 if it doesn't exist.
-    if (!basket) throw new TokenBasketNotFoundError({ basketId, chainId });
+    if (!basket || !basket.chainIds.includes(chainId)) {
+      throw new TokenBasketNotFoundError({ basketId, chainId });
+    }
 
-    const [hydratedBasket] = await this._getTokensForTokenBasket([basket]);
+    const singleChainBasket = {
+      ...basket,
+      chainIds: [chainId],
+      addresses: basket.addresses.filter((addr) => addr.chainId === chainId),
+    };
+
+    const [hydratedBasket] = await this._getTokensForTokenBasket([singleChainBasket]);
     return hydratedBasket;
   }
 
@@ -122,26 +108,5 @@ export class TokensBasketsService {
         tokens: basketTokens,
       };
     });
-  }
-
-  private _mergeBaskets(basketsToMerge: ITokenBasketConfiguration[]): ITokenBasketConfiguration[] {
-    const basketIdToBasketConfig = new Map<BasketId, ITokenBasketConfiguration>();
-
-    for (const basket of basketsToMerge) {
-      const existingBasketConfigForId = basketIdToBasketConfig.get(basket.id);
-
-      if (!existingBasketConfigForId) {
-        basketIdToBasketConfig.set(basket.id, basket);
-        continue;
-      }
-
-      existingBasketConfigForId.chainIds = Array.from(
-        new Set([...existingBasketConfigForId.chainIds, ...basket.chainIds]),
-      );
-
-      existingBasketConfigForId.addresses = [...existingBasketConfigForId.addresses, ...basket.addresses];
-    }
-
-    return Array.from(basketIdToBasketConfig.values());
   }
 }

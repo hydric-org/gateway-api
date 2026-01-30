@@ -19,6 +19,9 @@ const token0: ISingleChainToken = {
   decimals: 18,
   name: 'Ether',
   symbol: 'ETH',
+  logoUrl:
+    'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/128/color/eth.png',
+  totalValuePooledUsd: 12450.55,
 };
 
 const token1: ISingleChainToken = {
@@ -27,6 +30,9 @@ const token1: ISingleChainToken = {
   decimals: 18,
   name: 'USDC',
   symbol: 'USDC',
+  logoUrl:
+    'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/128/color/usdc.png',
+  totalValuePooledUsd: 45200.12,
 };
 export const V3LiquidityPoolExample = {
   address: '0x8ad599c3a01ae48104127aeeb893430d0bc41221',

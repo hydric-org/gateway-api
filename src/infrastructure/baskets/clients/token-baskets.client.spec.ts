@@ -11,14 +11,16 @@ describe('TokenBasketsClient', () => {
   let httpService: HttpService;
 
   const mockBasketId = BasketId.USD_STABLECOINS;
-  const mockChainId = 1;
   const mockRawResponse = {
     id: 'usd-stablecoins',
     name: 'USD Stablecoins',
     logo: 'https://logo.url',
     description: 'Description',
     lastUpdated: '2023-01-01',
-    index: ['0x123', '0x456'],
+    addresses: {
+      '1': ['0x123', '0x456'],
+      '8453': ['0x789'],
+    },
   };
 
   beforeEach(async () => {
@@ -42,19 +44,58 @@ describe('TokenBasketsClient', () => {
     expect(client).toBeDefined();
   });
 
+  describe('getAllBaskets', () => {
+    it('should return all baskets mapped correctly', async () => {
+      const mockAxiosResponse = {
+        data: { baskets: [mockRawResponse] },
+        status: 200,
+      } as AxiosResponse;
+
+      jest.spyOn(httpService, 'get').mockReturnValue(of(mockAxiosResponse));
+
+      const result = await client.getAllBaskets();
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual(<ITokenBasketConfiguration>{
+        id: BasketId.USD_STABLECOINS,
+        name: 'USD Stablecoins',
+        logoUrl: 'https://logo.url',
+        description: 'Description',
+        lastUpdated: '2023-01-01',
+        chainIds: [1, 8453],
+        addresses: [
+          { chainId: 1, address: '0x123' },
+          { chainId: 1, address: '0x456' },
+          { chainId: 8453, address: '0x789' },
+        ],
+      });
+      expect(httpService.get).toHaveBeenCalledWith(
+        'https://cdn.jsdelivr.net/gh/hydric-org/token-baskets/baskets/all.json',
+      );
+    });
+
+    it('should return empty array on 404', async () => {
+      const errorResponse = {
+        isAxiosError: true,
+        response: { status: 404 },
+      };
+      jest.spyOn(httpService, 'get').mockReturnValue(throwError(() => errorResponse));
+
+      const result = await client.getAllBaskets();
+      expect(result).toEqual([]);
+    });
+  });
+
   describe('getBasket', () => {
     it('should return mapped basket when request is successful', async () => {
       const mockAxiosResponse = {
         data: mockRawResponse,
         status: 200,
-        statusText: 'OK',
-        headers: {},
-        config: {},
       } as AxiosResponse;
 
       jest.spyOn(httpService, 'get').mockReturnValue(of(mockAxiosResponse));
 
-      const result = await client.getBasket(mockChainId, mockBasketId);
+      const result = await client.getBasket(mockBasketId);
 
       expect(result).toEqual(<ITokenBasketConfiguration>{
         id: BasketId.USD_STABLECOINS,
@@ -62,14 +103,15 @@ describe('TokenBasketsClient', () => {
         logoUrl: 'https://logo.url',
         description: 'Description',
         lastUpdated: '2023-01-01',
-        chainIds: [mockChainId],
+        chainIds: [1, 8453],
         addresses: [
-          { chainId: mockChainId, address: '0x123' },
-          { chainId: mockChainId, address: '0x456' },
+          { chainId: 1, address: '0x123' },
+          { chainId: 1, address: '0x456' },
+          { chainId: 8453, address: '0x789' },
         ],
       });
       expect(httpService.get).toHaveBeenCalledWith(
-        `https://cdn.jsdelivr.net/gh/hydric-org/token-baskets/baskets/${mockChainId}/${mockBasketId}.json`,
+        `https://cdn.jsdelivr.net/gh/hydric-org/token-baskets/baskets/${mockBasketId}.json`,
       );
     });
 
@@ -84,7 +126,7 @@ describe('TokenBasketsClient', () => {
 
       jest.spyOn(httpService, 'get').mockReturnValue(throwError(() => errorResponse));
 
-      const result = await client.getBasket(mockChainId, mockBasketId);
+      const result = await client.getBasket(mockBasketId);
 
       expect(result).toBeNull();
     });
@@ -100,7 +142,7 @@ describe('TokenBasketsClient', () => {
 
       jest.spyOn(httpService, 'get').mockReturnValue(throwError(() => errorResponse));
 
-      await expect(client.getBasket(mockChainId, mockBasketId)).rejects.toEqual(errorResponse);
+      await expect(client.getBasket(mockBasketId)).rejects.toEqual(errorResponse);
     });
   });
 });

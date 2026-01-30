@@ -2,6 +2,7 @@ import { ChainId } from '@core/enums/chain-id';
 import { BasketId } from '@core/enums/token/basket-id.enum';
 import { isSupportedChainId } from '@lib/api/network/validators/is-supported-chain-id.validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import { isSupportedBasketId } from '../../validators/is-supported-basket-id.validator';
 
 export class GetSingleChainBasketPathParams {
@@ -11,6 +12,7 @@ export class GetSingleChainBasketPathParams {
     enum: ChainId,
   })
   @isSupportedChainId()
+  @Transform(({ value }) => Number(value))
   chainId!: ChainId;
 
   @ApiProperty({

@@ -140,7 +140,7 @@ describe('ApiErrorCode', () => {
       'API_KEY_INVALID',
       HttpStatus.UNAUTHORIZED,
       'Authentication Failed',
-      'The provided API key is invalid.',
+      'The provided API key is not valid.',
     );
 
     testMapping(
@@ -154,7 +154,7 @@ describe('ApiErrorCode', () => {
       'INVALID_BASKET_ID',
       HttpStatus.BAD_REQUEST,
       'Invalid Parameters',
-      'The provided basket identifier is not recognized.',
+      'The provided basket identifier is not one of the supported ones.',
     );
 
     testMapping(
