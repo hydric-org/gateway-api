@@ -98,7 +98,7 @@ export function applyMultichainTokenOverrides(
     }
   }
 
-  const finalMultichainList: (IMultiChainTokenMetadata & { totalValuePooledUsd: number })[] = [];
+  const finalMultichainListWithTvl: (IMultiChainTokenMetadata & { totalValuePooledUsd: number })[] = [];
   const finalDiscardedList: ILiquidityPoolsIndexerTokenForMultichainAggregation[] = [];
 
   for (const cluster of clusters) {
@@ -106,7 +106,7 @@ export function applyMultichainTokenOverrides(
 
     if (cluster.isActive) {
       const groupTokens = _resolveClusterIdsToTokens(cluster.ids, idToTokenMap);
-      if (groupTokens.length > 0) finalMultichainList.push(_convertClusterToMultichainToken(groupTokens));
+      if (groupTokens.length > 0) finalMultichainListWithTvl.push(_convertClusterToMultichainToken(groupTokens));
     } else {
       for (const id of cluster.ids) {
         const t = idToTokenMap.get(id);
@@ -122,9 +122,19 @@ export function applyMultichainTokenOverrides(
     if (t) finalDiscardedList.push(t);
   }
 
-  if (order) TokenUtils.sortTokenList(finalMultichainList, order);
+  if (order) TokenUtils.sortTokenList(finalMultichainListWithTvl, order);
 
-  return { multichainTokenList: finalMultichainList, discardedTokens: finalDiscardedList };
+  return {
+    multichainTokenList: finalMultichainListWithTvl.map((t) => ({
+      addresses: t.addresses,
+      chainIds: t.chainIds,
+      symbol: t.symbol,
+      name: t.name,
+      logoUrl: t.logoUrl,
+    })),
+
+    discardedTokens: finalDiscardedList,
+  };
 }
 
 function _removeTokenFromCluster(tokenId: string, idToCluster: Map<string, _ITokenCluster>): void {
