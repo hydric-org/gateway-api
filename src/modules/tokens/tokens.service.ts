@@ -39,7 +39,7 @@ export class TokensService {
     listFilters: ITokenFilter,
     search?: string,
   ): Promise<{ tokens: IMultiChainTokenMetadata[]; nextCursor: string | null }> {
-    const getTopTokensBatchSize = listConfig.limit * 1.5;
+    const getTopTokensBatchSize = Math.ceil(listConfig.limit * 1.5);
     const multichainTokenList: IMultiChainTokenMetadata[] = [];
     let pastTokensBloomFilter: BloomFilter;
     let getTopTokensSkipCount = 0;
