@@ -11,6 +11,6 @@ query LiquidityPoolsIndexerGetSingleChainTokens(
     name
     symbol
     decimals
-    trackedUsdPrice
+    usdPrice
   }
 }

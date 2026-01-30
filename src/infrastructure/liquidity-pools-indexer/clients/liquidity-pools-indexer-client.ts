@@ -101,6 +101,7 @@ export class LiquidityPoolsIndexerClient {
       },
     });
 
+    response.SingleChainToken = response.SingleChainToken.filter((token) => Number(token.usdPrice) > 0);
     return LiquidityPoolsIndexerResponseAdapter.responseToSingleChainTokenList(response);
   }
 
