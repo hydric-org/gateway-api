@@ -29,7 +29,6 @@ export class TokenBasketsResponseAdapter {
       name: data.name,
       description: data.description,
       logoUrl: data.logo,
-      lastUpdated: data.lastUpdated,
       chainIds,
       addresses,
     };

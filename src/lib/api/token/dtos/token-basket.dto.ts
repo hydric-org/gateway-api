@@ -11,7 +11,6 @@ export const TokenBasketExample: ITokenBasket = {
   name: 'USD Stablecoins',
   description: 'A basket of the most liquid USD stablecoins in the ecosystem.',
   logoUrl: 'https://cdn.jsdelivr.net/gh/hydric-org/token-baskets/assets/logos/usd-stablecoins.png',
-  lastUpdated: '2026-01-29T15:00:00Z',
   chainIds: [ChainId.ETHEREUM, ChainId.MONAD],
   addresses: [
     { chainId: ChainId.ETHEREUM, address: '0xdac17f958d2ee523a2206206994597c13d831ec7' },
@@ -49,12 +48,6 @@ export class TokenBasket implements ITokenBasket {
     example: TokenBasketExample.logoUrl,
   })
   readonly logoUrl!: string;
-
-  @ApiProperty({
-    description: 'The timestamp of the last time the basket was updated.',
-    example: TokenBasketExample.lastUpdated,
-  })
-  readonly lastUpdated!: string;
 
   @ApiProperty({
     description: 'List of chain IDs where this basket is available.',

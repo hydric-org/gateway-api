@@ -23,7 +23,6 @@ describe('TokensBasketsService', () => {
     name: 'USD Stablecoins',
     description: 'Test',
     logoUrl: 'url',
-    lastUpdated: 'date',
     chainIds: [mockChainId],
     addresses: [{ chainId: mockChainId, address: '0xtoken' }],
   };

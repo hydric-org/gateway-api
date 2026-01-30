@@ -17,7 +17,6 @@ describe('TokenBasketsClient', () => {
     name: 'USD Stablecoins',
     logo: 'https://logo.url',
     description: 'Description',
-    lastUpdated: '2023-01-01',
     addresses: {
       '1': ['0x123', '0x456'],
       '8453': ['0x789'],
@@ -62,7 +61,6 @@ describe('TokenBasketsClient', () => {
         name: 'USD Stablecoins',
         logoUrl: 'https://logo.url',
         description: 'Description',
-        lastUpdated: '2023-01-01',
         chainIds: [1, 8453],
         addresses: [
           { chainId: 1, address: '0x123' },
@@ -103,7 +101,6 @@ describe('TokenBasketsClient', () => {
         name: 'USD Stablecoins',
         logoUrl: 'https://logo.url',
         description: 'Description',
-        lastUpdated: '2023-01-01',
         chainIds: [1, 8453],
         addresses: [
           { chainId: 1, address: '0x123' },
@@ -165,7 +162,6 @@ describe('TokenBasketsClient', () => {
         name: 'USD Stablecoins',
         logoUrl: 'https://logo.url',
         description: 'Description',
-        lastUpdated: '2023-01-01',
         chainIds: [mockChainId],
         addresses: [
           { chainId: 1, address: '0x123' },

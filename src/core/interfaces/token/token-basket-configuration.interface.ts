@@ -7,7 +7,6 @@ export interface ITokenBasketConfiguration {
   name: string;
   description: string;
   logoUrl: string;
-  lastUpdated: string;
   chainIds: ChainId[];
   addresses: IBlockchainAddress[];
 }
