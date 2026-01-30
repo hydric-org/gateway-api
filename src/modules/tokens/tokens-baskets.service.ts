@@ -16,30 +16,14 @@ export class TokensBasketsService {
     private readonly indexerClient: LiquidityPoolsIndexerClient,
   ) {}
 
-  async getMultipleChainsBaskets(): Promise<ITokenBasket[]> {
-    const allBaskets = await this.tokenBasketsClient.getAllBasketsForAllChains();
+  async getBaskets(chainIds?: ChainId[]): Promise<ITokenBasket[]> {
+    const filteredBaskets = await this.tokenBasketsClient.getBaskets(chainIds);
 
-    return this._getTokensMetadataForTokenBasket(allBaskets);
+    return this._getTokensMetadataForTokenBasket(filteredBaskets);
   }
 
-  async getSingleChainBaskets(chainId: ChainId): Promise<ITokenBasket[]> {
-    const allBaskets = await this.tokenBasketsClient.getAllBasketsForAllChains();
-
-    const chainBaskets = allBaskets
-      .filter((basket) => basket.chainIds.includes(Number(chainId)))
-      .map((basket) => ({
-        ...basket,
-        chainIds: [chainId],
-        addresses: basket.addresses.filter((addr) => addr.chainId === chainId),
-      }));
-
-    if (chainBaskets.length === 0) return [];
-
-    return this._getTokensMetadataForTokenBasket(chainBaskets);
-  }
-
-  async getSingleBasketInMultipleChains(basketId: BasketId): Promise<ITokenBasket> {
-    const basket = await this.tokenBasketsClient.getSingleBasketForAllChains(basketId);
+  async getSingleBasketInMultipleChains(basketId: BasketId, chainIds?: ChainId[]): Promise<ITokenBasket> {
+    const basket = await this.tokenBasketsClient.getBasket(basketId, chainIds);
 
     if (!basket) throw new TokenBasketNotFoundError({ basketId });
 
@@ -48,7 +32,7 @@ export class TokensBasketsService {
   }
 
   async getSingleChainBasket(chainId: ChainId, basketId: BasketId): Promise<ITokenBasket> {
-    const basket = await this.tokenBasketsClient.getSingleBasketForSingleChain(basketId, chainId);
+    const basket = await this.tokenBasketsClient.getSingleChainBasket(basketId, chainId);
 
     if (!basket) throw new TokenBasketNotFoundError({ basketId, chainId });
 
@@ -57,6 +41,8 @@ export class TokensBasketsService {
   }
 
   private async _getTokensMetadataForTokenBasket(baskets: ITokenBasketConfiguration[]): Promise<ITokenBasket[]> {
+    if (baskets.length === 0) return [];
+
     const uniqueTokenIds = new Set<string>();
 
     for (const basket of baskets) {
@@ -88,7 +74,7 @@ export class TokensBasketsService {
       const basketTokens: ISingleChainTokenMetadata[] = [];
 
       for (const tokenAddress of basket.addresses) {
-        const tokenId = `${tokenAddress.chainId}-${tokenAddress.address}`;
+        const tokenId = `${tokenAddress.chainId}-${tokenAddress.address}`.toLowerCase();
         const token = tokenIdToSingleChainToken.get(tokenId);
 
         if (token) basketTokens.push(token);

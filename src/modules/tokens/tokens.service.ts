@@ -10,8 +10,12 @@ import { LiquidityPoolsIndexerResponseAdapter } from '@infrastructure/liquidity-
 import { LiquidityPoolsIndexerClient } from '@infrastructure/liquidity-pools-indexer/clients/liquidity-pools-indexer-client';
 import { MultiChainTokenListConfig } from '@lib/api/token/dtos/multi-chain-token-list-config.dto';
 import { MultiChainTokenListCursor } from '@lib/api/token/dtos/multi-chain-token-list-cursor.dto';
+import { MultiChainTokenListFilter } from '@lib/api/token/dtos/multi-chain-token-list-filter.dto';
+import { MultiChainTokenSearchFilter } from '@lib/api/token/dtos/multi-chain-token-search-filter.dto';
 import { SingleChainTokenListConfig } from '@lib/api/token/dtos/single-chain-token-list-config.dto';
 import { SingleChainTokenListCursor } from '@lib/api/token/dtos/single-chain-token-list-cursor.dto';
+import { SingleChainTokenListFilter } from '@lib/api/token/dtos/single-chain-token-list-filter.dto';
+import { SingleChainTokenSearchFilter } from '@lib/api/token/dtos/single-chain-token-search-filter.dto';
 import { BloomFilter } from '@lib/bloom-filter/bloom-filter';
 import { Injectable } from '@nestjs/common';
 
@@ -21,7 +25,7 @@ export class TokensService {
 
   async getMultichainTokenList(
     listConfig: MultiChainTokenListConfig,
-    listFilters: ITokenFilter,
+    listFilters: MultiChainTokenListFilter,
   ): Promise<{ tokens: IMultiChainTokenMetadata[]; nextCursor: string | null }> {
     return this.getMultichainTokens(listConfig, listFilters);
   }
@@ -29,7 +33,7 @@ export class TokensService {
   async searchMultichainTokens(
     search: string,
     listConfig: MultiChainTokenListConfig,
-    listFilters: ITokenFilter,
+    listFilters: MultiChainTokenSearchFilter,
   ): Promise<{ tokens: IMultiChainTokenMetadata[]; nextCursor: string | null }> {
     return this.getMultichainTokens(listConfig, listFilters, search);
   }
@@ -154,7 +158,7 @@ export class TokensService {
   async getSingleChainTokenList(
     chainId: ChainId,
     config: SingleChainTokenListConfig,
-    filters: ITokenFilter,
+    filters: SingleChainTokenListFilter,
   ): Promise<{ tokens: ISingleChainTokenMetadata[]; nextCursor: string | null }> {
     const decodedCursor = SingleChainTokenListCursor.decode(config.cursor);
 
@@ -190,7 +194,7 @@ export class TokensService {
     chainId: ChainId,
     search: string,
     config: SingleChainTokenListConfig,
-    filters: ITokenFilter,
+    filters: SingleChainTokenSearchFilter,
   ): Promise<{ tokens: ISingleChainTokenMetadata[]; nextCursor: string | null }> {
     const decodedCursor = SingleChainTokenListCursor.decode(config.cursor);
 

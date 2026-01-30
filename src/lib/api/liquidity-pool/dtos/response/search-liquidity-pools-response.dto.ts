@@ -1,12 +1,13 @@
+import { LiquidityPoolType } from '@core/enums/liquidity-pool/liquidity-pool-type';
 import { _Internal_BilledObjectResponse } from '@lib/api/pricing/dtos/billed-object-response.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { LiquidityPoolFilter } from '../liquidity-pool-filter.dto';
 import { LiquidityPool, V3LiquidityPoolExample } from '../liquidity-pool.dto';
+import { SearchLiquidityPoolsFilter } from '../search-liquidity-pools-filter.dto';
 
-const FILTERS_EXAMPLE: LiquidityPoolFilter = {
-  blockedPoolTypes: [],
-  blockedProtocols: [],
-  minimumTotalValueLockedUsd: 0,
+const FILTERS_EXAMPLE: SearchLiquidityPoolsFilter = {
+  blockedPoolTypes: [LiquidityPoolType.V3],
+  blockedProtocols: ['uniswap-v3'],
+  minimumTotalValueLockedUsd: 10000,
 };
 
 export class SearchLiquidityPoolsResponse extends _Internal_BilledObjectResponse {
@@ -23,7 +24,7 @@ export class SearchLiquidityPoolsResponse extends _Internal_BilledObjectResponse
     type: Object,
     example: FILTERS_EXAMPLE,
   })
-  readonly filters!: LiquidityPoolFilter;
+  readonly filters!: SearchLiquidityPoolsFilter;
 
   @ApiPropertyOptional({
     description: 'Cursor for the next page. Null if no more results.',
@@ -32,7 +33,7 @@ export class SearchLiquidityPoolsResponse extends _Internal_BilledObjectResponse
   })
   readonly nextCursor!: string | null;
 
-  constructor(params: { pools: LiquidityPool[]; filters: LiquidityPoolFilter; nextCursor: string | null }) {
+  constructor(params: { pools: LiquidityPool[]; filters: SearchLiquidityPoolsFilter; nextCursor: string | null }) {
     super({
       count: params.pools.length,
       objectType: LiquidityPool,

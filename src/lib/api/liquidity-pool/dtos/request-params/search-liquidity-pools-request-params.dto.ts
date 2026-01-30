@@ -1,18 +1,16 @@
 import { ChainId } from '@core/enums/chain-id';
-import { LiquidityPoolType } from '@core/enums/liquidity-pool/liquidity-pool-type';
-import { ILiquidityPoolFilter } from '@core/interfaces/liquidity-pool/liquidity-pool-filter.interface';
 import { BlockchainAddress } from '@lib/api/address/blockchain-address.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { ArrayNotEmpty, IsArray, IsDefined, IsOptional, ValidateNested } from 'class-validator';
 import { IsBlockchainAddress } from '../../../address/validators/is-blockchain-address.validator';
 import { LiquidityPoolSearchConfig } from '../liquiditity-pool-search-config.dto';
-import { LiquidityPoolFilter } from '../liquidity-pool-filter.dto';
+import { SearchLiquidityPoolsFilter } from '../search-liquidity-pools-filter.dto';
 
-const LIQUIDITY_POOL_FILTER_DEFAULT_EXAMPLE: ILiquidityPoolFilter = {
-  blockedPoolTypes: [LiquidityPoolType.ALGEBRA],
-  blockedProtocols: ['sushiswap-v3'],
+const LIQUIDITY_POOL_FILTER_DEFAULT_EXAMPLE: SearchLiquidityPoolsFilter = {
   minimumTotalValueLockedUsd: 10000,
+  blockedPoolTypes: [],
+  blockedProtocols: [],
 };
 
 export class SearchLiquidityPoolsRequestParams {
@@ -60,13 +58,13 @@ Secondary set of token identifiers used to narrow the search to specific pairs.
 
   @ApiPropertyOptional({
     description: 'Filters based on pool attributes like TVL and protocol types.',
-    type: LiquidityPoolFilter,
+    type: SearchLiquidityPoolsFilter,
     example: LIQUIDITY_POOL_FILTER_DEFAULT_EXAMPLE,
   })
   @IsOptional()
   @ValidateNested()
-  @Type(() => LiquidityPoolFilter)
-  readonly filters: LiquidityPoolFilter = new LiquidityPoolFilter();
+  @Type(() => SearchLiquidityPoolsFilter)
+  readonly filters: SearchLiquidityPoolsFilter = new SearchLiquidityPoolsFilter();
 
   @ApiPropertyOptional({
     description: 'Configuration for the search such as limit, cursor, etc.',

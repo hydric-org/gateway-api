@@ -18,7 +18,6 @@ export const LiqudityPoolBalanceExample = {
         symbol: 'ETH',
         logoUrl:
           'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/128/color/eth.png',
-        totalValuePooledUsd: 13000,
       },
     },
     {
@@ -32,7 +31,6 @@ export const LiqudityPoolBalanceExample = {
         symbol: 'USDT',
         logoUrl:
           'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/128/color/usdt.png',
-        totalValuePooledUsd: 500,
       },
     },
   ],

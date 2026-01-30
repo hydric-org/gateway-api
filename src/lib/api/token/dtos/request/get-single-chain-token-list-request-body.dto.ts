@@ -2,7 +2,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsOptional, ValidateNested } from 'class-validator';
 import { SingleChainTokenListConfig } from '../single-chain-token-list-config.dto';
-import { TokenFilter } from '../token-filter.dto';
+import { SingleChainTokenListFilter } from '../single-chain-token-list-filter.dto';
 
 export class GetSingleChainTokenListRequestBody {
   @ApiPropertyOptional({
@@ -16,10 +16,10 @@ export class GetSingleChainTokenListRequestBody {
 
   @ApiPropertyOptional({
     description: 'Filters for the token list request to personalize the response.',
-    type: TokenFilter,
+    type: SingleChainTokenListFilter,
   })
   @IsOptional()
   @ValidateNested()
-  @Type(() => TokenFilter)
-  readonly filters: TokenFilter = new TokenFilter();
+  @Type(() => SingleChainTokenListFilter)
+  readonly filters: SingleChainTokenListFilter = new SingleChainTokenListFilter();
 }

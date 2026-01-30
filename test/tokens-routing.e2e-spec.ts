@@ -24,7 +24,7 @@ describe('Tokens Routing (e2e)', () => {
         {
           provide: TokensBasketsService,
           useValue: {
-            getMultipleChainsBaskets: jest.fn(),
+            getBaskets: jest.fn(),
           },
         },
       ],
@@ -43,7 +43,7 @@ describe('Tokens Routing (e2e)', () => {
 
   it('GET /tokens/baskets should be handled by TokensBasketsController, not TokensController', async () => {
     const mockBaskets = [{ id: 'usd-stablecoins', name: 'USD Stablecoins' }];
-    (tokensBasketsService.getMultipleChainsBaskets as jest.Mock).mockResolvedValue(mockBaskets);
+    (tokensBasketsService.getBaskets as jest.Mock).mockResolvedValue(mockBaskets);
     (tokensService.searchTokensByAddress as jest.Mock).mockResolvedValue([]);
 
     const response = await request(app.getHttpServer()).get('/tokens/baskets').expect(200);
@@ -52,7 +52,7 @@ describe('Tokens Routing (e2e)', () => {
       baskets: mockBaskets,
       count: 1,
     });
-    expect(tokensBasketsService.getMultipleChainsBaskets).toHaveBeenCalled();
+    expect(tokensBasketsService.getBaskets).toHaveBeenCalled();
     expect(tokensService.searchTokensByAddress).not.toHaveBeenCalled();
   });
 

@@ -21,8 +21,7 @@ describe('TokensBasketsController', () => {
         {
           provide: TokensBasketsService,
           useValue: {
-            getMultipleChainsBaskets: jest.fn(),
-            getSingleChainBaskets: jest.fn(),
+            getBaskets: jest.fn(),
             getSingleBasketInMultipleChains: jest.fn(),
             getSingleChainBasket: jest.fn(),
           },
@@ -38,23 +37,22 @@ describe('TokensBasketsController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('getMultipleChainsBaskets', () => {
-    it('should call service.getMultipleChainsBaskets and return wrapped result', async () => {
-      jest.spyOn(service, 'getMultipleChainsBaskets').mockResolvedValue(mockResult);
+  describe('getBaskets', () => {
+    it('should call service.getBaskets and return wrapped result', async () => {
+      jest.spyOn(service, 'getBaskets').mockResolvedValue(mockResult);
 
-      const response = await controller.getMultipleChainsBaskets();
+      const response = await controller.getBaskets(undefined);
       expect(response.baskets).toBe(mockResult);
-      expect(service.getMultipleChainsBaskets).toHaveBeenCalled();
+      expect(service.getBaskets).toHaveBeenCalledWith(undefined);
     });
-  });
 
-  describe('getSingleChainBaskets', () => {
-    it('should call service.getSingleChainBaskets and return wrapped result', async () => {
-      jest.spyOn(service, 'getSingleChainBaskets').mockResolvedValue(mockResult);
+    it('should pass chainIds to service when provided', async () => {
+      jest.spyOn(service, 'getBaskets').mockResolvedValue(mockResult);
+      const chainIds = [ChainId.ETHEREUM];
 
-      const response = await controller.getSingleChainBaskets({ chainId: mockChainId });
+      const response = await controller.getBaskets(chainIds);
       expect(response.baskets).toBe(mockResult);
-      expect(service.getSingleChainBaskets).toHaveBeenCalledWith(mockChainId);
+      expect(service.getBaskets).toHaveBeenCalledWith(chainIds);
     });
   });
 
@@ -62,9 +60,18 @@ describe('TokensBasketsController', () => {
     it('should call service.getSingleBasketInMultipleChains and return wrapped result', async () => {
       jest.spyOn(service, 'getSingleBasketInMultipleChains').mockResolvedValue(mockSingleResult);
 
-      const response = await controller.getSingleBasketInMultipleChains({ basketId: mockBasketId });
+      const response = await controller.getSingleBasketInMultipleChains({ basketId: mockBasketId }, undefined);
       expect(response.basket).toBe(mockSingleResult);
-      expect(service.getSingleBasketInMultipleChains).toHaveBeenCalledWith(mockBasketId);
+      expect(service.getSingleBasketInMultipleChains).toHaveBeenCalledWith(mockBasketId, undefined);
+    });
+
+    it('should pass chainIds to service when provided', async () => {
+      jest.spyOn(service, 'getSingleBasketInMultipleChains').mockResolvedValue(mockSingleResult);
+      const chainIds = [ChainId.ETHEREUM];
+
+      const response = await controller.getSingleBasketInMultipleChains({ basketId: mockBasketId }, chainIds);
+      expect(response.basket).toBe(mockSingleResult);
+      expect(service.getSingleBasketInMultipleChains).toHaveBeenCalledWith(mockBasketId, chainIds);
     });
   });
 

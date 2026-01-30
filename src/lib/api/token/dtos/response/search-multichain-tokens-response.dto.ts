@@ -1,7 +1,7 @@
 import { _Internal_BilledObjectResponse } from '@lib/api/pricing/dtos/billed-object-response.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { MultiChainTokenMetadata } from '../multi-chain-token-metadata.dto';
-import { TokenFilter } from '../token-filter.dto';
+import { MultiChainTokenSearchFilter } from '../multi-chain-token-search-filter.dto';
 
 export class SearchMultichainTokensResponse extends _Internal_BilledObjectResponse {
   @ApiProperty({
@@ -19,11 +19,15 @@ export class SearchMultichainTokensResponse extends _Internal_BilledObjectRespon
 
   @ApiProperty({
     description: 'The filters applied to the search.',
-    type: TokenFilter,
+    type: MultiChainTokenSearchFilter,
   })
-  readonly filters: TokenFilter;
+  readonly filters: MultiChainTokenSearchFilter;
 
-  constructor(tokens: MultiChainTokenMetadata[], filters: TokenFilter, nextCursor: string | null = null) {
+  constructor(
+    tokens: MultiChainTokenMetadata[],
+    filters: MultiChainTokenSearchFilter,
+    nextCursor: string | null = null,
+  ) {
     super({
       count: tokens.length,
       objectType: MultiChainTokenMetadata,

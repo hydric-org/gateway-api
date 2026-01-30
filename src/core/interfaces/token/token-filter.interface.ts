@@ -1,5 +1,7 @@
+import { ChainId } from '@core/enums/chain-id';
+
 export interface ITokenFilter {
-  symbols?: string[];
+  chainIds?: ChainId[];
   minimumTotalValuePooledUsd: number;
   minimumPriceBackingUsd: number;
   minimumSwapsCount: number;

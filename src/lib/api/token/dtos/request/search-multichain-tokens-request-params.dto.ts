@@ -2,7 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsNotEmpty, IsOptional, IsString, MinLength, ValidateNested } from 'class-validator';
 import { MultiChainTokenListConfig } from '../multi-chain-token-list-config.dto';
-import { SearchTokenFilter } from '../search-token-filter.dto';
+import { MultiChainTokenSearchFilter } from '../multi-chain-token-search-filter.dto';
 
 export class SearchMultichainTokensRequestParams {
   @ApiProperty({
@@ -28,10 +28,10 @@ The search term to filter assets by ticker symbol or name.
 
   @ApiPropertyOptional({
     description: 'Additional filters to personalize the search results.',
-    type: SearchTokenFilter,
+    type: MultiChainTokenSearchFilter,
   })
   @IsOptional()
   @ValidateNested()
-  @Type(() => SearchTokenFilter)
-  readonly filters: SearchTokenFilter = new SearchTokenFilter();
+  @Type(() => MultiChainTokenSearchFilter)
+  readonly filters: MultiChainTokenSearchFilter = new MultiChainTokenSearchFilter();
 }

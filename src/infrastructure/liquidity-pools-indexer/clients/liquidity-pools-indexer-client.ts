@@ -54,7 +54,7 @@ export class LiquidityPoolsIndexerClient {
   }
 
   async getTokensForMultichainAggregation(params: {
-    filter?: ITokenFilter;
+    filter?: ITokenFilter & { symbols?: string[] };
     limit?: number;
     skip?: number;
     search?: string;
@@ -77,7 +77,7 @@ export class LiquidityPoolsIndexerClient {
   }
 
   async getSingleChainTokens(params: {
-    filter?: ITokenFilter;
+    filter?: ITokenFilter & { symbols?: string[] };
     orderBy?: ITokenOrder;
     limit?: number;
     skip?: number;
@@ -205,19 +205,19 @@ export class LiquidityPoolsIndexerClient {
   }
 
   private _buildTokenFilter(params: {
-    filter?: ITokenFilter;
-    chainIds?: ChainId[];
+    filter?: ITokenFilter & { symbols?: string[] };
     search?: string;
     tokenAddress?: string;
     ids?: string[];
   }): SingleChainToken_Bool_Exp {
     return {
-      chainId: {
-        ...(params.chainIds && {
-          _in: params.chainIds.length > 1 ? params.chainIds : undefined,
-          _eq: params.chainIds.length === 1 ? params.chainIds[0] : undefined,
+      ...(params.filter?.chainIds &&
+        params.filter.chainIds.length > 0 && {
+          chainId: {
+            _in: params.filter.chainIds.length > 1 ? params.filter.chainIds : undefined,
+            _eq: params.filter.chainIds.length === 1 ? params.filter.chainIds[0] : undefined,
+          },
         }),
-      },
 
       ...(params.ids && {
         id: { _in: params.ids },

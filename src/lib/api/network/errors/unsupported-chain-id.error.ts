@@ -3,16 +3,22 @@ import { ValidationErrorCode } from '../../error/error-codes/validation-error-co
 import { BaseApiError } from '../../error/errors/base-api-error';
 
 export class UnsupportedChainIdError extends BaseApiError {
-  constructor(params: { chainId: number }) {
-    const supportedChains = ChainIdUtils.values().join(', ');
+  constructor(params: { chainId: number | number[] }) {
+    const supportedIds = ChainIdUtils.values();
+    const providedIds = Array.isArray(params.chainId) ? params.chainId : [params.chainId];
+
+    const unsupportedIds = providedIds.filter((id) => !ChainIdUtils.includes(id));
+
+    const idsToReport = unsupportedIds.length > 0 ? unsupportedIds : providedIds;
 
     super({
-      message: `Unsupported Chain ID: ${params.chainId}`,
+      message: `Unsupported Chain ID: ${idsToReport.join(', ')}`,
       errorCode: ValidationErrorCode.UNSUPPORTED_CHAIN_ID,
-      details: `The provided ID is not supported. Supported IDs are: [${supportedChains}].`,
+      details: `The provided ID is not supported. Supported IDs are: [${supportedIds.join(', ')}].`,
       metadata: {
         chainId: params.chainId,
-        supportedIds: supportedChains,
+        unsupportedIds: unsupportedIds,
+        supportedIds: supportedIds,
       },
     });
   }

@@ -2,7 +2,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsOptional, ValidateNested } from 'class-validator';
 import { MultiChainTokenListConfig } from '../multi-chain-token-list-config.dto';
-import { TokenFilter } from '../token-filter.dto';
+import { MultiChainTokenListFilter } from '../multi-chain-token-list-filter.dto';
 
 export class GetMultiChainTokenListRequestParams {
   @ApiPropertyOptional({
@@ -16,10 +16,10 @@ export class GetMultiChainTokenListRequestParams {
 
   @ApiPropertyOptional({
     description: 'Filters for the token list request to personalize the response.',
-    type: TokenFilter,
+    type: MultiChainTokenListFilter,
   })
   @IsOptional()
   @ValidateNested()
-  @Type(() => TokenFilter)
-  readonly filters: TokenFilter = new TokenFilter();
+  @Type(() => MultiChainTokenListFilter)
+  readonly filters: MultiChainTokenListFilter = new MultiChainTokenListFilter();
 }

@@ -1,17 +1,27 @@
+import { ChainId } from '@core/enums/chain-id';
 import { BasketId } from '@core/enums/token/basket-id.enum';
 import { TokenBasketNotFoundError } from '@core/errors/token-basket-not-found.error';
 import { ErrorResponse } from '@lib/api/error/dtos/error-response.dto';
 import { applyDecorators } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { GetTokenBasketResponse } from '../dtos/response/get-token-basket-response.dto';
 import { InvalidBasketIdError } from '../errors/invalid-basket-id.error';
 
 export function ApiGetSingleBasketInMultipleChainsDocs() {
   return applyDecorators(
     ApiOperation({
-      summary: 'Get a specific token basket by ID across all networks.',
+      summary: 'Get a specific token basket by ID across multiple networks.',
       description:
-        'Returns the aggregated basket data for a specific basket ID (e.g., "usd-stablecoins") across all supported networks.',
+        'Returns aggregated basket data for a specific basket ID (e.g., "usd-stablecoins"). Use the `chainIds` query parameter to filter to specific networks; if omitted, defaults to all supported networks.',
+    }),
+    ApiQuery({
+      name: 'chainIds',
+      description:
+        'Filter results to specific networks by chain ID. Comma-separated list. If omitted, defaults to all supported networks.',
+      required: false,
+      example: '1,8453',
+      enum: ChainId,
+      isArray: true,
     }),
     ApiOkResponse({
       description: 'The requested token basket data.',
@@ -29,7 +39,7 @@ export function ApiGetSingleBasketInMultipleChainsDocs() {
       },
     }),
     ApiNotFoundResponse({
-      description: 'Token basket not found on any network.',
+      description: 'Token basket not found on the specified networks.',
       content: {
         'application/json': {
           example: ErrorResponse.from(
