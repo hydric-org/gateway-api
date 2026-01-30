@@ -1,9 +1,9 @@
+import { ITokenFilter } from '@core/interfaces/token/token-filter.interface';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsOptional, Min } from 'class-validator';
-import { TokenFilter } from './token-filter.dto';
 
-export class SearchTokenFilter extends TokenFilter {
+export class SearchTokenFilter implements Omit<ITokenFilter, 'symbols'> {
   @ApiPropertyOptional({
     description:
       'The minimum aggregate liquidity in USD for a token to be included in the search. Search uses 0 by default to show most results.',
@@ -13,7 +13,7 @@ export class SearchTokenFilter extends TokenFilter {
   @IsOptional()
   @Type(() => Number)
   @Min(0)
-  override readonly minimumTotalValuePooledUsd: number = 0;
+  readonly minimumTotalValuePooledUsd: number = 0;
 
   @ApiPropertyOptional({
     description:
@@ -24,7 +24,7 @@ export class SearchTokenFilter extends TokenFilter {
   @IsOptional()
   @Type(() => Number)
   @Min(0)
-  override readonly minimumPriceBackingUsd: number = 0;
+  readonly minimumPriceBackingUsd: number = 0;
 
   @ApiPropertyOptional({
     description:
@@ -35,7 +35,7 @@ export class SearchTokenFilter extends TokenFilter {
   @IsOptional()
   @Type(() => Number)
   @Min(0)
-  override readonly minimumSwapsCount: number = 0;
+  readonly minimumSwapsCount: number = 0;
 
   @ApiPropertyOptional({
     description:
@@ -46,5 +46,5 @@ export class SearchTokenFilter extends TokenFilter {
   @IsOptional()
   @Type(() => Number)
   @Min(0)
-  override readonly minimumSwapVolumeUsd: number = 0;
+  readonly minimumSwapVolumeUsd: number = 0;
 }
