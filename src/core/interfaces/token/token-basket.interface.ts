@@ -1,6 +1,6 @@
-import { ISingleChainToken } from './single-chain-token.interface';
+import { ISingleChainTokenMetadata } from './single-chain-token-metadata.interface';
 import { ITokenBasketConfiguration } from './token-basket-configuration.interface';
 
 export interface ITokenBasket extends ITokenBasketConfiguration {
-  tokens: ISingleChainToken[];
+  tokens: ISingleChainTokenMetadata[];
 }

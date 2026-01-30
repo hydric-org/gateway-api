@@ -2,11 +2,12 @@ import { TOKEN_LOGO } from '@core/constants';
 import { ChainId } from '@core/enums/chain-id';
 import { OrderDirection } from '@core/enums/order-direction';
 import { TokenOrderField } from '@core/enums/token/token-order-field';
-import { IMultiChainToken } from '@core/interfaces/token/multi-chain-token.interface';
-import { ISingleChainToken } from '@core/interfaces/token/single-chain-token.interface';
+import { IMultiChainTokenMetadata } from '@core/interfaces/token/multi-chain-token-metadata.interface';
+import { ISingleChainTokenInfo } from '@core/interfaces/token/single-chain-token-info.interface';
+import { ISingleChainTokenMetadata } from '@core/interfaces/token/single-chain-token-metadata.interface';
 import { ITokenFilter } from '@core/interfaces/token/token-filter.interface';
-import { LiquidityPoolsIndexerResponseAdapter } from '@infrastructure/indexer/adapters/liquidity-pools-indexer-response-adapter';
-import { LiquidityPoolsIndexerClient } from '@infrastructure/indexer/clients/liquidity-pools-indexer-client';
+import { LiquidityPoolsIndexerResponseAdapter } from '@infrastructure/liquidity-pools-indexer/adapters/liquidity-pools-indexer-response-adapter';
+import { LiquidityPoolsIndexerClient } from '@infrastructure/liquidity-pools-indexer/clients/liquidity-pools-indexer-client';
 import { MultiChainTokenListConfig } from '@lib/api/token/dtos/multi-chain-token-list-config.dto';
 import { MultiChainTokenListCursor } from '@lib/api/token/dtos/multi-chain-token-list-cursor.dto';
 import { SingleChainTokenListConfig } from '@lib/api/token/dtos/single-chain-token-list-config.dto';
@@ -21,7 +22,7 @@ export class TokensService {
   async getMultichainTokenList(
     listConfig: MultiChainTokenListConfig,
     listFilters: ITokenFilter,
-  ): Promise<{ tokens: IMultiChainToken[]; nextCursor: string | null }> {
+  ): Promise<{ tokens: IMultiChainTokenMetadata[]; nextCursor: string | null }> {
     return this.getMultichainTokens(listConfig, listFilters);
   }
 
@@ -29,7 +30,7 @@ export class TokensService {
     search: string,
     listConfig: MultiChainTokenListConfig,
     listFilters: ITokenFilter,
-  ): Promise<{ tokens: IMultiChainToken[]; nextCursor: string | null }> {
+  ): Promise<{ tokens: IMultiChainTokenMetadata[]; nextCursor: string | null }> {
     return this.getMultichainTokens(listConfig, listFilters, search);
   }
 
@@ -37,9 +38,9 @@ export class TokensService {
     listConfig: MultiChainTokenListConfig,
     listFilters: ITokenFilter,
     search?: string,
-  ): Promise<{ tokens: IMultiChainToken[]; nextCursor: string | null }> {
+  ): Promise<{ tokens: IMultiChainTokenMetadata[]; nextCursor: string | null }> {
     const getTopTokensBatchSize = listConfig.limit * 1.5;
-    const multichainTokenList: IMultiChainToken[] = [];
+    const multichainTokenList: IMultiChainTokenMetadata[] = [];
     let pastTokensBloomFilter: BloomFilter;
     let getTopTokensSkipCount = 0;
     let hasMoreTokensToFetch = true;
@@ -57,35 +58,35 @@ export class TokensService {
     } else pastTokensBloomFilter = new BloomFilter();
 
     while (multichainTokenList.length < listConfig.limit && hasMoreTokensToFetch) {
-      const topSinglechainTokens = await this.liquidityPoolsIndexer.getTokens({
+      const topSinglechainTokensForAggregation = await this.liquidityPoolsIndexer.getTokensForMultichainAggregation({
         limit: getTopTokensBatchSize,
         skip: getTopTokensSkipCount,
-        orderBy: listConfig.orderBy,
         filter: listFilters,
+        orderBy: listConfig.orderBy,
         search,
       });
 
-      if (topSinglechainTokens.length === 0) {
+      if (topSinglechainTokensForAggregation.length === 0) {
         hasMoreTokensToFetch = false;
         break;
       }
 
-      if (topSinglechainTokens.length < getTopTokensBatchSize) hasMoreTokensToFetch = false;
+      if (topSinglechainTokensForAggregation.length < getTopTokensBatchSize) hasMoreTokensToFetch = false;
 
       const topUniqueSymbols = [
         ...new Set(
-          topSinglechainTokens
+          topSinglechainTokensForAggregation
             .filter((token) => !pastTokensBloomFilter.has(token.id))
             .map((token) => token.normalizedSymbol),
         ),
       ];
 
       if (topUniqueSymbols.length === 0) {
-        getTopTokensSkipCount += topSinglechainTokens.length;
+        getTopTokensSkipCount += topSinglechainTokensForAggregation.length;
         continue;
       }
 
-      const allTokensMatchingTopSymbols = await this.liquidityPoolsIndexer.getTokens({
+      const allTokensMatchingTopSymbols = await this.liquidityPoolsIndexer.getTokensForMultichainAggregation({
         filter: {
           symbols: topUniqueSymbols,
           ...listFilters,
@@ -97,20 +98,20 @@ export class TokensService {
       });
 
       const { multichainTokenList: batchMultichainTokenList, discardedTokens } =
-        LiquidityPoolsIndexerResponseAdapter.indexerTokensToMultichainTokenList(allTokensMatchingTopSymbols, {
-          matchAllSymbols: listConfig.matchAllSymbols,
-          minimumPriceBackingUsd: listFilters.minimumPriceBackingUsd,
-          minimumSwapVolumeUsd: listFilters.minimumSwapVolumeUsd,
-          minimumSwapsCount: listFilters.minimumSwapsCount,
-          order: listConfig.orderBy,
-        });
+        LiquidityPoolsIndexerResponseAdapter.liquidityPoolsIndexerTokensToMultichainTokenList(
+          allTokensMatchingTopSymbols,
+          {
+            matchAllSymbols: listConfig.matchAllSymbols,
+            order: listConfig.orderBy,
+          },
+        );
 
       const multichainTokensToAdd = batchMultichainTokenList.slice(0, listConfig.limit - multichainTokenList.length);
       const lastAddedSymbol = multichainTokensToAdd[multichainTokensToAdd.length - 1]?.symbol;
       const batchCountUsed =
         multichainTokensToAdd.length === batchMultichainTokenList.length
-          ? topSinglechainTokens.length
-          : topSinglechainTokens.map((t) => t.symbol).lastIndexOf(lastAddedSymbol) + 1;
+          ? topSinglechainTokensForAggregation.length
+          : topSinglechainTokensForAggregation.map((t) => t.symbol).lastIndexOf(lastAddedSymbol) + 1;
 
       getTopTokensSkipCount += batchCountUsed;
       multichainTokenList.push(...multichainTokensToAdd);
@@ -154,10 +155,10 @@ export class TokensService {
     chainId: ChainId,
     config: SingleChainTokenListConfig,
     filters: ITokenFilter,
-  ): Promise<{ tokens: ISingleChainToken[]; nextCursor: string | null }> {
+  ): Promise<{ tokens: ISingleChainTokenMetadata[]; nextCursor: string | null }> {
     const decodedCursor = SingleChainTokenListCursor.decode(config.cursor);
 
-    const indexerTokens = await this.liquidityPoolsIndexer.getTokens({
+    const indexerTokens = await this.liquidityPoolsIndexer.getSingleChainTokens({
       chainIds: [chainId],
       filter: filters,
       orderBy: config.orderBy,
@@ -165,14 +166,13 @@ export class TokensService {
       skip: decodedCursor.skip,
     });
 
-    const tokens = indexerTokens.map((token) => ({
+    const tokens: ISingleChainTokenMetadata[] = indexerTokens.map((token) => ({
       chainId: token.chainId,
       address: token.address,
       decimals: token.decimals,
       name: token.name,
       symbol: token.symbol,
       logoUrl: TOKEN_LOGO(token.chainId, token.address),
-      totalValuePooledUsd: token.totalValuePooledUsd,
     }));
 
     const nextCursor =
@@ -191,10 +191,10 @@ export class TokensService {
     search: string,
     config: SingleChainTokenListConfig,
     filters: ITokenFilter,
-  ): Promise<{ tokens: ISingleChainToken[]; nextCursor: string | null }> {
+  ): Promise<{ tokens: ISingleChainTokenMetadata[]; nextCursor: string | null }> {
     const decodedCursor = SingleChainTokenListCursor.decode(config.cursor);
 
-    const indexerTokens = await this.liquidityPoolsIndexer.getTokens({
+    const indexerTokens = await this.liquidityPoolsIndexer.getSingleChainTokens({
       chainIds: [chainId],
       filter: filters,
       orderBy: config.orderBy,
@@ -203,14 +203,13 @@ export class TokensService {
       search,
     });
 
-    const tokens = indexerTokens.map((token) => ({
+    const tokens: ISingleChainTokenMetadata[] = indexerTokens.map((token) => ({
       chainId: token.chainId,
       address: token.address,
       decimals: token.decimals,
       name: token.name,
       symbol: token.symbol,
       logoUrl: TOKEN_LOGO(token.chainId, token.address),
-      totalValuePooledUsd: token.totalValuePooledUsd,
     }));
 
     const nextCursor =
@@ -224,14 +223,22 @@ export class TokensService {
     return { tokens, nextCursor };
   }
 
-  async getTokensByAddress(tokenAddress: string, chainIds?: ChainId[]): Promise<ISingleChainToken[]> {
-    const indexerTokens = await this.liquidityPoolsIndexer.getTokens({
-      filter: {
-        minimumTotalValuePooledUsd: 0,
-        minimumPriceBackingUsd: 0,
-        minimumSwapsCount: 0,
-        minimumSwapVolumeUsd: 0,
-      },
+  async getSingleChainTokenInfo(chainId: ChainId, tokenAddress: string): Promise<ISingleChainTokenInfo> {
+    const token = await this.liquidityPoolsIndexer.getToken(chainId, tokenAddress);
+
+    return {
+      chainId: token.chainId,
+      address: token.address,
+      decimals: token.decimals,
+      name: token.name,
+      symbol: token.symbol,
+      logoUrl: TOKEN_LOGO(token.chainId, token.address),
+      totalValuePooledUsd: token.totalValuePooledUsd,
+    };
+  }
+
+  async searchTokensByAddress(tokenAddress: string, chainIds?: ChainId[]): Promise<ISingleChainTokenMetadata[]> {
+    const indexerTokens = await this.liquidityPoolsIndexer.getSingleChainTokens({
       orderBy: {
         field: TokenOrderField.TVL,
         direction: OrderDirection.DESC,
@@ -247,7 +254,6 @@ export class TokensService {
       name: token.name,
       symbol: token.symbol,
       logoUrl: TOKEN_LOGO(token.chainId, token.address),
-      totalValuePooledUsd: token.totalValuePooledUsd,
     }));
   }
 }

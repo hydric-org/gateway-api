@@ -1,7 +1,7 @@
-import { ISingleChainToken } from '@core/interfaces/token/single-chain-token.interface';
+import { ISingleChainTokenMetadata } from '@core/interfaces/token/single-chain-token-metadata.interface';
 
 export interface ILiquidityPoolTokenBalance {
   amount: number;
   amountUsd: number;
-  token: ISingleChainToken;
+  token: ISingleChainTokenMetadata;
 }

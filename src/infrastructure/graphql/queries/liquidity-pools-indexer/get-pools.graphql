@@ -1,4 +1,9 @@
-query GetPools($poolsFilter: Pool_bool_exp, $limit: Int, $offset: Int, $orderBy: [Pool_order_by!]) {
+query LiquidityPoolsIndexerGetPools(
+  $poolsFilter: Pool_bool_exp
+  $limit: Int
+  $offset: Int
+  $orderBy: [Pool_order_by!]
+) {
   Pool(where: $poolsFilter, order_by: $orderBy, limit: $limit, offset: $offset) {
     createdAtTimestamp
     poolAddress

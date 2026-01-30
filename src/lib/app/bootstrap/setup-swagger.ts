@@ -7,7 +7,7 @@ export function setupSwagger(app: INestApplication) {
   const configService = app.get(ConfigService);
   const apiUrl = configService.get(EnvKey.API_URL);
 
-  let configBuilder = new DocumentBuilder()
+  const configBuilder = new DocumentBuilder()
     .setTitle(`hydric Gateway API`)
     .setDescription(`Access DeFi Liquidity easily. One plug. Every Protocol. Every Network.`)
     .setVersion(process.env.npm_package_version || '1.0.0')

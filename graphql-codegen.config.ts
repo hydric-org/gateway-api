@@ -4,7 +4,7 @@ import 'dotenv/config';
 const config: CodegenConfig = {
   schema: process.env.INDEXER_URL,
   overwrite: true,
-  documents: ['./src/infrastructure/graphql/queries/*.graphql'],
+  documents: ['./src/infrastructure/graphql/queries/**/*.graphql'],
   generates: {
     './src/gen/graphql.gen.ts': {
       plugins: ['typescript', 'typescript-graphql-request', 'typescript-operations'],

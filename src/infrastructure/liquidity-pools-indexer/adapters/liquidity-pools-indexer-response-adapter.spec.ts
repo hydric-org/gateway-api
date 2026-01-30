@@ -1,7 +1,7 @@
 import { ChainId } from '@core/enums/chain-id';
 import { OrderDirection } from '@core/enums/order-direction';
 import { TokenOrderField } from '@core/enums/token/token-order-field';
-import { IIndexerToken } from '@core/interfaces/token/indexer-token.interface';
+import { ILiquidityPoolsIndexerTokenForMultichainAggregation } from '@core/interfaces/token/liquidity-pools-indexer-token-for-multichain-aggregation.interface';
 import { MULTICHAIN_TOKEN_OVERRIDES } from '@core/token/multichain-token-overrides';
 import { LiquidityPoolsIndexerResponseAdapter } from './liquidity-pools-indexer-response-adapter';
 
@@ -9,7 +9,9 @@ import { LiquidityPoolsIndexerResponseAdapter } from './liquidity-pools-indexer-
 
 describe('LiquidityPoolsIndexerResponseAdapter', () => {
   describe('indexerTokensToMultichainTokenList', () => {
-    const createMockToken = (overrides?: Partial<IIndexerToken>): IIndexerToken => ({
+    const createMockToken = (
+      overrides?: Partial<ILiquidityPoolsIndexerTokenForMultichainAggregation>,
+    ): ILiquidityPoolsIndexerTokenForMultichainAggregation => ({
       id: '1-0x123',
       address: '0x123',
       chainId: 1,
@@ -17,14 +19,8 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
       symbol: 'TEST',
       normalizedName: 'TEST TOKEN',
       normalizedSymbol: 'TEST',
-      decimals: 18,
-      logoUrl: '',
-      swapsCount: 100,
-      trackedPriceBackingUsd: 100000,
-      trackedSwapVolumeUsd: 100000,
       trackedTotalValuePooledUsd: 100000,
       trackedUsdPrice: 1.0,
-      totalValuePooledUsd: 100000,
       ...overrides,
     });
 
@@ -49,7 +45,6 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
         id: '1-0x123',
         address: '0x123',
         chainId: 1,
-        symbol: 'USDC',
         normalizedSymbol: 'USDC',
         trackedUsdPrice: 1.0,
       });
@@ -57,12 +52,11 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
         id: '8453-0x456',
         address: '0x456',
         chainId: 8453,
-        symbol: 'USDC',
         normalizedSymbol: 'USDC',
         trackedUsdPrice: 1.0,
       });
 
-      const result = LiquidityPoolsIndexerResponseAdapter.indexerTokensToMultichainTokenList(
+      const result = LiquidityPoolsIndexerResponseAdapter.liquidityPoolsIndexerTokensToMultichainTokenList(
         [token1, token2],
         defaultParams,
       );
@@ -83,21 +77,19 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
       const token1 = createMockToken({
         id: '1-0xA',
         address: '0xA',
-        symbol: 'USDC',
         normalizedSymbol: 'USDC',
         trackedUsdPrice: 1.0,
       });
       const token2 = createMockToken({
         id: '1-0xB',
         address: '0xB',
-        symbol: 'USDC',
         normalizedSymbol: 'USDC',
         trackedUsdPrice: 0.5, // 50% diff, exceed 20%
       });
 
       const token2Fixed = { ...token2, chainId: ChainId.BASE, id: '8453-0xB', address: '0xB' };
 
-      const resultFixed = LiquidityPoolsIndexerResponseAdapter.indexerTokensToMultichainTokenList(
+      const resultFixed = LiquidityPoolsIndexerResponseAdapter.liquidityPoolsIndexerTokensToMultichainTokenList(
         [token1, token2Fixed],
         defaultParams,
       );
@@ -115,19 +107,17 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
       const tokenA = createMockToken({
         id: '1-0xA',
         address: '0xA',
-        symbol: 'TOKEN_A',
         normalizedSymbol: 'TOKEN_A',
       });
       const tokenB = createMockToken({
         id: '1-0xB',
         address: '0xB',
-        symbol: 'TOKEN_B',
         normalizedSymbol: 'TOKEN_B',
       });
 
       MULTICHAIN_TOKEN_OVERRIDES['1-0xB'] = { partOf: ['1-0xA'] };
 
-      const result = LiquidityPoolsIndexerResponseAdapter.indexerTokensToMultichainTokenList(
+      const result = LiquidityPoolsIndexerResponseAdapter.liquidityPoolsIndexerTokensToMultichainTokenList(
         [tokenA, tokenB],
         defaultParams,
       );
@@ -146,7 +136,6 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
       const tokenA = createMockToken({
         id: '1-0xA',
         address: '0xA',
-        symbol: 'USDC',
         normalizedSymbol: 'USDC',
         trackedUsdPrice: 1.0,
       });
@@ -154,7 +143,6 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
         id: '8453-0xB',
         address: '0xB',
         chainId: 8453,
-        symbol: 'USDC',
         normalizedSymbol: 'USDC',
         trackedUsdPrice: 0.1, // 90% diff
       });
@@ -162,7 +150,7 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
       // Override forcing Token B to be part of Token A despite price discrepancy
       MULTICHAIN_TOKEN_OVERRIDES['8453-0xB'] = { partOf: ['1-0xA'] };
 
-      const result = LiquidityPoolsIndexerResponseAdapter.indexerTokensToMultichainTokenList(
+      const result = LiquidityPoolsIndexerResponseAdapter.liquidityPoolsIndexerTokensToMultichainTokenList(
         [tokenA, tokenB],
         defaultParams,
       );
@@ -180,20 +168,18 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
       const tokenA = createMockToken({
         id: '1-0xA',
         address: '0xA',
-        symbol: 'USDC',
         normalizedSymbol: 'USDC',
       });
       const tokenB = createMockToken({
         id: '1-0xB',
         address: '0xB',
         chainId: 8453,
-        symbol: 'USDC',
         normalizedSymbol: 'USDC',
       });
 
       MULTICHAIN_TOKEN_OVERRIDES['1-0xB'] = { partOf: null };
 
-      const result = LiquidityPoolsIndexerResponseAdapter.indexerTokensToMultichainTokenList(
+      const result = LiquidityPoolsIndexerResponseAdapter.liquidityPoolsIndexerTokensToMultichainTokenList(
         [tokenA, tokenB],
         defaultParams,
       );
@@ -210,20 +196,18 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
       const tokenA = createMockToken({
         id: '1-0xA',
         address: '0xA',
-        symbol: 'USDC',
         normalizedSymbol: 'USDC',
       });
       const tokenB = createMockToken({
         id: '8453-0xB',
         address: '0xB',
         chainId: 8453,
-        symbol: 'USDC',
         normalizedSymbol: 'USDC',
       });
 
       MULTICHAIN_TOKEN_OVERRIDES['1-0xA'] = { partOf: ['1-0xA'] };
 
-      const result = LiquidityPoolsIndexerResponseAdapter.indexerTokensToMultichainTokenList(
+      const result = LiquidityPoolsIndexerResponseAdapter.liquidityPoolsIndexerTokensToMultichainTokenList(
         [tokenA, tokenB],
         defaultParams,
       );
@@ -244,14 +228,14 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
     });
 
     it('should MERGE multiple override tokens into the same group', () => {
-      const tokenA = createMockToken({ id: '1-0xA', address: '0xA', symbol: 'A', normalizedSymbol: 'A' });
-      const tokenB = createMockToken({ id: '1-0xB', address: '0xB', symbol: 'B', normalizedSymbol: 'B' });
-      const tokenC = createMockToken({ id: '1-0xC', address: '0xC', symbol: 'C', normalizedSymbol: 'C' });
+      const tokenA = createMockToken({ id: '1-0xA', address: '0xA', normalizedSymbol: 'A' });
+      const tokenB = createMockToken({ id: '1-0xB', address: '0xB', normalizedSymbol: 'B' });
+      const tokenC = createMockToken({ id: '1-0xC', address: '0xC', normalizedSymbol: 'C' });
 
       MULTICHAIN_TOKEN_OVERRIDES['1-0xB'] = { partOf: ['1-0xA'] };
       MULTICHAIN_TOKEN_OVERRIDES['1-0xC'] = { partOf: ['1-0xA'] };
 
-      const result = LiquidityPoolsIndexerResponseAdapter.indexerTokensToMultichainTokenList(
+      const result = LiquidityPoolsIndexerResponseAdapter.liquidityPoolsIndexerTokensToMultichainTokenList(
         [tokenA, tokenB, tokenC],
         defaultParams,
       );
@@ -267,14 +251,14 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
     });
 
     it('should handle complex chain: A joins B, B joins C (Transitiveness)', () => {
-      const tokenA = createMockToken({ id: '1-0xA', address: '0xA', symbol: 'A', normalizedSymbol: 'A' });
-      const tokenB = createMockToken({ id: '1-0xB', address: '0xB', symbol: 'B', normalizedSymbol: 'B' });
-      const tokenC = createMockToken({ id: '1-0xC', address: '0xC', symbol: 'C', normalizedSymbol: 'C' });
+      const tokenA = createMockToken({ id: '1-0xA', address: '0xA', normalizedSymbol: 'A' });
+      const tokenB = createMockToken({ id: '1-0xB', address: '0xB', normalizedSymbol: 'B' });
+      const tokenC = createMockToken({ id: '1-0xC', address: '0xC', normalizedSymbol: 'C' });
 
       MULTICHAIN_TOKEN_OVERRIDES['1-0xA'] = { partOf: ['1-0xB'] };
       MULTICHAIN_TOKEN_OVERRIDES['1-0xB'] = { partOf: ['1-0xC'] };
 
-      const result = LiquidityPoolsIndexerResponseAdapter.indexerTokensToMultichainTokenList(
+      const result = LiquidityPoolsIndexerResponseAdapter.liquidityPoolsIndexerTokensToMultichainTokenList(
         [tokenA, tokenB, tokenC],
         defaultParams,
       );
@@ -302,7 +286,6 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
         symbol: 'HIGH',
         normalizedSymbol: 'HIGH',
         trackedTotalValuePooledUsd: 1000000,
-        totalValuePooledUsd: 1000000,
       });
       const tokenLowTvl = createMockToken({
         id: '1-0xLow',
@@ -310,7 +293,6 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
         symbol: 'LOW',
         normalizedSymbol: 'LOW',
         trackedTotalValuePooledUsd: 100,
-        totalValuePooledUsd: 100,
       });
       const tokenZeroTvl = createMockToken({
         id: '1-0xZero',
@@ -318,7 +300,6 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
         symbol: 'ZERO',
         normalizedSymbol: 'ZERO',
         trackedTotalValuePooledUsd: 0,
-        totalValuePooledUsd: 0,
       });
 
       const params = {
@@ -329,7 +310,7 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
         },
       };
 
-      const result = LiquidityPoolsIndexerResponseAdapter.indexerTokensToMultichainTokenList(
+      const result = LiquidityPoolsIndexerResponseAdapter.liquidityPoolsIndexerTokensToMultichainTokenList(
         [tokenZeroTvl, tokenHighTvl, tokenLowTvl],
         params,
       );

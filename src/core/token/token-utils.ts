@@ -5,25 +5,11 @@ import { ITokenOrder } from '@core/interfaces/token/token-order.interface';
 export const TokenUtils = {
   areTokensTheSame,
   sumTotalValuePooledUsd,
-  sortMultichainTokenList,
+  sortTokenList,
 };
 
 function sumTotalValuePooledUsd(tokens: { trackedTotalValuePooledUsd: number }[]): number {
   return tokens.reduce((sum, token) => sum + token.trackedTotalValuePooledUsd, 0);
-}
-
-function sortMultichainTokenList(tokens: { totalValuePooledUsd: number }[], order: ITokenOrder): void {
-  tokens.sort((a, b) => {
-    let comparison = 0;
-
-    switch (order.field) {
-      case TokenOrderField.TVL:
-        comparison = (a.totalValuePooledUsd ?? 0) - (b.totalValuePooledUsd ?? 0);
-        break;
-    }
-
-    return order.direction === OrderDirection.ASC ? comparison : -comparison;
-  });
 }
 
 function areTokensTheSame(
@@ -76,4 +62,18 @@ function areTokensTheSame(
   const similarity = overlap.length / uniqueWords.size;
 
   return similarity >= 0.5;
+}
+
+function sortTokenList(tokens: { totalValuePooledUsd: number }[], order: ITokenOrder): void {
+  tokens.sort((a, b) => {
+    let comparison = 0;
+
+    switch (order.field) {
+      case TokenOrderField.TVL:
+        comparison = (a.totalValuePooledUsd ?? 0) - (b.totalValuePooledUsd ?? 0);
+        break;
+    }
+
+    return order.direction === OrderDirection.ASC ? comparison : -comparison;
+  });
 }

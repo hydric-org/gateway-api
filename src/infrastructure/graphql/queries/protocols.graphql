@@ -1,8 +1,0 @@
-query GetProtocols {
-  Protocol {
-    id
-    name
-    logo
-    url
-  }
-}

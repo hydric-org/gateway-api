@@ -1,0 +1,16 @@
+query LiquidityPoolsIndexerGetSingleChainTokens(
+  $tokenFilter: SingleChainToken_bool_exp
+  $limit: Int
+  $offset: Int
+  $orderBy: [SingleChainToken_order_by!]
+) {
+  SingleChainToken(where: $tokenFilter, limit: $limit, offset: $offset, order_by: $orderBy) {
+    id
+    tokenAddress
+    chainId
+    name
+    symbol
+    decimals
+    trackedUsdPrice
+  }
+}

@@ -1,11 +1,11 @@
 import { ChainId } from '@core/enums/chain-id';
 import { LiquidityPoolType } from '@core/enums/liquidity-pool/liquidity-pool-type';
 import { ILiquidityPool } from '@core/interfaces/liquidity-pool/liquidity-pool.interface';
-import { ISingleChainToken } from '@core/interfaces/token/single-chain-token.interface';
+import { ISingleChainTokenMetadata } from '@core/interfaces/token/single-chain-token-metadata.interface';
 import { LiquidityPoolMetadata } from '@core/types/liquidity-pool-metadata';
 import { ObjectCost } from '@lib/api/pricing/decorators/object-cost.decorator';
 import { Protocol } from '@lib/api/protocol/dtos/protocol.dto';
-import { SingleChainToken } from '@lib/api/token/dtos/single-chain-token.dto';
+import { SingleChainTokenMetadata } from '@lib/api/token/dtos/single-chain-token-metadata.dto';
 import { ApiProperty, ApiSchema, getSchemaPath } from '@nestjs/swagger';
 import { LIQUIDITY_POOL_METADATA_TYPES } from '../liquidity-pool-metadata-types';
 import { LiquidityPoolBalance } from './balance/liquidity-pool-balance.dto';
@@ -13,7 +13,7 @@ import { LiquidityPoolFeeTier } from './liquidity-pool-fee-tier.dto';
 import { LiquidityPoolWindowedStats } from './liquidity-pool-windowed-stats.dto';
 import { V4LiquidityPoolMetadataExample } from './metadata/v4-liquidity-pool-metadata.dto';
 
-const token0: ISingleChainToken = {
+const token0: ISingleChainTokenMetadata = {
   chainId: ChainId.ETHEREUM,
   address: '0x0000000000000000000000000000000000000000',
   decimals: 18,
@@ -21,10 +21,9 @@ const token0: ISingleChainToken = {
   symbol: 'ETH',
   logoUrl:
     'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/128/color/eth.png',
-  totalValuePooledUsd: 12450.55,
 };
 
-const token1: ISingleChainToken = {
+const token1: ISingleChainTokenMetadata = {
   chainId: ChainId.ETHEREUM,
   address: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   decimals: 18,
@@ -32,7 +31,6 @@ const token1: ISingleChainToken = {
   symbol: 'USDC',
   logoUrl:
     'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530be6e374711a8554f31b17e4cb92c25fa5/128/color/usdc.png',
-  totalValuePooledUsd: 45200.12,
 };
 export const V3LiquidityPoolExample = {
   address: '0x8ad599c3a01ae48104127aeeb893430d0bc41221',
@@ -130,8 +128,9 @@ export class LiquidityPool implements ILiquidityPool {
     description:
       'Deterministic list of assets in the pool. The array order strictly follows the protocol\'s internal "Token 0, 1... N" indexing.',
     example: V3LiquidityPoolExample.tokens,
+    type: () => [SingleChainTokenMetadata],
   })
-  readonly tokens!: SingleChainToken[];
+  readonly tokens!: SingleChainTokenMetadata[];
 
   @ApiProperty({
     description: 'The aggregate inventory state, including Total Value Locked (TVL) and individual asset reserves.',

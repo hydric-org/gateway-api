@@ -6,7 +6,7 @@ import { ApiBadRequestResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation
 import { GetTokenBasketResponse } from '../dtos/response/get-token-basket-response.dto';
 import { InvalidBasketIdError } from '../errors/invalid-basket-id.error';
 
-export function ApiGetSingleMultiChainBasketDocs() {
+export function ApiGetSingleBasketInMultipleChainsDocs() {
   return applyDecorators(
     ApiOperation({
       summary: 'Get a specific token basket by ID across all networks.',

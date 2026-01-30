@@ -1,14 +1,14 @@
 import { _Internal_BilledObjectResponse } from '@lib/api/pricing/dtos/billed-object-response.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { SingleChainToken } from '../single-chain-token.dto';
+import { SingleChainTokenMetadata } from '../single-chain-token-metadata.dto';
 import { TokenFilter } from '../token-filter.dto';
 
 export class SearchSingleChainTokensResponse extends _Internal_BilledObjectResponse {
   @ApiProperty({
     description: 'List of matching tokens on the specified blockchain',
-    type: [SingleChainToken],
+    type: [SingleChainTokenMetadata],
   })
-  readonly tokens: SingleChainToken[];
+  readonly tokens: SingleChainTokenMetadata[];
 
   @ApiPropertyOptional({
     description: 'Cursor for the next page of search results. Null if no more results.',
@@ -23,10 +23,10 @@ export class SearchSingleChainTokensResponse extends _Internal_BilledObjectRespo
   })
   readonly filters: TokenFilter;
 
-  constructor(tokens: SingleChainToken[], filters: TokenFilter, nextCursor: string | null = null) {
+  constructor(tokens: SingleChainTokenMetadata[], filters: TokenFilter, nextCursor: string | null = null) {
     super({
       count: tokens.length,
-      objectType: SingleChainToken,
+      objectType: SingleChainTokenMetadata,
     });
     this.tokens = tokens;
     this.filters = filters;

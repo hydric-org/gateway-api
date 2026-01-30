@@ -1,7 +1,7 @@
-import { ApiGetMultiChainBasketsDocs } from '@lib/api/token/descorators/get-multi-chain-baskets-docs.decorator';
+import { ApiGetMultipleChainBasketsDocs } from '@lib/api/token/descorators/get-multi-chain-baskets-docs.decorator';
 import { ApiGetSingleChainBasketDocs } from '@lib/api/token/descorators/get-single-chain-basket-docs.decorator';
 import { ApiGetSingleChainBasketsDocs } from '@lib/api/token/descorators/get-single-chain-baskets-docs.decorator';
-import { ApiGetSingleMultiChainBasketDocs } from '@lib/api/token/descorators/get-single-multi-chain-basket-docs.decorator';
+import { ApiGetSingleBasketInMultipleChainsDocs } from '@lib/api/token/descorators/get-single-multi-chain-basket-docs.decorator';
 import { GetSingleChainBasketPathParams } from '@lib/api/token/dtos/request/get-single-chain-basket-path-params.dto';
 import { GetSingleChainBasketsPathParams } from '@lib/api/token/dtos/request/get-single-chain-baskets-path-params.dto';
 import { GetSingleMultiChainBasketPathParams } from '@lib/api/token/dtos/request/get-single-multi-chain-basket-path-params.dto';
@@ -17,9 +17,9 @@ export class TokensBasketsController {
   constructor(private readonly tokensBasketsService: TokensBasketsService) {}
 
   @Get('')
-  @ApiGetMultiChainBasketsDocs()
-  async getMultiChainBaskets(): Promise<GetTokenBasketListResponse> {
-    const baskets = await this.tokensBasketsService.getMultiChainBaskets();
+  @ApiGetMultipleChainBasketsDocs()
+  async getMultipleChainsBaskets(): Promise<GetTokenBasketListResponse> {
+    const baskets = await this.tokensBasketsService.getMultipleChainsBaskets();
     return new GetTokenBasketListResponse(baskets);
   }
 
@@ -31,11 +31,11 @@ export class TokensBasketsController {
   }
 
   @Get(':basketId')
-  @ApiGetSingleMultiChainBasketDocs()
-  async getSingleMultiChainBasket(
+  @ApiGetSingleBasketInMultipleChainsDocs()
+  async getSingleBasketInMultipleChains(
     @Param() params: GetSingleMultiChainBasketPathParams,
   ): Promise<GetTokenBasketResponse> {
-    const basket = await this.tokensBasketsService.getSingleMultiChainBasket(params.basketId);
+    const basket = await this.tokensBasketsService.getSingleBasketInMultipleChains(params.basketId);
     return new GetTokenBasketResponse(basket);
   }
 

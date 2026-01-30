@@ -1,4 +1,4 @@
-query GetTokens(
+query LiquidityPoolsIndexerGetTokensForMultichainAggregation(
   $tokenFilter: SingleChainToken_bool_exp
   $limit: Int
   $offset: Int
@@ -7,16 +7,12 @@ query GetTokens(
   SingleChainToken(where: $tokenFilter, limit: $limit, offset: $offset, order_by: $orderBy) {
     id
     tokenAddress
-    decimals
-    name
-    normalizedName
-    symbol
-    normalizedSymbol
-    trackedUsdPrice
-    trackedTotalValuePooledUsd
-    trackedPriceDiscoveryCapitalUsd
-    trackedSwapVolumeUsd
-    swapsCount
     chainId
+    name
+    symbol
+    normalizedName
+    normalizedSymbol
+    trackedTotalValuePooledUsd
+    trackedUsdPrice
   }
 }

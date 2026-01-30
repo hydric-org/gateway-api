@@ -1,13 +1,13 @@
 import { _Internal_BilledObjectResponse } from '@lib/api/pricing/dtos/billed-object-response.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { MultiChainTokenDTO } from '../multi-chain-token.dto';
+import { MultiChainTokenMetadata } from '../multi-chain-token-metadata.dto';
 
 export class GetMultiChainTokenListResponse extends _Internal_BilledObjectResponse {
   @ApiProperty({
     description: 'List of multi-chain tokens',
-    type: [MultiChainTokenDTO],
+    type: [MultiChainTokenMetadata],
   })
-  readonly tokens: MultiChainTokenDTO[];
+  readonly tokens: MultiChainTokenMetadata[];
 
   @ApiPropertyOptional({
     description: 'Cursor for the next page. Null if no more results.',
@@ -16,10 +16,10 @@ export class GetMultiChainTokenListResponse extends _Internal_BilledObjectRespon
   })
   readonly nextCursor: string | null;
 
-  constructor(tokens: MultiChainTokenDTO[], nextCursor: string | null = null) {
+  constructor(tokens: MultiChainTokenMetadata[], nextCursor: string | null = null) {
     super({
       count: tokens.length,
-      objectType: MultiChainTokenDTO,
+      objectType: MultiChainTokenMetadata,
     });
     this.tokens = tokens;
     this.nextCursor = nextCursor;

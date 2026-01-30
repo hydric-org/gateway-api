@@ -1,3 +1,4 @@
+import { ChainId } from '@core/enums/chain-id';
 import { BasketId } from '@core/enums/token/basket-id.enum';
 import { ITokenBasketConfiguration } from '@core/interfaces/token/token-basket-configuration.interface';
 import { HttpService } from '@nestjs/axios';
@@ -44,7 +45,7 @@ describe('TokenBasketsClient', () => {
     expect(client).toBeDefined();
   });
 
-  describe('getAllBaskets', () => {
+  describe('getAllBasketsForAllChains', () => {
     it('should return all baskets mapped correctly', async () => {
       const mockAxiosResponse = {
         data: { baskets: [mockRawResponse] },
@@ -53,7 +54,7 @@ describe('TokenBasketsClient', () => {
 
       jest.spyOn(httpService, 'get').mockReturnValue(of(mockAxiosResponse));
 
-      const result = await client.getAllBaskets();
+      const result = await client.getAllBasketsForAllChains();
 
       expect(result).toHaveLength(1);
       expect(result[0]).toEqual(<ITokenBasketConfiguration>{
@@ -81,12 +82,12 @@ describe('TokenBasketsClient', () => {
       };
       jest.spyOn(httpService, 'get').mockReturnValue(throwError(() => errorResponse));
 
-      const result = await client.getAllBaskets();
+      const result = await client.getAllBasketsForAllChains();
       expect(result).toEqual([]);
     });
   });
 
-  describe('getBasket', () => {
+  describe('getSingleBasketForAllChains', () => {
     it('should return mapped basket when request is successful', async () => {
       const mockAxiosResponse = {
         data: mockRawResponse,
@@ -95,7 +96,7 @@ describe('TokenBasketsClient', () => {
 
       jest.spyOn(httpService, 'get').mockReturnValue(of(mockAxiosResponse));
 
-      const result = await client.getBasket(mockBasketId);
+      const result = await client.getSingleBasketForAllChains(mockBasketId);
 
       expect(result).toEqual(<ITokenBasketConfiguration>{
         id: BasketId.USD_STABLECOINS,
@@ -126,7 +127,7 @@ describe('TokenBasketsClient', () => {
 
       jest.spyOn(httpService, 'get').mockReturnValue(throwError(() => errorResponse));
 
-      const result = await client.getBasket(mockBasketId);
+      const result = await client.getSingleBasketForAllChains(mockBasketId);
 
       expect(result).toBeNull();
     });
@@ -142,7 +143,56 @@ describe('TokenBasketsClient', () => {
 
       jest.spyOn(httpService, 'get').mockReturnValue(throwError(() => errorResponse));
 
-      await expect(client.getBasket(mockBasketId)).rejects.toEqual(errorResponse);
+      await expect(client.getSingleBasketForAllChains(mockBasketId)).rejects.toEqual(errorResponse);
+    });
+  });
+
+  describe('getSingleBasketForSingleChain', () => {
+    const mockChainId = 1;
+
+    it('should return mapped basket for specific chain when successful', async () => {
+      const mockAxiosResponse = {
+        data: mockRawResponse,
+        status: 200,
+      } as AxiosResponse;
+
+      jest.spyOn(httpService, 'get').mockReturnValue(of(mockAxiosResponse));
+
+      const result = await client.getSingleBasketForSingleChain(mockBasketId, mockChainId);
+
+      expect(result).toEqual(<ITokenBasketConfiguration>{
+        id: mockBasketId,
+        name: 'USD Stablecoins',
+        logoUrl: 'https://logo.url',
+        description: 'Description',
+        lastUpdated: '2023-01-01',
+        chainIds: [mockChainId],
+        addresses: [
+          { chainId: 1, address: '0x123' },
+          { chainId: 1, address: '0x456' },
+        ],
+      });
+    });
+
+    it('should throw TokenBasketNotFoundError if chain is not in basket', async () => {
+      const mockAxiosResponse = {
+        data: mockRawResponse,
+        status: 200,
+      } as AxiosResponse;
+
+      jest.spyOn(httpService, 'get').mockReturnValue(of(mockAxiosResponse));
+
+      await expect(client.getSingleBasketForSingleChain(mockBasketId, ChainId.SCROLL)).rejects.toThrow();
+    });
+
+    it('should throw TokenBasketNotFoundError on 404', async () => {
+      const errorResponse = {
+        isAxiosError: true,
+        response: { status: 404 },
+      };
+      jest.spyOn(httpService, 'get').mockReturnValue(throwError(() => errorResponse));
+
+      await expect(client.getSingleBasketForSingleChain(mockBasketId, mockChainId)).rejects.toThrow();
     });
   });
 });

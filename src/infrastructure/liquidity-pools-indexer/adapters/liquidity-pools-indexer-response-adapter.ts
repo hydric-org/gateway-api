@@ -5,49 +5,59 @@ import { IAlgebraLiquidityPoolMetadata } from '@core/interfaces/liquidity-pool/m
 import { ISlipstreamLiquidityPoolMetadata } from '@core/interfaces/liquidity-pool/metadata/slipstream-liquidity-pool-metadata.interface';
 import { IV3LiquidityPoolMetadata } from '@core/interfaces/liquidity-pool/metadata/v3-liquidity-pool-metadata.interface';
 import { IV4LiquidityPoolMetadata } from '@core/interfaces/liquidity-pool/metadata/v4-liquidity-pool-metadata.interface';
-import { IIndexerToken } from '@core/interfaces/token/indexer-token.interface';
-import { IMultiChainToken } from '@core/interfaces/token/multi-chain-token.interface';
-import { ISingleChainToken } from '@core/interfaces/token/single-chain-token.interface';
+import { ILiquidityPoolsIndexerSingleChainToken } from '@core/interfaces/token/liquidity-pools-indexer-single-chain-token.interface';
+import { ILiquidityPoolsIndexerTokenForMultichainAggregation } from '@core/interfaces/token/liquidity-pools-indexer-token-for-multichain-aggregation.interface';
+import { IMultiChainTokenMetadata } from '@core/interfaces/token/multi-chain-token-metadata.interface';
+import { ISingleChainTokenMetadata } from '@core/interfaces/token/single-chain-token-metadata.interface';
 import { ITokenOrder } from '@core/interfaces/token/token-order.interface';
 import { applyMultichainTokenOverrides } from '@core/token/multichain-token-overrides';
 import { TokenUtils } from '@core/token/token-utils';
 import { LiquidityPoolMetadata } from '@core/types/liquidity-pool-metadata';
 import {
-  GetPoolsQuery_query_root_Pool_Pool,
-  GetTokensQuery_query_root_SingleChainToken_SingleChainToken,
+  LiquidityPoolsIndexerGetPoolsQuery_query_root_Pool_Pool,
+  LiquidityPoolsIndexerGetSingleChainTokensQuery,
+  LiquidityPoolsIndexerGetTokensForMultichainAggregationQuery,
 } from '@gen/graphql.gen';
 
 export const LiquidityPoolsIndexerResponseAdapter = {
+  responseToTokenForMultichainList,
+  responseToSingleChainTokenList,
   responseToLiquidityPoolList,
-  responseToIndexerTokenList,
-  indexerTokensToMultichainTokenList,
+  liquidityPoolsIndexerTokensToMultichainTokenList,
 };
 
-function responseToIndexerTokenList(
-  rawTokens: GetTokensQuery_query_root_SingleChainToken_SingleChainToken[],
-): IIndexerToken[] {
-  return rawTokens.map(
-    (token): IIndexerToken => ({
-      id: token.id,
-      normalizedName: token.normalizedName,
-      normalizedSymbol: token.normalizedSymbol,
-      address: token.tokenAddress,
-      decimals: token.decimals,
-      name: token.name,
-      symbol: token.symbol,
-      chainId: token.chainId,
-      trackedUsdPrice: Number(token.trackedUsdPrice),
-      trackedTotalValuePooledUsd: Number(token.trackedTotalValuePooledUsd),
-      trackedPriceBackingUsd: Number(token.trackedPriceDiscoveryCapitalUsd),
-      trackedSwapVolumeUsd: Number(token.trackedSwapVolumeUsd),
-      swapsCount: Number(token.swapsCount),
-      logoUrl: TOKEN_LOGO(token.chainId, token.tokenAddress),
-      totalValuePooledUsd: Number(token.trackedTotalValuePooledUsd),
-    }),
-  );
+function responseToTokenForMultichainList(
+  response: LiquidityPoolsIndexerGetTokensForMultichainAggregationQuery,
+): ILiquidityPoolsIndexerTokenForMultichainAggregation[] {
+  return response.SingleChainToken.map((token) => ({
+    id: token.id,
+    address: token.tokenAddress,
+    chainId: token.chainId,
+    name: token.name,
+    symbol: token.symbol,
+    normalizedName: token.normalizedName,
+    normalizedSymbol: token.normalizedSymbol,
+    trackedTotalValuePooledUsd: Number(token.trackedTotalValuePooledUsd),
+    trackedUsdPrice: Number(token.trackedUsdPrice),
+  }));
 }
 
-function responseToLiquidityPoolList(rawPools: GetPoolsQuery_query_root_Pool_Pool[]): ILiquidityPool[] {
+function responseToSingleChainTokenList(
+  response: LiquidityPoolsIndexerGetSingleChainTokensQuery,
+): ILiquidityPoolsIndexerSingleChainToken[] {
+  return response.SingleChainToken.map((token) => ({
+    address: token.tokenAddress,
+    chainId: token.chainId,
+    name: token.name,
+    symbol: token.symbol,
+    decimals: token.decimals,
+    logoUrl: TOKEN_LOGO(token.chainId, token.tokenAddress),
+  }));
+}
+
+function responseToLiquidityPoolList(
+  rawPools: LiquidityPoolsIndexerGetPoolsQuery_query_root_Pool_Pool[],
+): ILiquidityPool[] {
   const matchedPools: ILiquidityPool[] = [];
 
   for (const pool of rawPools) {
@@ -58,81 +68,60 @@ function responseToLiquidityPoolList(rawPools: GetPoolsQuery_query_root_Pool_Poo
   return matchedPools;
 }
 
-function indexerTokensToMultichainTokenList(
-  indexerTokens: IIndexerToken[],
+function liquidityPoolsIndexerTokensToMultichainTokenList(
+  liquidityPoolsIndexerTokens: ILiquidityPoolsIndexerTokenForMultichainAggregation[],
   params: {
     matchAllSymbols: boolean;
-    minimumPriceBackingUsd: number;
-    minimumSwapVolumeUsd: number;
-    minimumSwapsCount: number;
     order: ITokenOrder;
   },
 ): {
-  multichainTokenList: IMultiChainToken[];
-  discardedTokens: IIndexerToken[];
+  multichainTokenList: IMultiChainTokenMetadata[];
+  discardedTokens: ILiquidityPoolsIndexerTokenForMultichainAggregation[];
 } {
-  const heuristicResult = _groupTokensBySymbolAndPriceStrategy(indexerTokens, params);
+  const heuristicResult = _groupTokensBySymbolAndPriceStrategy(liquidityPoolsIndexerTokens, params);
 
   return applyMultichainTokenOverrides(
     heuristicResult.multichainTokenList,
     heuristicResult.discardedTokens,
-    indexerTokens,
+    liquidityPoolsIndexerTokens,
     params.order,
   );
 }
 
 function _groupTokensBySymbolAndPriceStrategy(
-  indexerTokens: IIndexerToken[],
+  liquidityPoolsIndexerTokens: ILiquidityPoolsIndexerTokenForMultichainAggregation[],
   params: {
     matchAllSymbols: boolean;
-    minimumPriceBackingUsd: number;
-    minimumSwapVolumeUsd: number;
-    minimumSwapsCount: number;
   },
 ): {
-  multichainTokenList: IMultiChainToken[];
-  discardedTokens: IIndexerToken[];
+  multichainTokenList: IMultiChainTokenMetadata[];
+  discardedTokens: ILiquidityPoolsIndexerTokenForMultichainAggregation[];
 } {
-  const isTokenTrusted = (token: IIndexerToken): boolean => {
-    if (token.trackedPriceBackingUsd < params.minimumPriceBackingUsd) return false;
-    if (token.trackedSwapVolumeUsd < params.minimumSwapVolumeUsd) return false;
-    if (token.swapsCount < params.minimumSwapsCount) return false;
-    return true;
-  };
+  const symbolGroups = new Map<string, ILiquidityPoolsIndexerTokenForMultichainAggregation[]>();
 
-  const symbolGroups = new Map<string, IIndexerToken[]>();
-
-  for (const token of indexerTokens) {
+  for (const token of liquidityPoolsIndexerTokens) {
     if (!symbolGroups.has(token.normalizedSymbol)) {
       symbolGroups.set(token.normalizedSymbol, []);
     }
     symbolGroups.get(token.normalizedSymbol)!.push(token);
   }
 
-  const multichainTokenList: IMultiChainToken[] = [];
-  const discardedTokens: IIndexerToken[] = [];
+  const multichainTokenList: IMultiChainTokenMetadata[] = [];
+  const discardedTokens: ILiquidityPoolsIndexerTokenForMultichainAggregation[] = [];
   const processedIds = new Set<string>();
 
   for (const [, tokens] of symbolGroups) {
-    // Sort by TVL to determine anchor (highest TVL is usually the most reliable)
     tokens.sort((a, b) => b.trackedTotalValuePooledUsd - a.trackedTotalValuePooledUsd);
 
     for (const anchor of tokens) {
       if (processedIds.has(anchor.id)) continue;
 
-      if (!isTokenTrusted(anchor)) {
-        discardedTokens.push(anchor);
-        processedIds.add(anchor.id);
-        continue;
-      }
-
-      const currentGroup: IMultiChainToken = {
+      const currentGroup: IMultiChainTokenMetadata = {
         addresses: [],
         chainIds: [],
         name: anchor.name,
         symbol: anchor.symbol,
         logoUrl: TOKEN_LOGO(anchor.chainId, anchor.address),
-        totalValuePooledUsd: 0,
       };
 
       const seenChainIds = new Set<number>();
@@ -144,10 +133,9 @@ function _groupTokensBySymbolAndPriceStrategy(
         const pricePercentageDiff = anchor.trackedUsdPrice === 0 ? 0 : priceDiff / anchor.trackedUsdPrice;
 
         const meetsMatchingCriteria = pricePercentageDiff <= 0.2 && TokenUtils.areTokensTheSame(candidate, anchor);
-        const isTrusted = isTokenTrusted(candidate);
         const chainAlreadySeen = seenChainIds.has(candidate.chainId);
 
-        if (meetsMatchingCriteria && isTrusted && (params.matchAllSymbols || !chainAlreadySeen)) {
+        if (meetsMatchingCriteria && (params.matchAllSymbols || !chainAlreadySeen)) {
           currentGroup.addresses.push({ chainId: candidate.chainId, address: candidate.address });
           currentGroup.chainIds.push(candidate.chainId);
 
@@ -168,17 +156,16 @@ function _groupTokensBySymbolAndPriceStrategy(
   return { multichainTokenList, discardedTokens };
 }
 
-function _parseRawPool(rawPool: GetPoolsQuery_query_root_Pool_Pool): ILiquidityPool {
+function _parseRawPool(rawPool: LiquidityPoolsIndexerGetPoolsQuery_query_root_Pool_Pool): ILiquidityPool {
   const poolTokens = [rawPool.token0!, rawPool.token1!];
 
-  const poolTokensMapped: ISingleChainToken[] = poolTokens.map((token) => ({
+  const poolTokensMapped: ISingleChainTokenMetadata[] = poolTokens.map((token) => ({
     chainId: rawPool.chainId,
     address: token.tokenAddress,
     decimals: token.decimals,
     name: token.name,
     symbol: token.symbol,
     logoUrl: TOKEN_LOGO(rawPool.chainId, token.tokenAddress),
-    totalValuePooledUsd: Number(token.trackedTotalValuePooledUsd),
   }));
 
   return {
@@ -246,7 +233,9 @@ function _parseRawPool(rawPool: GetPoolsQuery_query_root_Pool_Pool): ILiquidityP
   };
 }
 
-function _buildLiquidityPoolTypeMetadata(rawPool: GetPoolsQuery_query_root_Pool_Pool): LiquidityPoolMetadata {
+function _buildLiquidityPoolTypeMetadata(
+  rawPool: LiquidityPoolsIndexerGetPoolsQuery_query_root_Pool_Pool,
+): LiquidityPoolMetadata {
   switch (rawPool.poolType) {
     case LiquidityPoolType.V3: {
       const v3LiquidityPoolMetadata: IV3LiquidityPoolMetadata = {
@@ -307,7 +296,7 @@ function _buildLiquidityPoolTypeMetadata(rawPool: GetPoolsQuery_query_root_Pool_
     }
 
     default: {
-      throw new Error(`Unknown liquidity pool type: ${rawPool.poolType as any} cannot be parsed`);
+      throw new Error(`Unknown liquidity pool type from indexer: ${rawPool.poolType as string}`);
     }
   }
 }

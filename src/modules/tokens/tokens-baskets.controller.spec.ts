@@ -21,9 +21,9 @@ describe('TokensBasketsController', () => {
         {
           provide: TokensBasketsService,
           useValue: {
-            getMultiChainBaskets: jest.fn(),
+            getMultipleChainsBaskets: jest.fn(),
             getSingleChainBaskets: jest.fn(),
-            getSingleMultiChainBasket: jest.fn(),
+            getSingleBasketInMultipleChains: jest.fn(),
             getSingleChainBasket: jest.fn(),
           },
         },
@@ -38,13 +38,13 @@ describe('TokensBasketsController', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('getMultiChainBaskets', () => {
-    it('should call service.getMultiChainBaskets and return wrapped result', async () => {
-      jest.spyOn(service, 'getMultiChainBaskets').mockResolvedValue(mockResult);
+  describe('getMultipleChainsBaskets', () => {
+    it('should call service.getMultipleChainsBaskets and return wrapped result', async () => {
+      jest.spyOn(service, 'getMultipleChainsBaskets').mockResolvedValue(mockResult);
 
-      const response = await controller.getMultiChainBaskets();
+      const response = await controller.getMultipleChainsBaskets();
       expect(response.baskets).toBe(mockResult);
-      expect(service.getMultiChainBaskets).toHaveBeenCalled();
+      expect(service.getMultipleChainsBaskets).toHaveBeenCalled();
     });
   });
 
@@ -58,13 +58,13 @@ describe('TokensBasketsController', () => {
     });
   });
 
-  describe('getSingleMultiChainBasket', () => {
-    it('should call service.getSingleMultiChainBasket and return wrapped result', async () => {
-      jest.spyOn(service, 'getSingleMultiChainBasket').mockResolvedValue(mockSingleResult);
+  describe('getSingleBasketInMultipleChains', () => {
+    it('should call service.getSingleBasketInMultipleChains and return wrapped result', async () => {
+      jest.spyOn(service, 'getSingleBasketInMultipleChains').mockResolvedValue(mockSingleResult);
 
-      const response = await controller.getSingleMultiChainBasket({ basketId: mockBasketId });
+      const response = await controller.getSingleBasketInMultipleChains({ basketId: mockBasketId });
       expect(response.basket).toBe(mockSingleResult);
-      expect(service.getSingleMultiChainBasket).toHaveBeenCalledWith(mockBasketId);
+      expect(service.getSingleBasketInMultipleChains).toHaveBeenCalledWith(mockBasketId);
     });
   });
 

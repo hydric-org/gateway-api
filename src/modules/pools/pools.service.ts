@@ -1,5 +1,5 @@
 import { ILiquidityPoolFilter } from '@core/interfaces/liquidity-pool/liquidity-pool-filter.interface';
-import { LiquidityPoolsIndexerClient } from '@infrastructure/indexer/clients/liquidity-pools-indexer-client';
+import { LiquidityPoolsIndexerClient } from '@infrastructure/liquidity-pools-indexer/clients/liquidity-pools-indexer-client';
 import { BlockchainAddress } from '@lib/api/address/blockchain-address.dto';
 import { LiquidityPoolSearchConfig } from '@lib/api/liquidity-pool/dtos/liquiditity-pool-search-config.dto';
 import { LiquidityPool } from '@lib/api/liquidity-pool/dtos/liquidity-pool.dto';

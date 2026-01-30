@@ -18,13 +18,13 @@ describe('Tokens Routing (e2e)', () => {
         {
           provide: TokensService,
           useValue: {
-            getTokensByAddress: jest.fn(),
+            searchTokensByAddress: jest.fn(),
           },
         },
         {
           provide: TokensBasketsService,
           useValue: {
-            getMultiChainBaskets: jest.fn(),
+            getMultipleChainsBaskets: jest.fn(),
           },
         },
       ],
@@ -43,8 +43,8 @@ describe('Tokens Routing (e2e)', () => {
 
   it('GET /tokens/baskets should be handled by TokensBasketsController, not TokensController', async () => {
     const mockBaskets = [{ id: 'usd-stablecoins', name: 'USD Stablecoins' }];
-    (tokensBasketsService.getMultiChainBaskets as jest.Mock).mockResolvedValue(mockBaskets);
-    (tokensService.getTokensByAddress as jest.Mock).mockResolvedValue([]);
+    (tokensBasketsService.getMultipleChainsBaskets as jest.Mock).mockResolvedValue(mockBaskets);
+    (tokensService.searchTokensByAddress as jest.Mock).mockResolvedValue([]);
 
     const response = await request(app.getHttpServer()).get('/tokens/baskets').expect(200);
 
@@ -52,13 +52,13 @@ describe('Tokens Routing (e2e)', () => {
       baskets: mockBaskets,
       count: 1,
     });
-    expect(tokensBasketsService.getMultiChainBaskets).toHaveBeenCalled();
-    expect(tokensService.getTokensByAddress).not.toHaveBeenCalled();
+    expect(tokensBasketsService.getMultipleChainsBaskets).toHaveBeenCalled();
+    expect(tokensService.searchTokensByAddress).not.toHaveBeenCalled();
   });
 
   it('GET /tokens/:address should be handled by TokensController', async () => {
     const mockAddress = '0x1234567890123456789012345678901234567890';
-    (tokensService.getTokensByAddress as jest.Mock).mockResolvedValue([{ address: mockAddress }]);
+    (tokensService.searchTokensByAddress as jest.Mock).mockResolvedValue([{ address: mockAddress }]);
 
     const response = await request(app.getHttpServer()).get(`/tokens/${mockAddress}`).expect(200);
 
@@ -66,6 +66,6 @@ describe('Tokens Routing (e2e)', () => {
       tokens: [{ address: mockAddress }],
       count: 1,
     });
-    expect(tokensService.getTokensByAddress).toHaveBeenCalledWith(mockAddress, undefined);
+    expect(tokensService.searchTokensByAddress).toHaveBeenCalledWith(mockAddress, undefined);
   });
 });

@@ -4,7 +4,7 @@ import { ITokenBasket } from '@core/interfaces/token/token-basket.interface';
 import { ObjectCost } from '@lib/api/pricing/decorators/object-cost.decorator';
 import { ApiProperty, ApiSchema } from '@nestjs/swagger';
 import { BlockchainAddress } from '../../address/blockchain-address.dto';
-import { SingleChainToken, SingleChainTokenExample } from './single-chain-token.dto';
+import { SingleChainTokenMetadata, SingleChainTokenMetadataExample } from './single-chain-token-metadata.dto';
 
 export const TokenBasketExample: ITokenBasket = {
   id: BasketId.USD_STABLECOINS,
@@ -17,7 +17,7 @@ export const TokenBasketExample: ITokenBasket = {
     { chainId: ChainId.ETHEREUM, address: '0xdac17f958d2ee523a2206206994597c13d831ec7' },
     { chainId: ChainId.MONAD, address: '0x1234...' },
   ],
-  tokens: [SingleChainTokenExample],
+  tokens: [SingleChainTokenMetadataExample],
 };
 
 @ApiSchema({
@@ -72,8 +72,8 @@ export class TokenBasket implements ITokenBasket {
 
   @ApiProperty({
     description: 'Token metadata for the assets in this basket.',
-    type: [SingleChainToken],
+    type: [SingleChainTokenMetadata],
     example: TokenBasketExample.tokens,
   })
-  readonly tokens!: SingleChainToken[];
+  readonly tokens!: SingleChainTokenMetadata[];
 }

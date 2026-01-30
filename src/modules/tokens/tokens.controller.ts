@@ -1,21 +1,24 @@
 import { ApiGetMultiChainTokenListDocs } from '@lib/api/token/descorators/get-multichain-token-list-docs.decorator';
+import { ApiGetSingleChainTokenDocs } from '@lib/api/token/descorators/get-single-chain-token-docs.decorator';
 import { ApiGetSingleChainTokenListDocs } from '@lib/api/token/descorators/get-single-chain-token-list-docs.decorator';
-import { ApiGetTokenByAddressDocs } from '@lib/api/token/descorators/get-token-by-address-docs.decorator';
 import { ApiSearchMultichainTokensDocs } from '@lib/api/token/descorators/search-multichain-tokens-docs.decorator';
 import { ApiSearchSingleChainTokensDocs } from '@lib/api/token/descorators/search-single-chain-tokens-docs.decorator';
+import { ApiSearchTokensByAddressDocs } from '@lib/api/token/descorators/search-tokens-by-address-docs.decorator';
 import { Body, Controller, Get, HttpCode, Param, Post, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { GetMultiChainTokenListRequestParams } from '../../lib/api/token/dtos/request/get-multi-chain-token-list-request-params.dto';
 import { GetSingleChainTokenListPathParams } from '../../lib/api/token/dtos/request/get-single-chain-token-list-path-params.dto';
 import { GetSingleChainTokenListRequestBody } from '../../lib/api/token/dtos/request/get-single-chain-token-list-request-body.dto';
-import { GetTokenByAddressPathParams } from '../../lib/api/token/dtos/request/get-token-by-address-path-params.dto';
+import { GetSingleChainTokenPathParams } from '../../lib/api/token/dtos/request/get-single-chain-token-path-params.dto';
 import { SearchMultichainTokensRequestParams } from '../../lib/api/token/dtos/request/search-multichain-tokens-request-params.dto';
 import { SearchSingleChainTokensRequestBody } from '../../lib/api/token/dtos/request/search-single-chain-tokens-request-body.dto';
+import { SearchTokensByAddressPathParams } from '../../lib/api/token/dtos/request/search-tokens-by-address-path-params.dto';
 import { GetMultiChainTokenListResponse } from '../../lib/api/token/dtos/response/get-multi-chain-token-list-response.dto';
 import { GetSingleChainTokenListResponse } from '../../lib/api/token/dtos/response/get-single-chain-token-list-response.dto';
-import { GetTokenByAddressResponse } from '../../lib/api/token/dtos/response/get-token-by-address-response.dto';
+import { GetSingleChainTokenResponse } from '../../lib/api/token/dtos/response/get-single-chain-token-response.dto';
 import { SearchMultichainTokensResponse } from '../../lib/api/token/dtos/response/search-multichain-tokens-response.dto';
 import { SearchSingleChainTokensResponse } from '../../lib/api/token/dtos/response/search-single-chain-tokens-response.dto';
+import { SearchTokensByAddressResponse } from '../../lib/api/token/dtos/response/search-tokens-by-address-response.dto';
 import { ParseChainIdArrayPipe } from '../../lib/api/token/pipes/parse-chain-id-array.pipe';
 import { TokensService } from './tokens.service';
 
@@ -48,14 +51,21 @@ export class TokensController {
   }
 
   @Get('/:tokenAddress')
-  @ApiGetTokenByAddressDocs()
-  async getTokenByAddress(
-    @Param() params: GetTokenByAddressPathParams,
+  @ApiSearchTokensByAddressDocs()
+  async searchTokensByAddress(
+    @Param() params: SearchTokensByAddressPathParams,
     @Query('chainIds', ParseChainIdArrayPipe) chainIds?: number[],
-  ): Promise<GetTokenByAddressResponse> {
-    const tokens = await this.tokensService.getTokensByAddress(params.tokenAddress, chainIds);
+  ): Promise<SearchTokensByAddressResponse> {
+    const tokens = await this.tokensService.searchTokensByAddress(params.tokenAddress, chainIds);
 
-    return new GetTokenByAddressResponse(tokens);
+    return new SearchTokensByAddressResponse(tokens);
+  }
+
+  @Get('/:chainId/:tokenAddress')
+  @ApiGetSingleChainTokenDocs()
+  async getSingleChainToken(@Param() params: GetSingleChainTokenPathParams): Promise<GetSingleChainTokenResponse> {
+    const token = await this.tokensService.getSingleChainTokenInfo(params.chainId, params.tokenAddress);
+    return new GetSingleChainTokenResponse(token);
   }
 
   @HttpCode(200)

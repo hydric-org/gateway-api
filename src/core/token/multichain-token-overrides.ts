@@ -1,6 +1,6 @@
 import { TOKEN_LOGO } from '@core/constants';
-import { IIndexerToken } from '@core/interfaces/token/indexer-token.interface';
-import { IMultiChainToken } from '@core/interfaces/token/multi-chain-token.interface';
+import { ILiquidityPoolsIndexerTokenForMultichainAggregation } from '@core/interfaces/token/liquidity-pools-indexer-token-for-multichain-aggregation.interface';
+import { IMultiChainTokenMetadata } from '@core/interfaces/token/multi-chain-token-metadata.interface';
 import { ITokenOrder } from '@core/interfaces/token/token-order.interface';
 import { TokenUtils } from './token-utils';
 
@@ -26,17 +26,17 @@ interface _ITokenCluster {
  * and reconstructing the list.
  */
 export function applyMultichainTokenOverrides(
-  existingGroups: IMultiChainToken[],
-  existingDiscarded: IIndexerToken[],
-  allTokens: IIndexerToken[],
+  existingGroups: IMultiChainTokenMetadata[],
+  existingDiscarded: ILiquidityPoolsIndexerTokenForMultichainAggregation[],
+  allTokens: ILiquidityPoolsIndexerTokenForMultichainAggregation[],
   order: ITokenOrder,
 ): {
-  multichainTokenList: IMultiChainToken[];
-  discardedTokens: IIndexerToken[];
+  multichainTokenList: IMultiChainTokenMetadata[];
+  discardedTokens: ILiquidityPoolsIndexerTokenForMultichainAggregation[];
 } {
   const clusters: _ITokenCluster[] = [];
   const idToCluster = new Map<string, _ITokenCluster>();
-  const idToTokenMap = new Map<string, IIndexerToken>();
+  const idToTokenMap = new Map<string, ILiquidityPoolsIndexerTokenForMultichainAggregation>();
 
   for (const token of allTokens) {
     idToTokenMap.set(token.id, token);
@@ -57,7 +57,7 @@ export function applyMultichainTokenOverrides(
     idToCluster.set(token.id, cluster);
   }
 
-  const overrideTokens: IIndexerToken[] = [];
+  const overrideTokens: ILiquidityPoolsIndexerTokenForMultichainAggregation[] = [];
   const explicitExclusions = new Set<string>();
 
   for (const token of allTokens) {
@@ -98,17 +98,15 @@ export function applyMultichainTokenOverrides(
     }
   }
 
-  const finalMultichainList: IMultiChainToken[] = [];
-  const finalDiscardedList: IIndexerToken[] = [];
+  const finalMultichainList: (IMultiChainTokenMetadata & { totalValuePooledUsd: number })[] = [];
+  const finalDiscardedList: ILiquidityPoolsIndexerTokenForMultichainAggregation[] = [];
 
   for (const cluster of clusters) {
     if (cluster.ids.size === 0) continue;
 
     if (cluster.isActive) {
       const groupTokens = _resolveClusterIdsToTokens(cluster.ids, idToTokenMap);
-      if (groupTokens.length > 0) {
-        finalMultichainList.push(_convertClusterToMultichainToken(groupTokens));
-      }
+      if (groupTokens.length > 0) finalMultichainList.push(_convertClusterToMultichainToken(groupTokens));
     } else {
       for (const id of cluster.ids) {
         const t = idToTokenMap.get(id);
@@ -124,7 +122,7 @@ export function applyMultichainTokenOverrides(
     if (t) finalDiscardedList.push(t);
   }
 
-  if (order) TokenUtils.sortMultichainTokenList(finalMultichainList, order);
+  if (order) TokenUtils.sortTokenList(finalMultichainList, order);
 
   return { multichainTokenList: finalMultichainList, discardedTokens: finalDiscardedList };
 }
@@ -150,8 +148,11 @@ function _mergeTokenClusters(
   target.isActive = false;
 }
 
-function _resolveClusterIdsToTokens(ids: Set<string>, map: Map<string, IIndexerToken>): IIndexerToken[] {
-  const tokens: IIndexerToken[] = [];
+function _resolveClusterIdsToTokens(
+  ids: Set<string>,
+  map: Map<string, ILiquidityPoolsIndexerTokenForMultichainAggregation>,
+): ILiquidityPoolsIndexerTokenForMultichainAggregation[] {
+  const tokens: ILiquidityPoolsIndexerTokenForMultichainAggregation[] = [];
   for (const id of ids) {
     const t = map.get(id);
     if (t) tokens.push(t);
@@ -159,13 +160,15 @@ function _resolveClusterIdsToTokens(ids: Set<string>, map: Map<string, IIndexerT
   return tokens;
 }
 
-function _convertClusterToMultichainToken(groupTokens: IIndexerToken[]): IMultiChainToken {
+function _convertClusterToMultichainToken(
+  groupTokens: ILiquidityPoolsIndexerTokenForMultichainAggregation[],
+): IMultiChainTokenMetadata & { totalValuePooledUsd: number } {
   groupTokens.sort((a, b) => b.trackedTotalValuePooledUsd - a.trackedTotalValuePooledUsd);
   const anchor = groupTokens[0];
 
   const totalValuePooledUsd = TokenUtils.sumTotalValuePooledUsd(groupTokens);
 
-  const group: IMultiChainToken = {
+  return {
     addresses: groupTokens.map((t) => ({
       chainId: t.chainId,
       address: t.address,
@@ -176,6 +179,4 @@ function _convertClusterToMultichainToken(groupTokens: IIndexerToken[]): IMultiC
     logoUrl: TOKEN_LOGO(anchor.chainId, anchor.address),
     totalValuePooledUsd,
   };
-
-  return group;
 }

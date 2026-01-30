@@ -1,0 +1,8 @@
+query LiquidityPoolsIndexerGetProtocols($limit: Int) {
+  Protocol {
+    id
+    name
+    logo
+    url
+  }
+}
