@@ -50,7 +50,6 @@ USER node
 COPY --from=builder --chown=node:node /app/dist ./dist
 COPY --from=builder --chown=node:node /prod_node_modules/node_modules ./node_modules
 COPY --from=builder --chown=node:node /app/package.json ./package.json
-COPY --from=builder --chown=node:node /app/static ./static
 
 EXPOSE 3000
 
