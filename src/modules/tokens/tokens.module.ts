@@ -1,6 +1,7 @@
 import { BasketsModule } from '@infrastructure/baskets/baskets.module';
 import { Module } from '@nestjs/common';
 import { CommonModule } from '../common.module';
+import { BasketTokensCacheService } from './basket-tokens-cache.service';
 import { TokenPricesController } from './token-prices.controller';
 import { TokenPricesService } from './token-prices.service';
 import { TokensBasketsController } from './tokens-baskets.controller';
@@ -11,7 +12,7 @@ import { TokensService } from './tokens.service';
 @Module({
   imports: [CommonModule, BasketsModule],
   controllers: [TokensBasketsController, TokensController, TokenPricesController],
-  providers: [TokensService, TokensBasketsService, TokenPricesService],
+  providers: [TokensService, TokensBasketsService, TokenPricesService, BasketTokensCacheService],
   exports: [TokensService],
 })
 export class TokensModule {}
