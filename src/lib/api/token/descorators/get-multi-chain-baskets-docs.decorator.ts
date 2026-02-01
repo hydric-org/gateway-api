@@ -6,7 +6,7 @@ import { GetTokenBasketListResponse } from '../dtos/response/get-token-basket-li
 export function ApiGetMultipleChainBasketsDocs() {
   return applyDecorators(
     ApiOperation({
-      summary: 'Get token baskets across multiple networks.',
+      summary: 'Get all token baskets across multiple networks.',
       description:
         'Returns all token baskets (e.g., Stablecoins, LSTs). Use the `chainIds` query parameter to filter to specific networks; if omitted, defaults to all supported networks.',
     }),
