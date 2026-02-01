@@ -5,7 +5,6 @@ describe('SingleChainTokenSearchFilter', () => {
   it('should have zero default values for search visibility', () => {
     const filter = new SingleChainTokenSearchFilter();
     expect(filter.minimumTotalValuePooledUsd).toBe(0);
-    expect(filter.minimumPriceBackingUsd).toBe(0);
     expect(filter.minimumSwapsCount).toBe(0);
     expect(filter.minimumSwapVolumeUsd).toBe(0);
   });

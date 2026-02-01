@@ -14,7 +14,6 @@ query LiquidityPoolsIndexerGetTokenInfo(
     normalizedSymbol
     trackedUsdPrice
     trackedTotalValuePooledUsd
-    trackedPriceDiscoveryCapitalUsd
     trackedSwapVolumeUsd
     swapsCount
     chainId

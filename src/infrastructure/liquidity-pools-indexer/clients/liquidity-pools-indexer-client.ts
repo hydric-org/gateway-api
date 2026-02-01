@@ -1,5 +1,5 @@
-import { TOKEN_LOGO } from '@core/constants';
-import { ChainId } from '@core/enums/chain-id';
+import { TOKEN_LOGO, ZERO_ETHEREUM_ADDRESS } from '@core/constants';
+import { ChainId, ChainIdUtils } from '@core/enums/chain-id';
 import { LiquidityPoolNotFoundError } from '@core/errors/liquidity-pool-not-found.error';
 import { TokenNotFoundError } from '@core/errors/token-not-found-error';
 import { IBlockchainAddress } from '@core/interfaces/blockchain-address.interface';
@@ -28,6 +28,9 @@ import {
   LiquidityPoolsIndexerGetTokenInfoDocument,
   LiquidityPoolsIndexerGetTokenInfoQuery,
   LiquidityPoolsIndexerGetTokenInfoQueryVariables,
+  LiquidityPoolsIndexerGetTokenPriceDocument,
+  LiquidityPoolsIndexerGetTokenPriceQuery,
+  LiquidityPoolsIndexerGetTokenPriceQueryVariables,
   LiquidityPoolsIndexerGetTokensForMultichainAggregationDocument,
   LiquidityPoolsIndexerGetTokensForMultichainAggregationQuery,
   LiquidityPoolsIndexerGetTokensForMultichainAggregationQueryVariables,
@@ -140,6 +143,41 @@ export class LiquidityPoolsIndexerClient {
     };
   }
 
+  async getTokenPrice(chainId: ChainId, tokenAddress: string): Promise<number> {
+    const tokenIds = [`${chainId}-${tokenAddress.toLowerCase()}`];
+
+    if (tokenAddress === ZERO_ETHEREUM_ADDRESS) {
+      const wrappedAddress = ChainIdUtils.wrappedNativeAddress[chainId];
+
+      tokenIds.push(`${chainId}-${wrappedAddress.toLowerCase()}`);
+    }
+
+    const response: LiquidityPoolsIndexerGetTokenPriceQuery =
+      await this.graphQLClients.liquidityPoolsIndexerClient.request<
+        LiquidityPoolsIndexerGetTokenPriceQuery,
+        LiquidityPoolsIndexerGetTokenPriceQueryVariables
+      >({
+        document: LiquidityPoolsIndexerGetTokenPriceDocument,
+        variables: {
+          tokenFilter: {
+            id: { _in: tokenIds },
+          },
+        },
+      });
+
+    if (!response || !response.SingleChainToken || response.SingleChainToken.length === 0) {
+      throw new TokenNotFoundError({
+        chainId: chainId,
+        tokenAddress: tokenAddress,
+      });
+    }
+
+    const requestedId = `${chainId}-${tokenAddress.toLowerCase()}`;
+    const foundToken = response.SingleChainToken.find((t) => t.id === requestedId) || response.SingleChainToken[0];
+
+    return Number(foundToken.trackedUsdPrice);
+  }
+
   async getPool(poolAddress: string, chainId: ChainId): Promise<ILiquidityPool> {
     const poolsMatching = await this.graphQLClients.liquidityPoolsIndexerClient.request<
       LiquidityPoolsIndexerGetPoolsQuery,
@@ -229,10 +267,6 @@ export class LiquidityPoolsIndexerClient {
 
       swapsCount: {
         _gt: params.filter?.minimumSwapsCount.toString(),
-      },
-
-      trackedPriceDiscoveryCapitalUsd: {
-        _gt: params.filter?.minimumPriceBackingUsd.toString(),
       },
 
       trackedSwapVolumeUsd: {

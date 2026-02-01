@@ -1,0 +1,6 @@
+query LiquidityPoolsIndexerGetTokenPrice($tokenFilter: SingleChainToken_bool_exp) {
+  SingleChainToken(where: $tokenFilter) {
+    id
+    trackedUsdPrice
+  }
+}

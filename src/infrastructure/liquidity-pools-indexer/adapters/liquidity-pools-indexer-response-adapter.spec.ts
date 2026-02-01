@@ -26,7 +26,6 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
 
     const defaultParams = {
       matchAllSymbols: false,
-      minimumPriceBackingUsd: 0,
       minimumSwapVolumeUsd: 0,
       minimumSwapsCount: 0,
       order: {
