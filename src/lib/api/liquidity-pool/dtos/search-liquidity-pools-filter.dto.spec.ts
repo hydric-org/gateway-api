@@ -33,5 +33,85 @@ describe('SearchLiquidityPoolsFilter DTO', () => {
     expect(dto.minimumTotalValueLockedUsd).toBe(0);
     expect(dto.blockedPoolTypes).toEqual([]);
     expect(dto.blockedProtocols).toEqual([]);
+    expect(dto.protocols).toEqual([]);
+    expect(dto.poolTypes).toEqual([]);
+  });
+
+  describe('protocols filter', () => {
+    it('should validate successfully with valid protocols', async () => {
+      const input = {
+        protocols: ['uniswap-v3', 'sushiswap-v3'],
+      };
+      const dto = plainToInstance(SearchLiquidityPoolsFilter, input);
+      const errors = await validate(dto);
+      expect(errors.length).toBe(0);
+      expect(dto.protocols).toEqual(['uniswap-v3', 'sushiswap-v3']);
+    });
+
+    it('should transform a single protocol string to array', async () => {
+      const input = {
+        protocols: 'uniswap-v3',
+      };
+      const dto = plainToInstance(SearchLiquidityPoolsFilter, input);
+      const errors = await validate(dto);
+      expect(errors.length).toBe(0);
+      expect(dto.protocols).toEqual(['uniswap-v3']);
+    });
+
+    it('should fail validation with non-string protocol values', async () => {
+      const input = {
+        protocols: [123],
+      };
+      const dto = plainToInstance(SearchLiquidityPoolsFilter, input);
+      const errors = await validate(dto);
+      expect(errors.length).toBeGreaterThan(0);
+      expect(errors[0].property).toBe('protocols');
+    });
+  });
+
+  describe('poolTypes filter', () => {
+    it('should validate successfully with valid pool types', async () => {
+      const input = {
+        poolTypes: [LiquidityPoolType.V3, LiquidityPoolType.V4],
+      };
+      const dto = plainToInstance(SearchLiquidityPoolsFilter, input);
+      const errors = await validate(dto);
+      expect(errors.length).toBe(0);
+      expect(dto.poolTypes).toEqual([LiquidityPoolType.V3, LiquidityPoolType.V4]);
+    });
+
+    it('should transform a single pool type to array', async () => {
+      const input = {
+        poolTypes: LiquidityPoolType.V3,
+      };
+      const dto = plainToInstance(SearchLiquidityPoolsFilter, input);
+      const errors = await validate(dto);
+      expect(errors.length).toBe(0);
+      expect(dto.poolTypes).toEqual([LiquidityPoolType.V3]);
+    });
+
+    it('should fail validation with invalid pool type values', async () => {
+      const input = {
+        poolTypes: ['INVALID_TYPE'],
+      };
+      const dto = plainToInstance(SearchLiquidityPoolsFilter, input);
+      const errors = await validate(dto);
+      expect(errors.length).toBeGreaterThan(0);
+      expect(errors[0].property).toBe('poolTypes');
+    });
+  });
+
+  describe('combined filters', () => {
+    it('should validate with both include and blocked filters', async () => {
+      const input = {
+        protocols: ['uniswap-v3'],
+        blockedProtocols: ['sushiswap-v3'],
+        poolTypes: [LiquidityPoolType.V3],
+        blockedPoolTypes: [LiquidityPoolType.ALGEBRA],
+      };
+      const dto = plainToInstance(SearchLiquidityPoolsFilter, input);
+      const errors = await validate(dto);
+      expect(errors.length).toBe(0);
+    });
   });
 });

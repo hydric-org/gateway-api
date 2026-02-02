@@ -1,4 +1,8 @@
 import { ChainId } from '@core/enums/chain-id';
+import { LiquidityPoolOrderField } from '@core/enums/liquidity-pool/liquidity-pool-order-field';
+import { LiquidityPoolStatsTimeframe } from '@core/enums/liquidity-pool/liquidity-pool-stats-timeframe';
+import { LiquidityPoolType } from '@core/enums/liquidity-pool/liquidity-pool-type';
+import { OrderDirection } from '@core/enums/order-direction';
 import { GraphQLClients } from '@infrastructure/graphql/graphql-clients';
 import {
   LiquidityPoolsIndexerGetSingleChainTokensDocument,
@@ -165,6 +169,186 @@ describe('LiquidityPoolsIndexerClient', () => {
       (graphQLClientsMock.liquidityPoolsIndexerClient.request as jest.Mock).mockResolvedValue(mockResponse);
 
       await expect(client.getTokenPrice(mockChainId, mockTokenAddress)).rejects.toThrow();
+    });
+  });
+
+  describe('getPools', () => {
+    const mockPoolResponse = {
+      Pool: [],
+    };
+
+    const baseParams = {
+      tokensA: [{ chainId: ChainId.ETHEREUM, address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' }],
+      tokensB: [] as { chainId: ChainId; address: string }[],
+      limit: 10,
+      skip: 0,
+      orderBy: {
+        field: LiquidityPoolOrderField.TVL,
+        direction: OrderDirection.DESC,
+        timeframe: LiquidityPoolStatsTimeframe.DAY,
+      },
+    };
+
+    beforeEach(() => {
+      (graphQLClientsMock.liquidityPoolsIndexerClient.request as jest.Mock).mockResolvedValue(mockPoolResponse);
+    });
+
+    describe('protocols filter', () => {
+      it('should use _in filter when protocols array is provided', async () => {
+        const params = {
+          ...baseParams,
+          filters: {
+            minimumTotalValueLockedUsd: 0,
+            blockedPoolTypes: [],
+            blockedProtocols: ['sushiswap-v3'],
+            protocols: ['uniswap-v3', 'uniswap-v4'],
+            poolTypes: [],
+          },
+        };
+
+        await client.getPools(params);
+
+        expect(graphQLClientsMock.liquidityPoolsIndexerClient.request).toHaveBeenCalledWith(
+          expect.objectContaining({
+            variables: expect.objectContaining({
+              poolsFilter: expect.objectContaining({
+                protocol_id: { _in: ['uniswap-v3', 'uniswap-v4'] },
+              }),
+            }),
+          }),
+        );
+      });
+
+      it('should use _nin filter when protocols array is empty', async () => {
+        const params = {
+          ...baseParams,
+          filters: {
+            minimumTotalValueLockedUsd: 0,
+            blockedPoolTypes: [],
+            blockedProtocols: ['sushiswap-v3'],
+            protocols: [],
+            poolTypes: [],
+          },
+        };
+
+        await client.getPools(params);
+
+        expect(graphQLClientsMock.liquidityPoolsIndexerClient.request).toHaveBeenCalledWith(
+          expect.objectContaining({
+            variables: expect.objectContaining({
+              poolsFilter: expect.objectContaining({
+                protocol_id: { _nin: ['sushiswap-v3'] },
+              }),
+            }),
+          }),
+        );
+      });
+
+      it('should lowercase protocol IDs when using _in filter', async () => {
+        const params = {
+          ...baseParams,
+          filters: {
+            minimumTotalValueLockedUsd: 0,
+            blockedPoolTypes: [],
+            blockedProtocols: [],
+            protocols: ['UNISWAP-V3', 'UniSwap-V4'],
+            poolTypes: [],
+          },
+        };
+
+        await client.getPools(params);
+
+        expect(graphQLClientsMock.liquidityPoolsIndexerClient.request).toHaveBeenCalledWith(
+          expect.objectContaining({
+            variables: expect.objectContaining({
+              poolsFilter: expect.objectContaining({
+                protocol_id: { _in: ['uniswap-v3', 'uniswap-v4'] },
+              }),
+            }),
+          }),
+        );
+      });
+    });
+
+    describe('poolTypes filter', () => {
+      it('should use _in filter when poolTypes array is provided', async () => {
+        const params = {
+          ...baseParams,
+          filters: {
+            minimumTotalValueLockedUsd: 0,
+            blockedPoolTypes: [LiquidityPoolType.ALGEBRA],
+            blockedProtocols: [],
+            protocols: [],
+            poolTypes: [LiquidityPoolType.V3, LiquidityPoolType.V4],
+          },
+        };
+
+        await client.getPools(params);
+
+        expect(graphQLClientsMock.liquidityPoolsIndexerClient.request).toHaveBeenCalledWith(
+          expect.objectContaining({
+            variables: expect.objectContaining({
+              poolsFilter: expect.objectContaining({
+                poolType: { _in: ['V3', 'V4'] },
+              }),
+            }),
+          }),
+        );
+      });
+
+      it('should use _nin filter when poolTypes array is empty', async () => {
+        const params = {
+          ...baseParams,
+          filters: {
+            minimumTotalValueLockedUsd: 0,
+            blockedPoolTypes: [LiquidityPoolType.ALGEBRA],
+            blockedProtocols: [],
+            protocols: [],
+            poolTypes: [],
+          },
+        };
+
+        await client.getPools(params);
+
+        expect(graphQLClientsMock.liquidityPoolsIndexerClient.request).toHaveBeenCalledWith(
+          expect.objectContaining({
+            variables: expect.objectContaining({
+              poolsFilter: expect.objectContaining({
+                poolType: { _nin: ['ALGEBRA'] },
+              }),
+            }),
+          }),
+        );
+      });
+    });
+
+    describe('combined filters', () => {
+      it('should prioritize include filters over blocked filters for both protocols and poolTypes', async () => {
+        const params = {
+          ...baseParams,
+          filters: {
+            minimumTotalValueLockedUsd: 1000,
+            blockedPoolTypes: [LiquidityPoolType.ALGEBRA],
+            blockedProtocols: ['sushiswap-v3'],
+            protocols: ['uniswap-v3'],
+            poolTypes: [LiquidityPoolType.V3],
+          },
+        };
+
+        await client.getPools(params);
+
+        expect(graphQLClientsMock.liquidityPoolsIndexerClient.request).toHaveBeenCalledWith(
+          expect.objectContaining({
+            variables: expect.objectContaining({
+              poolsFilter: expect.objectContaining({
+                protocol_id: { _in: ['uniswap-v3'] },
+                poolType: { _in: ['V3'] },
+                trackedTotalValueLockedUsd: { _gte: '1000' },
+              }),
+            }),
+          }),
+        );
+      });
     });
   });
 });

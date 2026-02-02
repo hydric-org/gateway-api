@@ -11,6 +11,8 @@ const LIQUIDITY_POOL_FILTER_DEFAULT_EXAMPLE: SearchLiquidityPoolsFilter = {
   minimumTotalValueLockedUsd: 10000,
   blockedPoolTypes: [],
   blockedProtocols: [],
+  protocols: [],
+  poolTypes: [],
 };
 
 export class SearchLiquidityPoolsRequestParams {

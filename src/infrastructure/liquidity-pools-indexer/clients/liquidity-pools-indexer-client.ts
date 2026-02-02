@@ -222,9 +222,18 @@ export class LiquidityPoolsIndexerClient {
         offset: params.skip,
         orderBy: LiquidityPoolsIndexerRequestAdapter.poolOrderToIndexer(params.orderBy),
         poolsFilter: {
-          protocol_id: { _nin: params.filters.blockedProtocols.map((p) => p.toLowerCase()) },
-          poolType: { _nin: params.filters.blockedPoolTypes },
+          protocol_id:
+            params.filters.protocols.length > 0
+              ? { _in: params.filters.protocols.map((p) => p.toLowerCase()) }
+              : { _nin: params.filters.blockedProtocols.map((p) => p.toLowerCase()) },
+
+          poolType:
+            params.filters.poolTypes.length > 0
+              ? { _in: params.filters.poolTypes }
+              : { _nin: params.filters.blockedPoolTypes },
+
           trackedTotalValueLockedUsd: { _gte: params.filters.minimumTotalValueLockedUsd.toString() },
+
           _or: [
             {
               ...(lowercasedTokensAIds.length > 0 && { token0_id: { _in: lowercasedTokensAIds } }),

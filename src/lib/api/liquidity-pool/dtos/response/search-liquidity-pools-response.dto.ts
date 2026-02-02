@@ -8,6 +8,8 @@ const FILTERS_EXAMPLE: SearchLiquidityPoolsFilter = {
   blockedPoolTypes: [LiquidityPoolType.V3],
   blockedProtocols: ['uniswap-v3'],
   minimumTotalValueLockedUsd: 10000,
+  protocols: [],
+  poolTypes: [],
 };
 
 export class SearchLiquidityPoolsResponse extends _Internal_BilledObjectResponse {

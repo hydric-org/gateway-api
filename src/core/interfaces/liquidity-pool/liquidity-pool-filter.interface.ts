@@ -6,4 +6,6 @@ export interface ILiquidityPoolFilter {
   minimumTotalValueLockedUsd: number;
   blockedPoolTypes: LiquidityPoolType[];
   blockedProtocols: string[];
+  protocols: string[];
+  poolTypes: LiquidityPoolType[];
 }
