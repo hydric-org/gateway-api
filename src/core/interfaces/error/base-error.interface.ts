@@ -1,6 +1,6 @@
-export interface IBaseError {
+export interface IBaseError<T = unknown> {
   message: string;
   errorCode: string;
   details: string;
-  metadata: Record<string, any>;
+  metadata: T;
 }

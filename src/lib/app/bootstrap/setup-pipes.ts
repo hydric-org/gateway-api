@@ -23,7 +23,11 @@ export function setupPipes(app: INestApplication) {
         if (constraintKeys.length === 0) {
           return new GenericValidationError({
             validationErrorDescription: `Validation failed on property ${fullPropertyPath}`,
-            meta: { property: fullPropertyPath, value: leafError.value },
+            meta: {
+              property: fullPropertyPath,
+              value: leafError.value,
+              constraints: { [fullPropertyPath]: Object.values(leafError.constraints || {}) },
+            },
           });
         }
 
@@ -35,6 +39,9 @@ export function setupPipes(app: INestApplication) {
             meta: {
               property: fullPropertyPath,
               value: leafError.value,
+              constraints: {
+                [fullPropertyPath]: [`Property ${fullPropertyPath} does not exist and should not be passed.`],
+              },
             },
           });
         }
@@ -48,6 +55,7 @@ export function setupPipes(app: INestApplication) {
           meta: {
             property: fullPropertyPath,
             value: leafError.value,
+            constraints: { [fullPropertyPath]: Object.values(leafError.constraints || {}) },
           },
         });
       },

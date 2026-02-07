@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { ApiKeyStatus } from '@lib/api/auth/api-key-status';
 import { ApiKeyDisabledError } from '@lib/api/auth/errors/api-key-disabled.error';
 import { ApiKeyExpiredError } from '@lib/api/auth/errors/api-key-expired.error';
@@ -33,15 +34,21 @@ export class ApiKeyGuard implements CanActivate {
     const [type, token] = authHeader.split(' ');
 
     if (type !== 'Bearer' || !token) {
-      throw new ApiKeyInvalidError();
+      throw new ApiKeyInvalidError({ reason: 'Malformed Authorization header. Expected format: "Bearer <token>"' });
     }
 
     const apiKeyData = await this.authService.getApiKeyData(token);
 
     if (apiKeyData.status === ApiKeyStatus.DISABLED) throw new ApiKeyDisabledError();
-    if (apiKeyData.status === ApiKeyStatus.EXPIRED) throw new ApiKeyExpiredError();
-    if (apiKeyData.status === ApiKeyStatus.NOT_FOUND) throw new ApiKeyNotFoundError();
-    if (apiKeyData.status !== ApiKeyStatus.VALID) throw new ApiKeyUnknownError();
+    if (apiKeyData.status === ApiKeyStatus.EXPIRED) {
+      throw new ApiKeyExpiredError({
+        expiredAt: apiKeyData.expiredAt ? new Date(apiKeyData.expiredAt).toISOString() : 'unknown',
+      });
+    }
+    if (apiKeyData.status === ApiKeyStatus.NOT_FOUND) throw new ApiKeyNotFoundError({ receivedKey: token });
+    if (apiKeyData.status !== ApiKeyStatus.VALID) {
+      throw new ApiKeyUnknownError({ details: `Status: ${apiKeyData.status}` });
+    }
 
     return true;
   }

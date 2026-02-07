@@ -1,7 +1,8 @@
-import { BaseError as BaseApiError } from '@core/errors/base-core-error';
+import { InvalidPaginationCursorMetadata } from '@lib/api/error/dtos/metadata/invalid-pagination-cursor-metadata.dto';
 import { ValidationErrorCode } from '../error-codes/validation-error-codes';
+import { BaseApiError } from './base-api-error';
 
-export class InvalidPaginationCursorError extends BaseApiError {
+export class InvalidPaginationCursorError extends BaseApiError<InvalidPaginationCursorMetadata> {
   constructor(params: { cursor: string }) {
     super({
       message: 'The pagination cursor is invalid',

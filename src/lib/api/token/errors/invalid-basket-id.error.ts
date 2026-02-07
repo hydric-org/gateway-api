@@ -2,7 +2,9 @@ import { BasketIdUtils } from '@core/enums/token/basket-id.enum';
 import { ValidationErrorCode } from '../../error/error-codes/validation-error-codes';
 import { BaseApiError } from '../../error/errors/base-api-error';
 
-export class InvalidBasketIdError extends BaseApiError {
+import { InvalidBasketIdMetadata } from '@lib/api/error/dtos/metadata/invalid-basket-id-metadata.dto';
+
+export class InvalidBasketIdError extends BaseApiError<InvalidBasketIdMetadata> {
   constructor(params: { basketId: string }) {
     const supportedIds = BasketIdUtils.values();
 

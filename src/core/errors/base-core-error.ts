@@ -1,12 +1,12 @@
 import { IBaseError } from '@core/interfaces/error/base-error.interface';
 
-export abstract class BaseError extends Error implements IBaseError {
+export abstract class BaseError<T = unknown> extends Error implements IBaseError<T> {
   constructor(
     public readonly params: {
       message: string;
       errorCode: string;
       details: string;
-      metadata: Record<string, any>;
+      metadata: T;
     },
   ) {
     super(params.message);
@@ -19,5 +19,5 @@ export abstract class BaseError extends Error implements IBaseError {
 
   errorCode: string;
   details: string;
-  metadata: Record<string, any>;
+  metadata: T;
 }

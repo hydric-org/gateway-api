@@ -3,7 +3,7 @@ import { CoreErrorCode } from '@core/enums/core-error-code';
 import { BasketId } from '@core/enums/token/basket-id.enum';
 import { BaseError } from './base-core-error';
 
-export class TokenBasketNotFoundError extends BaseError {
+export class TokenBasketNotFoundError extends BaseError<{ basketId: string; chainId?: number }> {
   constructor(params: { basketId: BasketId; chainId?: ChainId }) {
     super({
       message: params.chainId

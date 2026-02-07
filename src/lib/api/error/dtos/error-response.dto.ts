@@ -1,8 +1,10 @@
 import { BaseError } from '@core/errors/base-core-error';
 import { HttpStatus } from '@nestjs/common';
-import { ApiProperty, ApiPropertyOptional, ApiSchema } from '@nestjs/swagger';
+import { ApiExtraModels, ApiProperty, ApiPropertyOptional, ApiSchema, getSchemaPath } from '@nestjs/swagger';
 import { ApiErrorCode, ApiErrorCodeUtils } from '../error-codes/api-error-codes';
+import { ErrorMetadata, ErrorMetadataClasses } from '../types/error-metadata.registry';
 
+@ApiExtraModels(...ErrorMetadataClasses)
 export class ErrorContent {
   @ApiProperty({
     description: 'A hydric error code for programmatic handling.',
@@ -32,9 +34,9 @@ export class ErrorContent {
 
   @ApiPropertyOptional({
     description: 'Dynamic context data useful for debugging or UI handling.',
-    example: { poolAddress: '0xInvalid' },
+    oneOf: ErrorMetadataClasses.map((cls) => ({ $ref: getSchemaPath(cls) })),
   })
-  metadata?: Record<string, any>;
+  metadata?: ErrorMetadata;
 }
 
 @ApiSchema({
@@ -71,7 +73,7 @@ export class ErrorResponse {
         title: ApiErrorCodeUtils.toTitle[code] || 'Error',
         message: error.message,
         details: error.params.details,
-        metadata: error.params.metadata,
+        metadata: error.params.metadata as ErrorMetadata,
       },
     };
   }

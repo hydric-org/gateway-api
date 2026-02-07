@@ -2,7 +2,9 @@ import { ApiErrorCode } from '@lib/api/error/error-codes/api-error-codes';
 import { BaseApiError } from '@lib/api/error/errors/base-api-error';
 import { ProtocolId } from '@lib/identifiers/protocol-id';
 
-export class InvalidProtocolIdError extends BaseApiError {
+import { InvalidProtocolIdMetadata } from '@lib/api/error/dtos/metadata/invalid-protocol-id-metadata.dto';
+
+export class InvalidProtocolIdError extends BaseApiError<InvalidProtocolIdMetadata> {
   constructor(params: { protocolId: unknown }) {
     const rawValue = params.protocolId;
     const isArray = Array.isArray(rawValue);

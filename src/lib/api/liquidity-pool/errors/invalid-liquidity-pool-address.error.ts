@@ -1,7 +1,9 @@
 import { ValidationErrorCode } from '@lib/api/error/error-codes/validation-error-codes';
 import { BaseApiError } from '@lib/api/error/errors/base-api-error';
 
-export class InvalidLiquidityPoolAddressError extends BaseApiError {
+import { InvalidLiquidityPoolAddressMetadata } from '@lib/api/error/dtos/metadata/invalid-liquidity-pool-address-metadata.dto';
+
+export class InvalidLiquidityPoolAddressError extends BaseApiError<InvalidLiquidityPoolAddressMetadata> {
   constructor(params: { liquidityPoolAddress: string }) {
     super({
       message: 'The provided liquidity pool address is not valid',

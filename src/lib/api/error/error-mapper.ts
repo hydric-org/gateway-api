@@ -1,6 +1,9 @@
 import { BaseError } from '@core/errors/base-core-error';
 import { ErrorResponse } from '@lib/api/error/dtos/error-response.dto';
+import { RouteNotFoundMetadata } from '@lib/api/error/dtos/metadata/route-not-found-metadata.dto';
+import { UnknownErrorMetadata } from '@lib/api/error/dtos/metadata/unknown-error-metadata.dto';
 import { ApiErrorCode, ApiErrorCodeUtils } from '@lib/api/error/error-codes/api-error-codes';
+import { ErrorMetadata } from '@lib/api/error/types/error-metadata.registry';
 import { HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
 import { Request } from 'express';
 
@@ -22,7 +25,7 @@ export class ErrorMapper {
           title: ApiErrorCodeUtils.toTitle[exception.params.errorCode],
           message: exception.message,
           details: exception.params.details,
-          metadata: exception.params.metadata,
+          metadata: exception.params.metadata as ErrorMetadata,
         },
       };
     }
@@ -40,7 +43,7 @@ export class ErrorMapper {
           title: ApiErrorCodeUtils.toTitle[ApiErrorCode.ROUTE_NOT_FOUND],
           message: 'Route not found',
           details: 'The requested route does not exist',
-          metadata: { method: request.method },
+          metadata: { method: request.method } as RouteNotFoundMetadata,
         },
       };
     }
@@ -84,7 +87,7 @@ export class ErrorMapper {
         details: 'The server encountered an unhandled exception',
         metadata: {
           exceptionName: exception.constructor.name,
-        },
+        } as UnknownErrorMetadata,
       },
     };
   }

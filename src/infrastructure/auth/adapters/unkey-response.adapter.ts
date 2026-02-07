@@ -9,6 +9,8 @@ export const UnkeyResponseAdapter = {
 function verifyToApiKey(response: V2KeysVerifyKeyResponseBody): IAPIKey {
   return {
     status: codeToApiKeyStatus(response.data.code),
+    expiredAt: response.data.expires,
+    metadata: response.data.meta,
   };
 }
 

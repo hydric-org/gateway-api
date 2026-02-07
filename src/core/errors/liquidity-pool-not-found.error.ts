@@ -2,7 +2,7 @@ import { ChainId } from '@core/enums/chain-id';
 import { CoreErrorCode } from '@core/enums/core-error-code';
 import { BaseError } from './base-core-error';
 
-export class LiquidityPoolNotFoundError extends BaseError {
+export class LiquidityPoolNotFoundError extends BaseError<{ liquidityPoolAddress: string; chainId: number }> {
   constructor(params: { poolAddress: string; chainId: ChainId }) {
     super({
       message: "Couldn't find the specified liquidity pool at the specified chain",

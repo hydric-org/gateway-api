@@ -1,7 +1,9 @@
 import { RateLimitErrorCode } from '../error-codes/api-error-codes';
 import { BaseApiError } from './base-api-error';
 
-export class RateLimitExceededError extends BaseApiError {
+import { RateLimitMetadata } from '../dtos/metadata/rate-limit-metadata.dto';
+
+export class RateLimitExceededError extends BaseApiError<RateLimitMetadata> {
   public readonly retryAfterSeconds: number;
 
   constructor(retryAfterSeconds: number) {

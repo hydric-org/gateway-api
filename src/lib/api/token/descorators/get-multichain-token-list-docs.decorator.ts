@@ -28,6 +28,7 @@ Returns a list of tokens containing metadata for multiple blockchains in one sin
           meta: {
             property: 'limit',
             value: 101,
+            constraints: { max: ['limit must not be greater than 1000'] },
           },
         }),
         '/tokens',

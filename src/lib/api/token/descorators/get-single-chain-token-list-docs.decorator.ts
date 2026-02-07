@@ -34,7 +34,8 @@ export function ApiGetSingleChainTokenListDocs() {
               validationErrorDescription: 'limit must not be greater than 500',
               meta: {
                 property: 'limit',
-                value: 1000,
+                value: 101,
+                constraints: { max: ['limit must not be greater than 1000'] },
               },
             }),
             '/tokens/143',

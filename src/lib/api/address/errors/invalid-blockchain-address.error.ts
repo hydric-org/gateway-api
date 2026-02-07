@@ -4,7 +4,9 @@ import { ValidationErrorCode } from '../../error/error-codes/validation-error-co
 import { BaseApiError } from '../../error/errors/base-api-error';
 import { BlockchainAddressUtils } from '../blockchain-address-utils';
 
-export class InvalidBlockchainAddressError extends BaseApiError {
+import { InvalidBlockchainAddressMetadata } from '@lib/api/error/dtos/metadata/invalid-blockchain-address-metadata.dto';
+
+export class InvalidBlockchainAddressError extends BaseApiError<InvalidBlockchainAddressMetadata> {
   constructor(params: { blockchainAddress: unknown; property: string }) {
     const rawValue = params.blockchainAddress;
     const isArray = Array.isArray(rawValue);

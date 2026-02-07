@@ -25,7 +25,8 @@ export function ApiSearchSingleChainTokensDocs() {
               validationErrorDescription: 'search must not be empty',
               meta: {
                 property: 'search',
-                value: '',
+                value: 123,
+                constraints: { isString: ['search must be a string'] },
               },
             }),
             '/tokens/143/search',

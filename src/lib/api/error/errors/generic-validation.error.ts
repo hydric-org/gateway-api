@@ -1,8 +1,9 @@
-import { BaseError } from '@core/errors/base-core-error';
+import { ValidationErrorMetadata } from '../dtos/metadata/validation-error-metadata.dto';
 import { ValidationErrorCode } from '../error-codes/validation-error-codes';
+import { BaseApiError } from './base-api-error';
 
-export class GenericValidationError extends BaseError {
-  constructor(params: { validationErrorDescription: string; meta: Record<string, any> }) {
+export class GenericValidationError extends BaseApiError<ValidationErrorMetadata> {
+  constructor(params: { validationErrorDescription: string; meta: ValidationErrorMetadata }) {
     super({
       message: params.validationErrorDescription,
       errorCode: ValidationErrorCode.VALIDATION_ERROR,

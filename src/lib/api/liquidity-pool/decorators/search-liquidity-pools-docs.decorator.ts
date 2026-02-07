@@ -30,7 +30,11 @@ export function SearchLiquidityPoolsDocs() {
           example: ErrorResponse.from(
             new GenericValidationError({
               validationErrorDescription: 'Invalid query parameters.',
-              meta: {},
+              meta: {
+                property: 'minTvl',
+                value: 'invalid',
+                constraints: { isNumber: ['minTvl must be a number'] },
+              },
             }),
             '/pools/search',
           ),

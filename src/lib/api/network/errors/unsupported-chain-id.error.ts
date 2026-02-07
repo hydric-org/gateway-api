@@ -2,7 +2,9 @@ import { ChainIdUtils } from '@core/enums/chain-id';
 import { ValidationErrorCode } from '../../error/error-codes/validation-error-codes';
 import { BaseApiError } from '../../error/errors/base-api-error';
 
-export class UnsupportedChainIdError extends BaseApiError {
+import { UnsupportedChainIdMetadata } from '@lib/api/error/dtos/metadata/unsupported-chain-id-metadata.dto';
+
+export class UnsupportedChainIdError extends BaseApiError<UnsupportedChainIdMetadata> {
   constructor(params: { chainId: number | number[] }) {
     const supportedIds = ChainIdUtils.values();
     const providedIds = Array.isArray(params.chainId) ? params.chainId : [params.chainId];
