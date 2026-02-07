@@ -1,8 +1,9 @@
+import { RateLimitGuard } from '@lib/api/rate-limit/rate-limit.guard';
 import { EnvKey } from '@lib/app/env-key.enum';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
 import Joi from 'joi';
 import { LoggerModule } from 'nestjs-pino';
 import { AuthModule } from '../auth/auth.module';
@@ -67,7 +68,7 @@ import { AppController } from './app.controller';
   providers: [
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
+      useClass: RateLimitGuard,
     },
   ],
 })

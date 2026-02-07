@@ -18,6 +18,7 @@ describe('ApiErrorCode', () => {
     expect(ApiErrorCode.API_KEY_NOT_FOUND).toBe('API_KEY_NOT_FOUND');
     expect(ApiErrorCode.API_KEY_INVALID).toBe('API_KEY_INVALID');
     expect(ApiErrorCode.API_KEY_MISSING).toBe('API_KEY_MISSING');
+    expect(ApiErrorCode.RATE_LIMIT_EXCEEDED).toBe('RATE_LIMIT_EXCEEDED');
     expect(ApiErrorCode.ROUTE_NOT_FOUND).toBe('ROUTE_NOT_FOUND');
     expect(ApiErrorCode.UNKNOWN_ERROR).toBe('UNKNOWN_ERROR');
     expect(ApiErrorCode.HTTP_EXCEPTION).toBe('HTTP_EXCEPTION');
@@ -162,6 +163,13 @@ describe('ApiErrorCode', () => {
       HttpStatus.NOT_FOUND,
       'Not Found',
       'The requested token basket could not be found.',
+    );
+
+    testMapping(
+      'RATE_LIMIT_EXCEEDED',
+      HttpStatus.TOO_MANY_REQUESTS,
+      'Rate Limit Exceeded',
+      'You have exceeded the maximum number of requests allowed within the time window. Please wait and retry after the specified duration.',
     );
   });
 });

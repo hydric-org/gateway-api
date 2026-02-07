@@ -3,10 +3,15 @@ import { HttpStatus } from '@nestjs/common';
 import { AuthErrorCode } from './auth-error-codes';
 import { ValidationErrorCode } from './validation-error-codes';
 
+export enum RateLimitErrorCode {
+  RATE_LIMIT_EXCEEDED = 'RATE_LIMIT_EXCEEDED',
+}
+
 export const ApiErrorCode = {
   ...CoreErrorCode,
   ...ValidationErrorCode,
   ...AuthErrorCode,
+  ...RateLimitErrorCode,
   ROUTE_NOT_FOUND: 'ROUTE_NOT_FOUND',
   UNKNOWN_ERROR: 'UNKNOWN_ERROR',
   HTTP_EXCEPTION: 'HTTP_EXCEPTION',
@@ -33,6 +38,7 @@ export class ApiErrorCodeUtils {
     API_KEY_MISSING: HttpStatus.UNAUTHORIZED,
     INVALID_BASKET_ID: HttpStatus.BAD_REQUEST,
     TOKEN_BASKET_NOT_FOUND: HttpStatus.NOT_FOUND,
+    RATE_LIMIT_EXCEEDED: HttpStatus.TOO_MANY_REQUESTS,
   };
 
   static toTitle: Record<Exclude<ApiErrorCode, 'HTTP_EXCEPTION'>, string> = {
@@ -53,6 +59,7 @@ export class ApiErrorCodeUtils {
     API_KEY_MISSING: 'Authentication Failed',
     INVALID_BASKET_ID: 'Invalid Parameters',
     TOKEN_BASKET_NOT_FOUND: 'Not Found',
+    RATE_LIMIT_EXCEEDED: 'Rate Limit Exceeded',
   };
 
   static toDescription: Record<Exclude<ApiErrorCode, 'HTTP_EXCEPTION'>, string> = {
@@ -79,5 +86,7 @@ export class ApiErrorCodeUtils {
     API_KEY_MISSING: 'The request lacks an API key. Provide one in the Authorization header.',
     INVALID_BASKET_ID: 'The provided basket identifier is not one of the supported ones.',
     TOKEN_BASKET_NOT_FOUND: 'The requested token basket could not be found.',
+    RATE_LIMIT_EXCEEDED:
+      'You have exceeded the maximum number of requests allowed within the time window. Please wait and retry after the specified duration.',
   };
 }
