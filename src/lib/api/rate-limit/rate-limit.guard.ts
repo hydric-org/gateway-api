@@ -11,7 +11,7 @@ export class RateLimitGuard extends ThrottlerGuard {
   ): Promise<void> {
     const response = context.switchToHttp().getResponse<Response>();
 
-    const retryAfterSeconds = Math.ceil(throttlerLimitDetail.timeToBlockExpire / 1000);
+    const retryAfterSeconds = Math.max(throttlerLimitDetail.timeToBlockExpire, throttlerLimitDetail.timeToExpire);
 
     response.setHeader('Retry-After', retryAfterSeconds.toString());
     response.setHeader('X-RateLimit-Limit', throttlerLimitDetail.limit.toString());

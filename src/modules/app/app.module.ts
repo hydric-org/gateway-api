@@ -51,8 +51,9 @@ import { AppController } from './app.controller';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => [
         {
-          ttl: config.get('THROTTLE_TTL', 60000),
-          limit: config.get('THROTTLE_LIMIT', 5000),
+          ttl: Number(config.get('THROTTLE_TTL', 60000)),
+          limit: Number(config.get('THROTTLE_LIMIT', 1000)),
+          blockDuration: Number(config.get('THROTTLE_BLOCK_DURATION', 0)),
         },
       ],
     }),

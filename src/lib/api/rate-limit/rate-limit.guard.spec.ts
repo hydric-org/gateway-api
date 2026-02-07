@@ -21,15 +21,15 @@ describe('RateLimitGuard', () => {
       getClass: () => jest.fn(),
     }) as unknown as ExecutionContext;
 
-  const createThrottlerLimitDetail = (timeToBlockExpire: number, limit: number): ThrottlerLimitDetail => ({
-    timeToBlockExpire,
+  const createThrottlerLimitDetail = (timeToBlockExpireInSeconds: number, limit: number): ThrottlerLimitDetail => ({
+    timeToBlockExpire: timeToBlockExpireInSeconds,
     limit,
-    ttl: 60000,
+    ttl: 60, // 60 seconds
     key: 'test-key',
     tracker: 'test-tracker',
     totalHits: limit + 1,
     isBlocked: true,
-    timeToExpire: timeToBlockExpire,
+    timeToExpire: timeToBlockExpireInSeconds,
   });
 
   beforeEach(() => {
@@ -51,7 +51,7 @@ describe('RateLimitGuard', () => {
     it('should set Retry-After header with seconds until rate limit reset', () => {
       const mockResponse = createMockResponse();
       const mockContext = createMockContext(mockResponse);
-      const throttlerDetail = createThrottlerLimitDetail(30000, 100);
+      const throttlerDetail = createThrottlerLimitDetail(30, 100);
 
       try {
         (guard as any).testThrowThrottlingException(mockContext, throttlerDetail);
@@ -64,7 +64,7 @@ describe('RateLimitGuard', () => {
     it('should set X-RateLimit-Limit header with the configured limit', () => {
       const mockResponse = createMockResponse();
       const mockContext = createMockContext(mockResponse);
-      const throttlerDetail = createThrottlerLimitDetail(60000, 5000);
+      const throttlerDetail = createThrottlerLimitDetail(60, 5000);
 
       try {
         (guard as any).testThrowThrottlingException(mockContext, throttlerDetail);
@@ -77,7 +77,7 @@ describe('RateLimitGuard', () => {
     it('should set X-RateLimit-Remaining header to 0', () => {
       const mockResponse = createMockResponse();
       const mockContext = createMockContext(mockResponse);
-      const throttlerDetail = createThrottlerLimitDetail(60000, 100);
+      const throttlerDetail = createThrottlerLimitDetail(60, 100);
 
       try {
         (guard as any).testThrowThrottlingException(mockContext, throttlerDetail);
@@ -90,15 +90,16 @@ describe('RateLimitGuard', () => {
     it('should set X-RateLimit-Reset header with Unix timestamp', () => {
       const mockResponse = createMockResponse();
       const mockContext = createMockContext(mockResponse);
-      const throttlerDetail = createThrottlerLimitDetail(60000, 100);
+      const secondsToWait = 60;
+      const throttlerDetail = createThrottlerLimitDetail(secondsToWait, 100);
 
-      const beforeCall = Math.ceil(Date.now() / 1000 + 60);
+      const beforeCall = Math.ceil(Date.now() / 1000 + secondsToWait);
 
       try {
         (guard as any).testThrowThrottlingException(mockContext, throttlerDetail);
         fail('Expected RateLimitExceededError to be thrown');
       } catch {
-        const afterCall = Math.ceil(Date.now() / 1000 + 60);
+        const afterCall = Math.ceil(Date.now() / 1000 + secondsToWait);
 
         const resetCall = mockResponse.setHeader.mock.calls.find((call: string[]) => call[0] === 'X-RateLimit-Reset');
         expect(resetCall).toBeDefined();
@@ -112,7 +113,7 @@ describe('RateLimitGuard', () => {
     it('should throw RateLimitExceededError with correct retryAfterSeconds', () => {
       const mockResponse = createMockResponse();
       const mockContext = createMockContext(mockResponse);
-      const throttlerDetail = createThrottlerLimitDetail(45000, 100);
+      const throttlerDetail = createThrottlerLimitDetail(45, 100);
 
       try {
         (guard as any).testThrowThrottlingException(mockContext, throttlerDetail);
@@ -126,7 +127,7 @@ describe('RateLimitGuard', () => {
     it('should include correct error code in the thrown error', () => {
       const mockResponse = createMockResponse();
       const mockContext = createMockContext(mockResponse);
-      const throttlerDetail = createThrottlerLimitDetail(30000, 100);
+      const throttlerDetail = createThrottlerLimitDetail(30, 100);
 
       try {
         (guard as any).testThrowThrottlingException(mockContext, throttlerDetail);
@@ -140,7 +141,7 @@ describe('RateLimitGuard', () => {
     it('should include retryAfterSeconds in error metadata', () => {
       const mockResponse = createMockResponse();
       const mockContext = createMockContext(mockResponse);
-      const throttlerDetail = createThrottlerLimitDetail(120000, 100);
+      const throttlerDetail = createThrottlerLimitDetail(120, 100);
 
       try {
         (guard as any).testThrowThrottlingException(mockContext, throttlerDetail);
@@ -153,24 +154,10 @@ describe('RateLimitGuard', () => {
       }
     });
 
-    it('should ceil the retryAfterSeconds for non-round milliseconds', () => {
-      const mockResponse = createMockResponse();
-      const mockContext = createMockContext(mockResponse);
-      const throttlerDetail = createThrottlerLimitDetail(29001, 100);
-
-      try {
-        (guard as any).testThrowThrottlingException(mockContext, throttlerDetail);
-        fail('Expected RateLimitExceededError to be thrown');
-      } catch (error) {
-        expect(error).toBeInstanceOf(RateLimitExceededError);
-        expect((error as RateLimitExceededError).retryAfterSeconds).toBe(30);
-      }
-    });
-
     it('should set all headers before throwing the error', () => {
       const mockResponse = createMockResponse();
       const mockContext = createMockContext(mockResponse);
-      const throttlerDetail = createThrottlerLimitDetail(60000, 100);
+      const throttlerDetail = createThrottlerLimitDetail(60, 100);
 
       try {
         (guard as any).testThrowThrottlingException(mockContext, throttlerDetail);
