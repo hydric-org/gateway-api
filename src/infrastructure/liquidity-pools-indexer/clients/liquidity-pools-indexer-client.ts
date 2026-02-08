@@ -84,18 +84,19 @@ export class LiquidityPoolsIndexerClient {
     orderBy?: ITokenOrder;
     limit?: number;
     skip?: number;
-    chainIds?: ChainId[];
     search?: string;
     tokenAddress?: string;
     ids?: string[];
   }): Promise<ILiquidityPoolsIndexerSingleChainToken[]> {
+    const tokenFilter = this._buildTokenFilter(params);
+
     const response = await this.graphQLClients.liquidityPoolsIndexerClient.request<
       LiquidityPoolsIndexerGetSingleChainTokensQuery,
       LiquidityPoolsIndexerGetSingleChainTokensQueryVariables
     >({
       document: LiquidityPoolsIndexerGetSingleChainTokensDocument,
       variables: {
-        tokenFilter: this._buildTokenFilter(params),
+        tokenFilter: tokenFilter,
         limit: params.limit,
         offset: params.skip,
         ...(params.orderBy && {
@@ -275,11 +276,11 @@ export class LiquidityPoolsIndexerClient {
       }),
 
       swapsCount: {
-        _gt: params.filter?.minimumSwapsCount.toString(),
+        _gt: params.filter?.minimumSwapsCount?.toString(),
       },
 
       trackedSwapVolumeUsd: {
-        _gt: params.filter?.minimumSwapVolumeUsd.toString(),
+        _gt: params.filter?.minimumSwapVolumeUsd?.toString(),
       },
 
       ...(params.search && {

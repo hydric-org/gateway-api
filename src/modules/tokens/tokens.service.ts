@@ -163,8 +163,7 @@ export class TokensService {
     const decodedCursor = SingleChainTokenListCursor.decode(config.cursor);
 
     const indexerTokens = await this.liquidityPoolsIndexer.getSingleChainTokens({
-      chainIds: [chainId],
-      filter: filters,
+      filter: { ...filters, chainIds: [chainId] },
       orderBy: config.orderBy,
       limit: config.limit,
       skip: decodedCursor.skip,
@@ -199,8 +198,7 @@ export class TokensService {
     const decodedCursor = SingleChainTokenListCursor.decode(config.cursor);
 
     const indexerTokens = await this.liquidityPoolsIndexer.getSingleChainTokens({
-      chainIds: [chainId],
-      filter: filters,
+      filter: { ...filters, chainIds: [chainId] },
       orderBy: config.orderBy,
       limit: config.limit,
       skip: decodedCursor.skip,
@@ -248,7 +246,7 @@ export class TokensService {
         direction: OrderDirection.DESC,
       },
       tokenAddress: tokenAddress.toLowerCase(),
-      chainIds: chainIds,
+      filter: { chainIds },
     });
 
     return indexerTokens.map((token) => ({

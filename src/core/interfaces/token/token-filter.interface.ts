@@ -2,7 +2,7 @@ import { ChainId } from '@core/enums/chain-id';
 
 export interface ITokenFilter {
   chainIds?: ChainId[];
-  minimumTotalValuePooledUsd: number;
-  minimumSwapsCount: number;
-  minimumSwapVolumeUsd: number;
+  minimumTotalValuePooledUsd?: number;
+  minimumSwapsCount?: number;
+  minimumSwapVolumeUsd?: number;
 }

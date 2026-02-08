@@ -10,7 +10,7 @@ describe('UnsupportedChainIdError', () => {
 
   it('should format message with a single unsupported chain ID', () => {
     const error = new UnsupportedChainIdError({ chainId: invalidId });
-    const metadata = error.params.metadata as UnsupportedChainIdMetadata;
+    const metadata = error.params.metadata;
 
     expect(error.message).toBe(`Unsupported Chain ID: ${invalidId}`);
     expect(metadata.unsupportedIds).toEqual([invalidId]);
@@ -20,7 +20,7 @@ describe('UnsupportedChainIdError', () => {
   it('should format message with only unsupported IDs from an array', () => {
     const validId = supportedIds[0];
     const error = new UnsupportedChainIdError({ chainId: [validId, invalidId, anotherInvalidId] });
-    const metadata = error.params.metadata as UnsupportedChainIdMetadata;
+    const metadata = error.params.metadata;
 
     expect(error.message).toBe(`Unsupported Chain ID: ${invalidId}, ${anotherInvalidId}`);
     expect(metadata.unsupportedIds).toEqual([invalidId, anotherInvalidId]);
@@ -29,7 +29,7 @@ describe('UnsupportedChainIdError', () => {
 
   it('should return supportedIds as an array in metadata', () => {
     const error = new UnsupportedChainIdError({ chainId: invalidId });
-    const metadata = error.params.metadata as UnsupportedChainIdMetadata;
+    const metadata = error.params.metadata;
 
     expect(Array.isArray(metadata.supportedIds)).toBe(true);
     expect(metadata.supportedIds).toEqual(supportedIds);

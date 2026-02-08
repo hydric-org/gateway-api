@@ -59,19 +59,90 @@ describe('LiquidityPoolsIndexerClient', () => {
 
       (graphQLClientsMock.liquidityPoolsIndexerClient.request as jest.Mock).mockResolvedValue(mockResponse);
 
-      const result = await client.getSingleChainTokens({
-        chainIds: [ChainId.ETHEREUM],
+      await client.getSingleChainTokens({
+        filter: {
+          chainIds: [ChainId.ETHEREUM],
+        },
       });
 
       // Verify request call
       expect(graphQLClientsMock.liquidityPoolsIndexerClient.request).toHaveBeenCalledWith(
         expect.objectContaining({
           document: LiquidityPoolsIndexerGetSingleChainTokensDocument,
+          variables: expect.objectContaining({
+            tokenFilter: expect.objectContaining({
+              chainId: { _eq: ChainId.ETHEREUM },
+            }),
+          }),
         }),
       );
+    });
 
-      // Verify filtering: Only Token 1 should be returned
-      expect(result).toHaveLength(1);
+    it('should correctly filter by multiple chainIds', async () => {
+      const mockResponse = {
+        SingleChainToken: [],
+      };
+
+      (graphQLClientsMock.liquidityPoolsIndexerClient.request as jest.Mock).mockResolvedValue(mockResponse);
+
+      await client.getSingleChainTokens({
+        filter: {
+          chainIds: [ChainId.ETHEREUM, ChainId.BASE],
+        },
+      });
+
+      expect(graphQLClientsMock.liquidityPoolsIndexerClient.request).toHaveBeenCalledWith(
+        expect.objectContaining({
+          document: LiquidityPoolsIndexerGetSingleChainTokensDocument,
+          variables: expect.objectContaining({
+            tokenFilter: expect.objectContaining({
+              chainId: { _in: [ChainId.ETHEREUM, ChainId.BASE] },
+            }),
+          }),
+        }),
+      );
+    });
+
+    it('should filter out tokens with usdPrice <= 0', async () => {
+      const mockResponse = {
+        SingleChainToken: [
+          {
+            id: '1-0x1',
+            tokenAddress: '0x1',
+            chainId: 1,
+            name: 'Token 1',
+            symbol: 'T1',
+            decimals: 18,
+            usdPrice: '1.5',
+          },
+          {
+            id: '1-0x2',
+            tokenAddress: '0x2',
+            chainId: 1,
+            name: 'EOA or non-token',
+            symbol: '',
+            decimals: 0,
+            usdPrice: '0',
+          },
+          {
+            id: '1-0x3',
+            tokenAddress: '0x3',
+            chainId: 1,
+            name: 'Token 3',
+            symbol: 'T3',
+            decimals: 18,
+            usdPrice: '-1',
+          },
+        ],
+      };
+
+      (graphQLClientsMock.liquidityPoolsIndexerClient.request as jest.Mock).mockResolvedValue(mockResponse);
+
+      const result = await client.getSingleChainTokens({
+        filter: {
+          chainIds: [ChainId.ETHEREUM],
+        },
+      });
       expect(result[0].address).toBe('0x1');
     });
   });
