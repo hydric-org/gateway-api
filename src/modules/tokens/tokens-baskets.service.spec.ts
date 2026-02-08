@@ -138,6 +138,37 @@ describe('TokensBasketsService', () => {
       const result = await service.getBaskets([ChainId.MONAD]);
       expect(result).toEqual([]);
     });
+
+    it('should pass basketIds to client when provided', async () => {
+      jest.spyOn(basketsClient, 'getBaskets').mockResolvedValue([mockBasket]);
+      jest.spyOn(cacheService, 'get').mockReturnValue(undefined);
+      jest.spyOn(indexerClient, 'getSingleChainTokens').mockResolvedValue([mockIndexerToken]);
+
+      await service.getBaskets(undefined, [BasketId.USD_STABLECOINS]);
+
+      expect(basketsClient.getBaskets).toHaveBeenCalledWith(undefined, [BasketId.USD_STABLECOINS]);
+    });
+
+    it('should pass both chainIds and basketIds to client when both provided', async () => {
+      jest.spyOn(basketsClient, 'getBaskets').mockResolvedValue([mockBasket]);
+      jest.spyOn(cacheService, 'get').mockReturnValue(undefined);
+      jest.spyOn(indexerClient, 'getSingleChainTokens').mockResolvedValue([mockIndexerToken]);
+
+      await service.getBaskets([ChainId.ETHEREUM], [BasketId.USD_STABLECOINS]);
+
+      expect(basketsClient.getBaskets).toHaveBeenCalledWith([ChainId.ETHEREUM], [BasketId.USD_STABLECOINS]);
+    });
+
+    it('should return only requested baskets when basketIds is provided', async () => {
+      jest.spyOn(basketsClient, 'getBaskets').mockResolvedValue([mockBasket]);
+      jest.spyOn(cacheService, 'get').mockReturnValue(undefined);
+      jest.spyOn(indexerClient, 'getSingleChainTokens').mockResolvedValue([mockIndexerToken]);
+
+      const result = await service.getBaskets(undefined, [BasketId.USD_STABLECOINS]);
+
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe(BasketId.USD_STABLECOINS);
+    });
   });
 
   describe('getSingleBasketInMultipleChains', () => {

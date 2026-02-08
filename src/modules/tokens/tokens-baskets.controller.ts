@@ -3,6 +3,7 @@ import { ApiGetSingleChainBasketDocs } from '@lib/api/token/decorators/get-singl
 import { ApiGetSingleBasketInMultipleChainsDocs } from '@lib/api/token/decorators/get-single-multi-chain-basket-docs.decorator';
 import { GetSingleChainBasketPathParams } from '@lib/api/token/dtos/request/get-single-chain-basket-path-params.dto';
 import { GetSingleMultiChainBasketPathParams } from '@lib/api/token/dtos/request/get-single-multi-chain-basket-path-params.dto';
+import { GetTokenBasketsListQueryParams } from '@lib/api/token/dtos/request/get-token-baskets-list-query-params.dto';
 import { GetMultipleChainsTokenBasketsQueryParams } from '@lib/api/token/dtos/request/get-token-baskets-query-params.dto';
 import { GetTokenBasketListResponse } from '@lib/api/token/dtos/response/get-token-basket-list-response.dto';
 import { GetTokenBasketResponse } from '@lib/api/token/dtos/response/get-token-basket-response.dto';
@@ -17,8 +18,8 @@ export class TokensBasketsController {
 
   @Get('')
   @ApiGetMultipleChainBasketsDocs()
-  async getBaskets(@Query() query: GetMultipleChainsTokenBasketsQueryParams): Promise<GetTokenBasketListResponse> {
-    const baskets = await this.tokensBasketsService.getBaskets(query.chainIds);
+  async getBaskets(@Query() query: GetTokenBasketsListQueryParams): Promise<GetTokenBasketListResponse> {
+    const baskets = await this.tokensBasketsService.getBaskets(query.chainIds, query.basketIds);
     return new GetTokenBasketListResponse(baskets);
   }
 

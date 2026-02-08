@@ -16,7 +16,13 @@ export class TokenBasketsClient {
 
   constructor(private readonly httpService: HttpService) {}
 
-  async getBaskets(chainIds?: ChainId[]): Promise<ITokenBasketConfiguration[]> {
+  async getBaskets(chainIds?: ChainId[], basketIds?: BasketId[]): Promise<ITokenBasketConfiguration[]> {
+    if (basketIds && basketIds.length > 0) return this._getBasketsByIds(basketIds, chainIds);
+
+    return this._getAllBaskets(chainIds);
+  }
+
+  private async _getAllBaskets(chainIds?: ChainId[]): Promise<ITokenBasketConfiguration[]> {
     const url = `${this.baseUrl}/all.json`;
 
     try {
@@ -32,6 +38,13 @@ export class TokenBasketsClient {
       this.logger.error(`Failed to fetch all baskets: ${errorMessage}`);
       throw error;
     }
+  }
+
+  private async _getBasketsByIds(basketIds: BasketId[], chainIds?: ChainId[]): Promise<ITokenBasketConfiguration[]> {
+    const basketPromises = basketIds.map((id) => this.getBasket(id, chainIds));
+    const results = await Promise.all(basketPromises);
+
+    return results.filter((basket): basket is ITokenBasketConfiguration => basket !== null);
   }
 
   async getBasket(basketId: BasketId, chainIds?: ChainId[]): Promise<ITokenBasketConfiguration | null> {

@@ -43,7 +43,7 @@ describe('TokensBasketsController', () => {
 
       const response = await controller.getBaskets({});
       expect(response.baskets).toBe(mockResult);
-      expect(service.getBaskets).toHaveBeenCalledWith(undefined);
+      expect(service.getBaskets).toHaveBeenCalledWith(undefined, undefined);
     });
 
     it('should pass chainIds to service when provided', async () => {
@@ -52,7 +52,26 @@ describe('TokensBasketsController', () => {
 
       const response = await controller.getBaskets({ chainIds });
       expect(response.baskets).toBe(mockResult);
-      expect(service.getBaskets).toHaveBeenCalledWith(chainIds);
+      expect(service.getBaskets).toHaveBeenCalledWith(chainIds, undefined);
+    });
+
+    it('should pass basketIds to service when provided', async () => {
+      jest.spyOn(service, 'getBaskets').mockResolvedValue(mockResult);
+      const basketIds = [BasketId.USD_STABLECOINS];
+
+      const response = await controller.getBaskets({ basketIds });
+      expect(response.baskets).toBe(mockResult);
+      expect(service.getBaskets).toHaveBeenCalledWith(undefined, basketIds);
+    });
+
+    it('should pass both chainIds and basketIds to service when both provided', async () => {
+      jest.spyOn(service, 'getBaskets').mockResolvedValue(mockResult);
+      const chainIds = [ChainId.ETHEREUM];
+      const basketIds = [BasketId.USD_STABLECOINS];
+
+      const response = await controller.getBaskets({ chainIds, basketIds });
+      expect(response.baskets).toBe(mockResult);
+      expect(service.getBaskets).toHaveBeenCalledWith(chainIds, basketIds);
     });
   });
 

@@ -19,8 +19,8 @@ export class TokensBasketsService {
     private readonly basketTokensCacheService: BasketTokensCacheService,
   ) {}
 
-  async getBaskets(chainIds?: ChainId[]): Promise<ITokenBasket[]> {
-    const filteredBaskets = await this.tokenBasketsClient.getBaskets(chainIds);
+  async getBaskets(chainIds?: ChainId[], basketIds?: BasketId[]): Promise<ITokenBasket[]> {
+    const filteredBaskets = await this.tokenBasketsClient.getBaskets(chainIds, basketIds);
 
     return this._getTokensMetadataForTokenBasket(filteredBaskets);
   }

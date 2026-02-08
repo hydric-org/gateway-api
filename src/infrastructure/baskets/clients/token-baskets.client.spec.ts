@@ -84,6 +84,73 @@ describe('TokenBasketsClient', () => {
       const result = await client.getBaskets();
       expect(result).toEqual([]);
     });
+
+    it('should fetch individual baskets when basketIds provided', async () => {
+      const mockAxiosResponse = {
+        data: mockRawResponse,
+        status: 200,
+      } as AxiosResponse;
+
+      jest.spyOn(httpService, 'get').mockReturnValue(of(mockAxiosResponse));
+
+      const result = await client.getBaskets(undefined, [BasketId.USD_STABLECOINS]);
+
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe(BasketId.USD_STABLECOINS);
+      expect(httpService.get).toHaveBeenCalledWith(
+        `https://cdn.jsdelivr.net/gh/hydric-org/token-baskets/baskets/${BasketId.USD_STABLECOINS}.json`,
+      );
+    });
+
+    it('should fetch multiple individual baskets in parallel when multiple basketIds provided', async () => {
+      const mockEthResponse = {
+        ...mockRawResponse,
+        id: 'eth-pegged-tokens',
+        name: 'ETH Pegged Tokens',
+      };
+
+      jest.spyOn(httpService, 'get').mockImplementation((url: string) => {
+        if (url.includes(BasketId.USD_STABLECOINS)) {
+          return of({ data: mockRawResponse, status: 200 } as AxiosResponse);
+        }
+        return of({ data: mockEthResponse, status: 200 } as AxiosResponse);
+      });
+
+      const result = await client.getBaskets(undefined, [BasketId.USD_STABLECOINS, BasketId.ETH_PEGGED_TOKENS]);
+
+      expect(result).toHaveLength(2);
+      expect(result.map((b) => b.id)).toContain(BasketId.USD_STABLECOINS);
+      expect(result.map((b) => b.id)).toContain(BasketId.ETH_PEGGED_TOKENS);
+    });
+
+    it('should filter out baskets not found (404) when using basketIds', async () => {
+      const errorResponse = {
+        isAxiosError: true,
+        response: { status: 404 },
+      };
+
+      jest.spyOn(httpService, 'get').mockImplementation((url: string) => {
+        if (url.includes(BasketId.USD_STABLECOINS)) {
+          return of({ data: mockRawResponse, status: 200 } as AxiosResponse);
+        }
+        return throwError(() => errorResponse);
+      });
+
+      const result = await client.getBaskets(undefined, [BasketId.USD_STABLECOINS, BasketId.ETH_PEGGED_TOKENS]);
+
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe(BasketId.USD_STABLECOINS);
+    });
+
+    it('should apply chainIds filter when both basketIds and chainIds are provided', async () => {
+      jest.spyOn(httpService, 'get').mockReturnValue(of({ data: mockRawResponse, status: 200 } as AxiosResponse));
+
+      const result = await client.getBaskets([ChainId.BASE], [BasketId.USD_STABLECOINS]);
+
+      expect(result).toHaveLength(1);
+      expect(result[0].chainIds).toEqual([ChainId.BASE]);
+      expect(result[0].addresses).toEqual([{ chainId: ChainId.BASE, address: '0x789' }]);
+    });
   });
 
   describe('getBasket', () => {

@@ -7,7 +7,9 @@ import { setupSwagger } from '@lib/app/bootstrap/setup-swagger';
 import { ClassSerializerInterceptor } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory, Reflector } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { Logger } from 'nestjs-pino';
+import * as qs from 'qs';
 import 'src/core/extensions/string.extension';
 import { AllExceptionsFilter } from './all-exceptions-filter';
 import { AppModule } from './modules/app/app.module';
@@ -15,7 +17,12 @@ import { AuthService } from './modules/auth/auth.service';
 import { ApiKeyGuard } from './modules/auth/guards/api-key.guard';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    rawBody: true,
+  });
+
+  app.set('query parser', (str: string) => qs.parse(str, { arrayLimit: 100 }));
+
   const reflector = app.get(Reflector);
   const authService = app.get(AuthService);
   const configService = app.get(ConfigService);
