@@ -1,7 +1,7 @@
 import { ChainId } from '@core/enums/chain-id';
-import { ApiGetMultipleChainBasketsDocs } from '@lib/api/token/descorators/get-multi-chain-baskets-docs.decorator';
-import { ApiGetSingleChainBasketDocs } from '@lib/api/token/descorators/get-single-chain-basket-docs.decorator';
-import { ApiGetSingleBasketInMultipleChainsDocs } from '@lib/api/token/descorators/get-single-multi-chain-basket-docs.decorator';
+import { ApiGetMultipleChainBasketsDocs } from '@lib/api/token/decorators/get-multi-chain-baskets-docs.decorator';
+import { ApiGetSingleChainBasketDocs } from '@lib/api/token/decorators/get-single-chain-basket-docs.decorator';
+import { ApiGetSingleBasketInMultipleChainsDocs } from '@lib/api/token/decorators/get-single-multi-chain-basket-docs.decorator';
 import { GetSingleChainBasketPathParams } from '@lib/api/token/dtos/request/get-single-chain-basket-path-params.dto';
 import { GetSingleMultiChainBasketPathParams } from '@lib/api/token/dtos/request/get-single-multi-chain-basket-path-params.dto';
 import { GetTokenBasketListResponse } from '@lib/api/token/dtos/response/get-token-basket-list-response.dto';

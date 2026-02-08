@@ -1,9 +1,9 @@
-import { ApiGetMultiChainTokenListDocs } from '@lib/api/token/descorators/get-multichain-token-list-docs.decorator';
-import { ApiGetSingleChainTokenDocs } from '@lib/api/token/descorators/get-single-chain-token-docs.decorator';
-import { ApiGetSingleChainTokenListDocs } from '@lib/api/token/descorators/get-single-chain-token-list-docs.decorator';
-import { ApiSearchMultichainTokensDocs } from '@lib/api/token/descorators/search-multichain-tokens-docs.decorator';
-import { ApiSearchSingleChainTokensDocs } from '@lib/api/token/descorators/search-single-chain-tokens-docs.decorator';
-import { ApiSearchTokensByAddressDocs } from '@lib/api/token/descorators/search-tokens-by-address-docs.decorator';
+import { ApiGetMultiChainTokenListDocs } from '@lib/api/token/decorators/get-multichain-token-list-docs.decorator';
+import { ApiGetSingleChainTokenDocs } from '@lib/api/token/decorators/get-single-chain-token-docs.decorator';
+import { ApiGetSingleChainTokenListDocs } from '@lib/api/token/decorators/get-single-chain-token-list-docs.decorator';
+import { ApiSearchMultichainTokensDocs } from '@lib/api/token/decorators/search-multichain-tokens-docs.decorator';
+import { ApiSearchSingleChainTokensDocs } from '@lib/api/token/decorators/search-single-chain-tokens-docs.decorator';
+import { ApiSearchTokensByAddressDocs } from '@lib/api/token/decorators/search-tokens-by-address-docs.decorator';
 import { Body, Controller, Get, HttpCode, Param, Post, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { GetMultiChainTokenListRequestParams } from '../../lib/api/token/dtos/request/get-multi-chain-token-list-request-params.dto';

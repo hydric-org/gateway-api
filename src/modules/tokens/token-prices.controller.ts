@@ -1,4 +1,4 @@
-import { ApiGetTokenUsdPriceDocs } from '@lib/api/token/descorators/get-usd-token-price-docs.decorator';
+import { ApiGetTokenUsdPriceDocs } from '@lib/api/token/decorators/get-usd-token-price-docs.decorator';
 import { GetTokenPricePathParams } from '@lib/api/token/dtos/request/get-token-price-path-params.dto';
 import { GetTokenPriceResponse } from '@lib/api/token/dtos/response/get-token-price-response.dto';
 import { Controller, Get, Param } from '@nestjs/common';

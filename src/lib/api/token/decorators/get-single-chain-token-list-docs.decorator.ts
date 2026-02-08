@@ -2,11 +2,13 @@ import { ErrorResponse } from '@lib/api/error/dtos/error-response.dto';
 import { GenericValidationError } from '@lib/api/error/errors/generic-validation.error';
 import { UnsupportedChainIdError } from '@lib/api/network/errors/unsupported-chain-id.error';
 import { applyDecorators } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiExtraModels, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { GetSingleChainTokenListPathParams } from '../dtos/request/get-single-chain-token-list-path-params.dto';
 import { GetSingleChainTokenListResponse } from '../dtos/response/get-single-chain-token-list-response.dto';
 
 export function ApiGetSingleChainTokenListDocs() {
   return applyDecorators(
+    ApiExtraModels(GetSingleChainTokenListPathParams),
     ApiOperation({
       summary: 'Get a list of tokens on a specific blockchain',
       description: 'Returns a paginated list of tokens available on the specified blockchain network.',
