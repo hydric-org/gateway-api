@@ -1,7 +1,7 @@
 import { TOKEN_LOGO } from '@core/constants';
 import { ChainId } from '@core/enums/chain-id';
 import { BasketId } from '@core/enums/token/basket-id.enum';
-import { TokenBasketNotFoundError } from '@core/errors/token-basket-not-found.error';
+import { MultiChainTokenBasketNotFoundError } from '@core/errors/multi-chain-token-basket-not-found.error';
 import { ILiquidityPoolsIndexerSingleChainToken } from '@core/interfaces/token/liquidity-pools-indexer-single-chain-token.interface';
 import { ISingleChainTokenMetadata } from '@core/interfaces/token/single-chain-token-metadata.interface';
 import { ITokenBasketConfiguration } from '@core/interfaces/token/token-basket-configuration.interface';
@@ -28,7 +28,7 @@ export class TokensBasketsService {
   async getSingleBasketInMultipleChains(basketId: BasketId, chainIds?: ChainId[]): Promise<ITokenBasket> {
     const basket = await this.tokenBasketsClient.getBasket(basketId, chainIds);
 
-    if (!basket) throw new TokenBasketNotFoundError({ basketId });
+    if (!basket) throw new MultiChainTokenBasketNotFoundError({ basketId, chainIds });
 
     const [tokenBasketWithTokensMetadata] = await this._getTokensMetadataForTokenBasket([basket]);
     return tokenBasketWithTokensMetadata;
@@ -36,8 +36,6 @@ export class TokensBasketsService {
 
   async getSingleChainBasket(chainId: ChainId, basketId: BasketId): Promise<ITokenBasket> {
     const basket = await this.tokenBasketsClient.getSingleChainBasket(basketId, chainId);
-
-    if (!basket) throw new TokenBasketNotFoundError({ basketId, chainId });
 
     const [tokenBasketWithTokensMetadata] = await this._getTokensMetadataForTokenBasket([basket]);
     return tokenBasketWithTokensMetadata;

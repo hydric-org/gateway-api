@@ -1,5 +1,5 @@
 import { BasketId } from '@core/enums/token/basket-id.enum';
-import { TokenBasketNotFoundError } from '@core/errors/token-basket-not-found.error';
+import { MultiChainTokenBasketNotFoundError } from '@core/errors/multi-chain-token-basket-not-found.error';
 import { ErrorResponse } from '@lib/api/error/dtos/error-response.dto';
 import { applyDecorators } from '@nestjs/common';
 import {
@@ -42,7 +42,7 @@ export function ApiGetSingleBasketInMultipleChainsDocs() {
       content: {
         'application/json': {
           example: ErrorResponse.from(
-            new TokenBasketNotFoundError({ basketId: BasketId.USD_STABLECOINS }),
+            new MultiChainTokenBasketNotFoundError({ basketId: BasketId.USD_STABLECOINS }),
             '/tokens/baskets/usd-stablecoins',
           ),
         },

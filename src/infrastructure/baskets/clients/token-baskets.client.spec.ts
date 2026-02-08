@@ -1,5 +1,6 @@
 import { ChainId } from '@core/enums/chain-id';
 import { BasketId } from '@core/enums/token/basket-id.enum';
+import { SingleChainTokenBasketNotFoundError } from '@core/errors/single-chain-token-basket-not-found.error';
 import { ITokenBasketConfiguration } from '@core/interfaces/token/token-basket-configuration.interface';
 import { HttpService } from '@nestjs/axios';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -170,7 +171,7 @@ describe('TokenBasketsClient', () => {
       });
     });
 
-    it('should throw TokenBasketNotFoundError if chain is not in basket', async () => {
+    it('should throw SingleChainTokenBasketNotFoundError if chain is not in basket', async () => {
       const mockAxiosResponse = {
         data: mockRawResponse,
         status: 200,
@@ -178,17 +179,21 @@ describe('TokenBasketsClient', () => {
 
       jest.spyOn(httpService, 'get').mockReturnValue(of(mockAxiosResponse));
 
-      await expect(client.getSingleChainBasket(mockBasketId, ChainId.SCROLL)).rejects.toThrow();
+      await expect(client.getSingleChainBasket(mockBasketId, ChainId.SCROLL)).rejects.toThrow(
+        SingleChainTokenBasketNotFoundError,
+      );
     });
 
-    it('should throw TokenBasketNotFoundError on 404', async () => {
+    it('should throw SingleChainTokenBasketNotFoundError on 404', async () => {
       const errorResponse = {
         isAxiosError: true,
         response: { status: 404 },
       };
       jest.spyOn(httpService, 'get').mockReturnValue(throwError(() => errorResponse));
 
-      await expect(client.getSingleChainBasket(mockBasketId, mockChainId)).rejects.toThrow();
+      await expect(client.getSingleChainBasket(mockBasketId, mockChainId)).rejects.toThrow(
+        SingleChainTokenBasketNotFoundError,
+      );
     });
   });
 });

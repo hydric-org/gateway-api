@@ -1,6 +1,6 @@
 import { ChainId } from '@core/enums/chain-id';
 import { BasketId } from '@core/enums/token/basket-id.enum';
-import { TokenBasketNotFoundError } from '@core/errors/token-basket-not-found.error';
+import { SingleChainTokenBasketNotFoundError } from '@core/errors/single-chain-token-basket-not-found.error';
 import { ITokenBasketConfiguration } from '@core/interfaces/token/token-basket-configuration.interface';
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
@@ -54,11 +54,11 @@ export class TokenBasketsClient {
     }
   }
 
-  async getSingleChainBasket(basketId: BasketId, chainId: ChainId): Promise<ITokenBasketConfiguration | null> {
+  async getSingleChainBasket(basketId: BasketId, chainId: ChainId): Promise<ITokenBasketConfiguration> {
     const basket = await this.getBasket(basketId, [chainId]);
 
     if (!basket) {
-      throw new TokenBasketNotFoundError({
+      throw new SingleChainTokenBasketNotFoundError({
         basketId,
         chainId,
       });

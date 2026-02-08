@@ -1,6 +1,6 @@
 import { ChainId } from '@core/enums/chain-id';
 import { BasketId } from '@core/enums/token/basket-id.enum';
-import { TokenBasketNotFoundError } from '@core/errors/token-basket-not-found.error';
+import { SingleChainTokenBasketNotFoundError } from '@core/errors/single-chain-token-basket-not-found.error';
 import { ErrorResponse } from '@lib/api/error/dtos/error-response.dto';
 import { UnsupportedChainIdError } from '@lib/api/network/errors/unsupported-chain-id.error';
 import { applyDecorators } from '@nestjs/common';
@@ -53,7 +53,10 @@ export function ApiGetSingleChainBasketDocs() {
       content: {
         'application/json': {
           example: ErrorResponse.from(
-            new TokenBasketNotFoundError({ basketId: BasketId.MONAD_PEGGED_TOKENS, chainId: ChainId.ETHEREUM }),
+            new SingleChainTokenBasketNotFoundError({
+              basketId: BasketId.MONAD_PEGGED_TOKENS,
+              chainId: ChainId.ETHEREUM,
+            }),
             `/tokens/baskets/${ChainId.ETHEREUM}/${BasketId.MONAD_PEGGED_TOKENS}`,
           ),
         },

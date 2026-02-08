@@ -1,7 +1,8 @@
 import { TOKEN_LOGO } from '@core/constants';
 import { ChainId } from '@core/enums/chain-id';
 import { BasketId } from '@core/enums/token/basket-id.enum';
-import { TokenBasketNotFoundError } from '@core/errors/token-basket-not-found.error';
+import { MultiChainTokenBasketNotFoundError } from '@core/errors/multi-chain-token-basket-not-found.error';
+import { SingleChainTokenBasketNotFoundError } from '@core/errors/single-chain-token-basket-not-found.error';
 import { ISingleChainTokenMetadata } from '@core/interfaces/token/single-chain-token-metadata.interface';
 import { ITokenBasketConfiguration } from '@core/interfaces/token/token-basket-configuration.interface';
 import { TokenBasketsClient } from '@infrastructure/baskets/clients/token-baskets.client';
@@ -151,10 +152,12 @@ describe('TokensBasketsService', () => {
       expect(result.id).toBe(mockBasketId);
     });
 
-    it('should throw TokenBasketNotFoundError if basket not found on any network', async () => {
+    it('should throw MultiChainTokenBasketNotFoundError if basket not found on any network', async () => {
       jest.spyOn(basketsClient, 'getBasket').mockResolvedValue(null);
 
-      await expect(service.getSingleBasketInMultipleChains(mockBasketId)).rejects.toThrow(TokenBasketNotFoundError);
+      await expect(service.getSingleBasketInMultipleChains(mockBasketId)).rejects.toThrow(
+        MultiChainTokenBasketNotFoundError,
+      );
     });
 
     it('should filter basket by chainIds when provided', async () => {
@@ -180,10 +183,10 @@ describe('TokensBasketsService', () => {
       expect(result.chainIds).toEqual([ChainId.MONAD]);
     });
 
-    it('should throw TokenBasketNotFoundError if filtering result in no chains', async () => {
+    it('should throw MultiChainTokenBasketNotFoundError if filtering result in no chains', async () => {
       jest.spyOn(basketsClient, 'getBasket').mockResolvedValue(null);
       await expect(service.getSingleBasketInMultipleChains(mockBasketId, [ChainId.MONAD])).rejects.toThrow(
-        TokenBasketNotFoundError,
+        MultiChainTokenBasketNotFoundError,
       );
     });
   });
@@ -201,19 +204,25 @@ describe('TokensBasketsService', () => {
       expect(result.tokens[0]).toEqual(expectedToken);
     });
 
-    it('should throw TokenBasketNotFoundError if basket fetch returns null', async () => {
-      jest.spyOn(basketsClient, 'getSingleChainBasket').mockResolvedValue(null);
-
-      await expect(service.getSingleChainBasket(mockChainId, mockBasketId)).rejects.toThrow(TokenBasketNotFoundError);
-    });
-
-    it('should throw TokenBasketNotFoundError if basket exists but not on requested chain', async () => {
+    it('should throw SingleChainTokenBasketNotFoundError if basket fetch throws', async () => {
       jest
         .spyOn(basketsClient, 'getSingleChainBasket')
-        .mockRejectedValue(new TokenBasketNotFoundError({ basketId: mockBasketId, chainId: ChainId.ETHEREUM }));
+        .mockRejectedValue(new SingleChainTokenBasketNotFoundError({ basketId: mockBasketId, chainId: mockChainId }));
+
+      await expect(service.getSingleChainBasket(mockChainId, mockBasketId)).rejects.toThrow(
+        SingleChainTokenBasketNotFoundError,
+      );
+    });
+
+    it('should throw SingleChainTokenBasketNotFoundError if basket exists but not on requested chain', async () => {
+      jest
+        .spyOn(basketsClient, 'getSingleChainBasket')
+        .mockRejectedValue(
+          new SingleChainTokenBasketNotFoundError({ basketId: mockBasketId, chainId: ChainId.ETHEREUM }),
+        );
 
       await expect(service.getSingleChainBasket(ChainId.ETHEREUM, mockBasketId)).rejects.toThrow(
-        TokenBasketNotFoundError,
+        SingleChainTokenBasketNotFoundError,
       );
     });
   });
