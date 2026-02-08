@@ -1,12 +1,11 @@
-import { ChainId } from '@core/enums/chain-id';
 import { ApiGetMultipleChainBasketsDocs } from '@lib/api/token/decorators/get-multi-chain-baskets-docs.decorator';
 import { ApiGetSingleChainBasketDocs } from '@lib/api/token/decorators/get-single-chain-basket-docs.decorator';
 import { ApiGetSingleBasketInMultipleChainsDocs } from '@lib/api/token/decorators/get-single-multi-chain-basket-docs.decorator';
 import { GetSingleChainBasketPathParams } from '@lib/api/token/dtos/request/get-single-chain-basket-path-params.dto';
 import { GetSingleMultiChainBasketPathParams } from '@lib/api/token/dtos/request/get-single-multi-chain-basket-path-params.dto';
+import { GetMultipleChainsTokenBasketsQueryParams } from '@lib/api/token/dtos/request/get-token-baskets-query-params.dto';
 import { GetTokenBasketListResponse } from '@lib/api/token/dtos/response/get-token-basket-list-response.dto';
 import { GetTokenBasketResponse } from '@lib/api/token/dtos/response/get-token-basket-response.dto';
-import { ParseChainIdArrayPipe } from '@lib/api/token/pipes/parse-chain-id-array.pipe';
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { TokensBasketsService } from './tokens-baskets.service';
@@ -18,10 +17,8 @@ export class TokensBasketsController {
 
   @Get('')
   @ApiGetMultipleChainBasketsDocs()
-  async getBaskets(
-    @Query('chainIds', ParseChainIdArrayPipe) chainIds?: ChainId[],
-  ): Promise<GetTokenBasketListResponse> {
-    const baskets = await this.tokensBasketsService.getBaskets(chainIds);
+  async getBaskets(@Query() query: GetMultipleChainsTokenBasketsQueryParams): Promise<GetTokenBasketListResponse> {
+    const baskets = await this.tokensBasketsService.getBaskets(query.chainIds);
     return new GetTokenBasketListResponse(baskets);
   }
 
@@ -29,9 +26,9 @@ export class TokensBasketsController {
   @ApiGetSingleBasketInMultipleChainsDocs()
   async getSingleBasketInMultipleChains(
     @Param() params: GetSingleMultiChainBasketPathParams,
-    @Query('chainIds', ParseChainIdArrayPipe) chainIds?: ChainId[],
+    @Query() query: GetMultipleChainsTokenBasketsQueryParams,
   ): Promise<GetTokenBasketResponse> {
-    const basket = await this.tokensBasketsService.getSingleBasketInMultipleChains(params.basketId, chainIds);
+    const basket = await this.tokensBasketsService.getSingleBasketInMultipleChains(params.basketId, query.chainIds);
     return new GetTokenBasketResponse(basket);
   }
 

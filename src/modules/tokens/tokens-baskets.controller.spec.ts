@@ -41,7 +41,7 @@ describe('TokensBasketsController', () => {
     it('should call service.getBaskets and return wrapped result', async () => {
       jest.spyOn(service, 'getBaskets').mockResolvedValue(mockResult);
 
-      const response = await controller.getBaskets(undefined);
+      const response = await controller.getBaskets({});
       expect(response.baskets).toBe(mockResult);
       expect(service.getBaskets).toHaveBeenCalledWith(undefined);
     });
@@ -50,7 +50,7 @@ describe('TokensBasketsController', () => {
       jest.spyOn(service, 'getBaskets').mockResolvedValue(mockResult);
       const chainIds = [ChainId.ETHEREUM];
 
-      const response = await controller.getBaskets(chainIds);
+      const response = await controller.getBaskets({ chainIds });
       expect(response.baskets).toBe(mockResult);
       expect(service.getBaskets).toHaveBeenCalledWith(chainIds);
     });
@@ -60,7 +60,7 @@ describe('TokensBasketsController', () => {
     it('should call service.getSingleBasketInMultipleChains and return wrapped result', async () => {
       jest.spyOn(service, 'getSingleBasketInMultipleChains').mockResolvedValue(mockSingleResult);
 
-      const response = await controller.getSingleBasketInMultipleChains({ basketId: mockBasketId }, undefined);
+      const response = await controller.getSingleBasketInMultipleChains({ basketId: mockBasketId }, {});
       expect(response.basket).toBe(mockSingleResult);
       expect(service.getSingleBasketInMultipleChains).toHaveBeenCalledWith(mockBasketId, undefined);
     });
@@ -69,7 +69,7 @@ describe('TokensBasketsController', () => {
       jest.spyOn(service, 'getSingleBasketInMultipleChains').mockResolvedValue(mockSingleResult);
       const chainIds = [ChainId.ETHEREUM];
 
-      const response = await controller.getSingleBasketInMultipleChains({ basketId: mockBasketId }, chainIds);
+      const response = await controller.getSingleBasketInMultipleChains({ basketId: mockBasketId }, { chainIds });
       expect(response.basket).toBe(mockSingleResult);
       expect(service.getSingleBasketInMultipleChains).toHaveBeenCalledWith(mockBasketId, chainIds);
     });

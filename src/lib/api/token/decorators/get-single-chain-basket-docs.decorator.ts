@@ -4,12 +4,20 @@ import { TokenBasketNotFoundError } from '@core/errors/token-basket-not-found.er
 import { ErrorResponse } from '@lib/api/error/dtos/error-response.dto';
 import { UnsupportedChainIdError } from '@lib/api/network/errors/unsupported-chain-id.error';
 import { applyDecorators } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiExtraModels,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+} from '@nestjs/swagger';
+import { GetSingleChainBasketPathParams } from '../dtos/request/get-single-chain-basket-path-params.dto';
 import { GetTokenBasketResponse } from '../dtos/response/get-token-basket-response.dto';
 import { InvalidBasketIdError } from '../errors/invalid-basket-id.error';
 
 export function ApiGetSingleChainBasketDocs() {
   return applyDecorators(
+    ApiExtraModels(GetSingleChainBasketPathParams),
     ApiOperation({
       summary: 'Get a specific token basket for a specific network.',
       description:

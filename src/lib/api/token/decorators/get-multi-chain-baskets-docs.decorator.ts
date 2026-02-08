@@ -1,23 +1,15 @@
-import { ChainId } from '@core/enums/chain-id';
 import { applyDecorators } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import { ApiExtraModels, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { GetMultipleChainsTokenBasketsQueryParams } from '../dtos/request/get-token-baskets-query-params.dto';
 import { GetTokenBasketListResponse } from '../dtos/response/get-token-basket-list-response.dto';
 
 export function ApiGetMultipleChainBasketsDocs() {
   return applyDecorators(
+    ApiExtraModels(GetMultipleChainsTokenBasketsQueryParams),
     ApiOperation({
       summary: 'Get all token baskets across multiple networks.',
       description:
         'Returns all token baskets (e.g., Stablecoins, LSTs). Use the `chainIds` query parameter to filter to specific networks; if omitted, defaults to all supported networks.',
-    }),
-    ApiQuery({
-      name: 'chainIds',
-      description:
-        'Filter results to specific networks by chain ID. Comma-separated list. If omitted, defaults to all supported networks.',
-      required: false,
-      example: '1,8453',
-      enum: ChainId,
-      isArray: true,
     }),
     ApiOkResponse({
       description: 'The list of available token baskets.',
