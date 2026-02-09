@@ -7,6 +7,7 @@ on:
     paths:
       - "src/lib/api/error/error-codes/api-error-codes.ts"
       - "src/core/enums/chain-id.ts"
+      - "src/core/enums/token/basket-id.enum.ts"
 
 jobs:
   sync-docs:
@@ -44,13 +45,17 @@ jobs:
         run: |
           npx ts-node -r tsconfig-paths/register scripts/generate-chain-docs.ts docs-repo/snippets/supported-blockchains/liquidity-pools.mdx
 
+      - name: Generate Token Basket Docs
+        run: |
+          npx ts-node -r tsconfig-paths/register scripts/generate-basket-docs.ts docs-repo/snippets/available-token-baskets.mdx
+
       - name: Commit and Push Changes
         working-directory: docs-repo
         run: |
           if [[ -n $(git status -s) ]]; then
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add snippets/custom-error-codes.mdx snippets/supported-blockchains/liquidity-pools.mdx
+            git add snippets/custom-error-codes.mdx snippets/supported-blockchains/liquidity-pools.mdx snippets/available-token-baskets.mdx
             git commit -m "docs: automatic update of technical reference snippets"
             git push origin main
           else

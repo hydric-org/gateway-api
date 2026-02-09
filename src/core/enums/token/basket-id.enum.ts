@@ -14,6 +14,6 @@ export abstract class BasketIdUtils {
   }
 
   static includes(id: string): boolean {
-    return this.values().includes(id as BasketId);
+    return (this.values() as string[]).includes(id);
   }
 }
