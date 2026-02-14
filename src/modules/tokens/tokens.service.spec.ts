@@ -32,6 +32,7 @@ describe('TokensService', () => {
           minimumTotalValuePooledUsd: 0,
           minimumSwapsCount: 0,
           minimumSwapVolumeUsd: 0,
+          ignoreWrappedNative: false,
         },
       );
 
@@ -60,6 +61,7 @@ describe('TokensService', () => {
           minimumTotalValuePooledUsd: 0,
           minimumSwapsCount: 0,
           minimumSwapVolumeUsd: 0,
+          ignoreWrappedNative: false,
         },
       );
 

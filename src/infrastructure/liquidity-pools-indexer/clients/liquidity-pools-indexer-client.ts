@@ -258,57 +258,84 @@ export class LiquidityPoolsIndexerClient {
     tokenAddress?: string;
     ids?: string[];
   }): SingleChainToken_Bool_Exp {
-    return {
-      ...(params.filter?.chainIds &&
-        params.filter.chainIds.length > 0 && {
-          chainId: {
-            _in: params.filter.chainIds.length > 1 ? params.filter.chainIds : undefined,
-            _eq: params.filter.chainIds.length === 1 ? params.filter.chainIds[0] : undefined,
-          },
-        }),
+    const conditions: SingleChainToken_Bool_Exp[] = [];
 
-      ...(params.ids && {
+    if (params.filter?.chainIds && params.filter.chainIds.length > 0) {
+      conditions.push({
+        chainId:
+          params.filter.chainIds.length === 1 ? { _eq: params.filter.chainIds[0] } : { _in: params.filter.chainIds },
+      });
+    }
+
+    if (params.ids && params.ids.length > 0) {
+      conditions.push({
         id: { _in: params.ids },
-      }),
+      });
+    }
 
-      ...(params.filter?.minimumTotalValuePooledUsd && {
+    if (params.filter?.ignoreWrappedNative) {
+      conditions.push({
+        id: {
+          _nin: ChainIdUtils.values().map((chainId) =>
+            LiquidityPoolsIndexerRequestAdapter.buildEntityId(chainId, ChainIdUtils.wrappedNativeAddress[chainId]),
+          ),
+        },
+      });
+    }
+
+    if (params.filter?.minimumTotalValuePooledUsd !== undefined) {
+      conditions.push({
         trackedTotalValuePooledUsd: { _gt: params.filter.minimumTotalValuePooledUsd.toString() },
-      }),
+      });
+    }
 
-      swapsCount: {
-        _gt: params.filter?.minimumSwapsCount?.toString(),
-      },
+    if (params.filter?.minimumSwapsCount !== undefined) {
+      conditions.push({
+        swapsCount: { _gt: params.filter.minimumSwapsCount.toString() },
+      });
+    }
 
-      trackedSwapVolumeUsd: {
-        _gt: params.filter?.minimumSwapVolumeUsd?.toString(),
-      },
+    if (params.filter?.minimumSwapVolumeUsd !== undefined) {
+      conditions.push({
+        trackedSwapVolumeUsd: { _gt: params.filter.minimumSwapVolumeUsd.toString() },
+      });
+    }
 
-      ...(params.search && {
+    if (params.search) {
+      conditions.push({
         _or: [
           { name: { _ilike: `%${params.search}%` } },
           { normalizedName: { _ilike: `%${params.search}%` } },
           { symbol: { _ilike: `%${params.search}%` } },
           { normalizedSymbol: { _ilike: `%${params.search}%` } },
         ],
-      }),
+      });
+    }
 
-      ...(params.tokenAddress && {
+    if (params.tokenAddress) {
+      conditions.push({
         tokenAddress: { _eq: params.tokenAddress },
-      }),
+      });
+    }
 
-      ...(params.filter?.symbols &&
-        params.filter.symbols.length > 0 && {
-          _or: [
-            {
-              normalizedSymbol:
-                params.filter.symbols.length === 1 ? { _eq: params.filter.symbols[0] } : { _in: params.filter.symbols },
-            },
-            {
-              symbol:
-                params.filter.symbols.length === 1 ? { _eq: params.filter.symbols[0] } : { _in: params.filter.symbols },
-            },
-          ],
-        }),
-    };
+    if (params.filter?.symbols && params.filter.symbols.length > 0) {
+      conditions.push({
+        _or: [
+          {
+            normalizedSymbol:
+              params.filter.symbols.length === 1 ? { _eq: params.filter.symbols[0] } : { _in: params.filter.symbols },
+          },
+          {
+            symbol:
+              params.filter.symbols.length === 1 ? { _eq: params.filter.symbols[0] } : { _in: params.filter.symbols },
+          },
+        ],
+      });
+    }
+
+    if (conditions.length === 0) return {};
+    if (conditions.length === 1) return conditions[0];
+
+    return { _and: conditions };
   }
 }

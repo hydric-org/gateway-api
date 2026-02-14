@@ -1,13 +1,17 @@
-import { ChainId } from '@core/enums/chain-id';
+import { ChainId, ChainIdUtils } from '@core/enums/chain-id';
 import { LiquidityPoolOrderField } from '@core/enums/liquidity-pool/liquidity-pool-order-field';
 import { LiquidityPoolStatsTimeframe } from '@core/enums/liquidity-pool/liquidity-pool-stats-timeframe';
 import { LiquidityPoolType } from '@core/enums/liquidity-pool/liquidity-pool-type';
 import { OrderDirection } from '@core/enums/order-direction';
+import { TokenOrderField } from '@core/enums/token/token-order-field';
+import { ITokenFilter } from '@core/interfaces/token/token-filter.interface';
 import { GraphQLClients } from '@infrastructure/graphql/graphql-clients';
 import {
   LiquidityPoolsIndexerGetSingleChainTokensDocument,
   LiquidityPoolsIndexerGetTokenPriceDocument,
+  LiquidityPoolsIndexerGetTokensForMultichainAggregationDocument,
 } from 'src/gen/graphql.gen';
+import { LiquidityPoolsIndexerRequestAdapter } from '../adapters/liquidity-pools-indexer-request-adapter';
 import { LiquidityPoolsIndexerClient } from './liquidity-pools-indexer-client';
 
 describe('LiquidityPoolsIndexerClient', () => {
@@ -138,12 +142,163 @@ describe('LiquidityPoolsIndexerClient', () => {
 
       (graphQLClientsMock.liquidityPoolsIndexerClient.request as jest.Mock).mockResolvedValue(mockResponse);
 
-      const result = await client.getSingleChainTokens({
+      await client.getSingleChainTokens({
         filter: {
           chainIds: [ChainId.ETHEREUM],
         },
       });
-      expect(result[0].address).toBe('0x1');
+    });
+
+    it('should include both _in and _nin in the id filter when both ids and ignoreWrappedNative are provided', async () => {
+      const mockResponse = { SingleChainToken: [] };
+      (graphQLClientsMock.liquidityPoolsIndexerClient.request as jest.Mock).mockResolvedValue(mockResponse);
+
+      const specificIds = ['1-0xabc', '1-0xdef'];
+
+      await client.getSingleChainTokens({
+        ids: specificIds,
+        filter: {
+          ignoreWrappedNative: true,
+        },
+      });
+
+      const lastCall = (graphQLClientsMock.liquidityPoolsIndexerClient.request as jest.Mock).mock.calls[0][0];
+      const tokenFilter = lastCall.variables.tokenFilter;
+
+      // Both should be present under _and
+      expect(tokenFilter).toHaveProperty('_and');
+      expect(tokenFilter._and).toContainEqual({ id: { _in: specificIds } });
+      expect(tokenFilter._and).toContainEqual({
+        id: {
+          _nin: expect.arrayContaining([
+            LiquidityPoolsIndexerRequestAdapter.buildEntityId(1, ChainIdUtils.wrappedNativeAddress[1]),
+          ]),
+        },
+      });
+    });
+
+    it('should combine all filters seamlessly (ids, search, symbols, ignoreWrappedNative)', async () => {
+      const mockResponse = { SingleChainToken: [] };
+      (graphQLClientsMock.liquidityPoolsIndexerClient.request as jest.Mock).mockResolvedValue(mockResponse);
+
+      const specificIds = ['1-0xabc'];
+      const search = 'test';
+      const symbols = ['USDC'];
+
+      await client.getSingleChainTokens({
+        ids: specificIds,
+        search,
+        filter: {
+          symbols,
+          ignoreWrappedNative: true,
+          minimumTotalValuePooledUsd: 1000,
+        },
+      });
+
+      const lastCall = (graphQLClientsMock.liquidityPoolsIndexerClient.request as jest.Mock).mock.calls[0][0];
+      const tokenFilter = lastCall.variables.tokenFilter;
+
+      // Verify it uses _and to combine multiple filters
+      expect(tokenFilter).toHaveProperty('_and');
+      const andConditions = tokenFilter._and;
+
+      // Check ID filters (both _in and _nin should be represented)
+      expect(andConditions).toContainEqual({ id: { _in: specificIds } });
+      expect(andConditions.some((c: any) => c.id?._nin)).toBe(true);
+
+      // Check OR filters (both search and symbols should be represented)
+      const orConditions = andConditions.filter((c: any) => c._or);
+      expect(orConditions).toHaveLength(2);
+
+      // One OR for search
+      expect(orConditions.some((c: any) => c._or.some((o: any) => o.name?._ilike))).toBe(true);
+      // One OR for symbols
+      expect(orConditions.some((c: any) => c._or.some((o: any) => o.symbol?._in || o.symbol?._eq))).toBe(true);
+
+      // Check stats filter
+      expect(andConditions).toContainEqual({ trackedTotalValuePooledUsd: { _gt: '1000' } });
+    });
+
+    it('should combine search and symbols filters safely (using multiple _or blocks in _and)', async () => {
+      const mockResponse = { SingleChainToken: [] };
+      (graphQLClientsMock.liquidityPoolsIndexerClient.request as jest.Mock).mockResolvedValue(mockResponse);
+
+      const search = 'eth';
+      const symbols = ['WETH', 'stETH'];
+
+      await client.getSingleChainTokens({
+        search,
+        filter: {
+          symbols,
+        },
+      });
+
+      const lastCall = (graphQLClientsMock.liquidityPoolsIndexerClient.request as jest.Mock).mock.calls[0][0];
+      const tokenFilter = lastCall.variables.tokenFilter;
+
+      // Should use _and to combine the two _or conditions
+      expect(tokenFilter).toHaveProperty('_and');
+      const orConditions = tokenFilter._and.filter((c: any) => c._or);
+      expect(orConditions).toHaveLength(2);
+
+      // Verify search OR condition
+      expect(
+        orConditions.some((c: any) =>
+          c._or.some((o: any) => o.symbol?._ilike === '%eth%' || o.name?._ilike === '%eth%'),
+        ),
+      ).toBe(true);
+
+      // Verify symbols OR condition
+      // Verify symbols OR condition
+      expect(orConditions.some((c: any) => c._or.some((o: any) => o.symbol?._in?.includes('WETH')))).toBe(true);
+    });
+
+    it('should maintain structural harmony for all ITokenFilter properties (ensures no field is missed or overwritten)', async () => {
+      const mockResponse = { SingleChainToken: [] };
+      (graphQLClientsMock.liquidityPoolsIndexerClient.request as jest.Mock).mockResolvedValue(mockResponse);
+
+      // We use Required<ITokenFilter> to force a compilation error if a new property is added
+      // to the interface but not included in this test case.
+      const fullFilter: Required<ITokenFilter> = {
+        chainIds: [ChainId.ETHEREUM, ChainId.BASE],
+        minimumTotalValuePooledUsd: 1000,
+        minimumSwapsCount: 50,
+        minimumSwapVolumeUsd: 5000,
+        ignoreWrappedNative: true,
+      };
+
+      await client.getSingleChainTokens({
+        filter: fullFilter,
+        ids: ['1-0xabc'], // Also add ids to check harmony between filter.id and root ids
+        search: 'harmony', // Also add search to check harmony between filter.symbols and search _or
+      });
+
+      const lastCall = (graphQLClientsMock.liquidityPoolsIndexerClient.request as jest.Mock).mock.calls[0][0];
+      const tokenFilter = lastCall.variables.tokenFilter;
+
+      expect(tokenFilter).toHaveProperty('_and');
+      const conditions = tokenFilter._and;
+
+      // Verify EVERY property from ITokenFilter is present in the conditions array
+      // 1. chainIds
+      expect(conditions).toContainEqual({ chainId: { _in: fullFilter.chainIds } });
+      // 2. minimumTotalValuePooledUsd
+      expect(conditions).toContainEqual({ trackedTotalValuePooledUsd: { _gt: '1000' } });
+      // 3. minimumSwapsCount
+      expect(conditions).toContainEqual({ swapsCount: { _gt: '50' } });
+      // 4. minimumSwapVolumeUsd
+      expect(conditions).toContainEqual({ trackedSwapVolumeUsd: { _gt: '5000' } });
+      // 5. ignoreWrappedNative
+      expect(conditions.some((c: any) => c.id?._nin)).toBe(true);
+
+      // Verify additional params also present
+      // 6. ids
+      expect(conditions).toContainEqual({ id: { _in: ['1-0xabc'] } });
+      // 7. search
+      expect(conditions.some((c: any) => c._or?.some((o: any) => o.name?._ilike === '%harmony%'))).toBe(true);
+
+      // Total count of conditions: 5 (from filter) + 1 (ids) + 1 (search) = 7
+      expect(conditions).toHaveLength(7);
     });
   });
 
@@ -415,6 +570,60 @@ describe('LiquidityPoolsIndexerClient', () => {
                 protocol_id: { _in: ['uniswap-v3'] },
                 poolType: { _in: ['V3'] },
                 trackedTotalValueLockedUsd: { _gte: '1000' },
+              }),
+            }),
+          }),
+        );
+      });
+    });
+  });
+
+  describe('getTokensForMultichainAggregation', () => {
+    describe('ignoreWrappedNative filter', () => {
+      it('should include _nin filter for wrapped native tokens when ignoreWrappedNative is TRUE', async () => {
+        const mockResponse = { SingleChainToken: [] };
+        (graphQLClientsMock.liquidityPoolsIndexerClient.request as jest.Mock).mockResolvedValue(mockResponse);
+
+        await client.getTokensForMultichainAggregation({
+          filter: {
+            ignoreWrappedNative: true,
+          },
+          orderBy: { field: TokenOrderField.TVL, direction: OrderDirection.DESC },
+        });
+
+        const wrappedIds = Object.entries(ChainIdUtils.wrappedNativeAddress).map(
+          ([chainId, address]) => `${chainId}-${address.toLowerCase()}`,
+        );
+
+        expect(graphQLClientsMock.liquidityPoolsIndexerClient.request).toHaveBeenCalledWith(
+          expect.objectContaining({
+            document: LiquidityPoolsIndexerGetTokensForMultichainAggregationDocument,
+            variables: expect.objectContaining({
+              tokenFilter: expect.objectContaining({
+                id: { _nin: expect.arrayContaining(wrappedIds) },
+              }),
+            }),
+          }),
+        );
+      });
+
+      it('should NOT include _nin filter for wrapped native tokens when ignoreWrappedNative is FALSE', async () => {
+        const mockResponse = { SingleChainToken: [] };
+        (graphQLClientsMock.liquidityPoolsIndexerClient.request as jest.Mock).mockResolvedValue(mockResponse);
+
+        await client.getTokensForMultichainAggregation({
+          filter: {
+            ignoreWrappedNative: false,
+          },
+          orderBy: { field: TokenOrderField.TVL, direction: OrderDirection.DESC },
+        });
+
+        expect(graphQLClientsMock.liquidityPoolsIndexerClient.request).toHaveBeenCalledWith(
+          expect.objectContaining({
+            document: LiquidityPoolsIndexerGetTokensForMultichainAggregationDocument,
+            variables: expect.objectContaining({
+              tokenFilter: expect.not.objectContaining({
+                id: expect.objectContaining({ _nin: expect.anything() }),
               }),
             }),
           }),

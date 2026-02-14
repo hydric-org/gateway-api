@@ -54,4 +54,15 @@ The minimum cumulative **Swap Volume** (USD) since the asset was deployed.`,
   @IsNumber({ allowInfinity: false, allowNaN: false })
   @Min(0)
   readonly minimumSwapVolumeUsd: number = 100000;
+
+  @ApiPropertyOptional({
+    description: `
+If set to **true** (default), the response will exclude Wrapped Native tokens (e.g., WETH on Ethereum, WMATIC on Polygon).
+Use **false** if you specifically need the ERC-20 wrapped version of the native asset. But note that both the native token and its wrapped version will appear in the results`,
+    default: true,
+    example: true,
+  })
+  @IsOptional()
+  @Type(() => Boolean)
+  readonly ignoreWrappedNative: boolean = true;
 }

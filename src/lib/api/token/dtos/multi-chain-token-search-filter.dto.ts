@@ -5,7 +5,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsArray, IsInt, IsNumber, IsOptional, Min } from 'class-validator';
 
-export class MultiChainTokenSearchFilter implements Omit<ITokenFilter, 'symbols'> {
+export class MultiChainTokenSearchFilter implements ITokenFilter {
   @ApiPropertyOptional({
     description: 'Filter results to specific networks by chain ID. If omitted, defaults to all supported networks.',
     example: [ChainId.ETHEREUM, ChainId.BASE],
@@ -53,4 +53,15 @@ export class MultiChainTokenSearchFilter implements Omit<ITokenFilter, 'symbols'
   @IsNumber({ allowInfinity: false, allowNaN: false })
   @Min(0)
   readonly minimumSwapVolumeUsd: number = 0;
+
+  @ApiPropertyOptional({
+    description: `
+If set to **true**, the response will exclude Wrapped Native tokens (e.g., WETH on Ethereum).
+Defaults to **false** for search operations to ensure users can find WETH if they search for it.`,
+    default: false,
+    example: false,
+  })
+  @IsOptional()
+  @Type(() => Boolean)
+  readonly ignoreWrappedNative: boolean = false;
 }

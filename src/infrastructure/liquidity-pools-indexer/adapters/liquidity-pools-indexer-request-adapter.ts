@@ -9,7 +9,12 @@ import { Order_By, Pool_Order_By, PoolTimeframedStats_Order_By, SingleChainToken
 export const LiquidityPoolsIndexerRequestAdapter = {
   poolOrderToIndexer: liquidityPoolOrderToIndexer,
   tokenOrderToIndexer: tokenOrderToIndexer,
+  buildEntityId: buildEntityId,
 };
+
+function buildEntityId(chainId: number, address: string): string {
+  return `${chainId}-${address.toLowerCase()}`;
+}
 
 function orderDirectionToIndexer(direction: OrderDirection): Order_By {
   return direction === OrderDirection.DESC ? Order_By.Desc : Order_By.Asc;

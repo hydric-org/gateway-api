@@ -5,4 +5,5 @@ export interface ITokenFilter {
   minimumTotalValuePooledUsd?: number;
   minimumSwapsCount?: number;
   minimumSwapVolumeUsd?: number;
+  ignoreWrappedNative?: boolean;
 }

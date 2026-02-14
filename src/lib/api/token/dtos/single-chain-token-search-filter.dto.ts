@@ -3,7 +3,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsInt, IsNumber, IsOptional, Min } from 'class-validator';
 
-export class SingleChainTokenSearchFilter implements Omit<ITokenFilter, 'chainIds' | 'symbols'> {
+export class SingleChainTokenSearchFilter implements Omit<ITokenFilter, 'chainIds'> {
   @ApiPropertyOptional({
     description:
       'The minimum aggregate liquidity in USD for a token to be included in the search. Search uses 0 by default to show most results.',
@@ -39,4 +39,15 @@ export class SingleChainTokenSearchFilter implements Omit<ITokenFilter, 'chainId
   @IsNumber({ allowInfinity: false, allowNaN: false })
   @Min(0)
   readonly minimumSwapVolumeUsd: number = 0;
+
+  @ApiPropertyOptional({
+    description: `
+If set to **true**, the response will exclude Wrapped Native tokens (e.g., WETH on Ethereum, WBNB on BNB etc...).
+Defaults to **false** for search operations to ensure users can find WETH if they search for it.`,
+    default: false,
+    example: false,
+  })
+  @IsOptional()
+  @Type(() => Boolean)
+  readonly ignoreWrappedNative: boolean = false;
 }
