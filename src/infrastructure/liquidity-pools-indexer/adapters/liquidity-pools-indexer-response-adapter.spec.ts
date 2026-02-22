@@ -1,8 +1,11 @@
+import { ZERO_ETHEREUM_ADDRESS } from '@core/constants';
 import { ChainId } from '@core/enums/chain-id';
+import { LiquidityPoolType } from '@core/enums/liquidity-pool/liquidity-pool-type';
 import { OrderDirection } from '@core/enums/order-direction';
 import { TokenOrderField } from '@core/enums/token/token-order-field';
 import { ILiquidityPoolsIndexerTokenForMultichainAggregation } from '@core/interfaces/token/liquidity-pools-indexer-token-for-multichain-aggregation.interface';
 import { MULTICHAIN_TOKEN_OVERRIDES } from '@core/token/multichain-token-overrides';
+import 'src/core/extensions/string.extension';
 import { LiquidityPoolsIndexerResponseAdapter } from './liquidity-pools-indexer-response-adapter';
 
 // No mock needed for multichain-token-overrides as we need the logic and can mutate the constant object.
@@ -318,6 +321,105 @@ describe('LiquidityPoolsIndexerResponseAdapter', () => {
       expect(result.multichainTokenList[0].symbol).toBe('HIGH');
       expect(result.multichainTokenList[1].symbol).toBe('LOW');
       expect(result.multichainTokenList[2].symbol).toBe('ZERO');
+    });
+  });
+
+  describe('responseToLiquidityPoolList', () => {
+    const rawPool = {
+      chainId: 1,
+      poolAddress: '0xpool',
+      poolType: LiquidityPoolType.V3,
+      createdAtTimestamp: '123456789',
+      currentFeeTierPercentage: '0.3',
+      isDynamicFee: false,
+      token0: {
+        tokenAddress: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+        symbol: 'WETH',
+        name: 'Wrapped Ether',
+        decimals: 18,
+      },
+      token1: {
+        tokenAddress: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+        symbol: 'USDC',
+        name: 'USD Coin',
+        decimals: 6,
+      },
+      protocol: {
+        id: 'uniswap-v3',
+        logo: 'https://example.com/logo.png',
+        name: 'Uniswap V3',
+        url: 'https://uniswap.org',
+      },
+      v3PoolData: {
+        sqrtPriceX96: '123',
+        tickSpacing: 60,
+        tick: 1,
+      },
+      totalStats24h: {
+        feesUsd: '0',
+        swapVolumeUsd: '0',
+        yearlyYield: '0',
+        liquidityNetInflowUsd: '0',
+        liquidityVolumeUsd: '0',
+      },
+      totalStats7d: {
+        feesUsd: '0',
+        swapVolumeUsd: '0',
+        yearlyYield: '0',
+        liquidityNetInflowUsd: '0',
+        liquidityVolumeUsd: '0',
+      },
+      totalStats30d: {
+        feesUsd: '0',
+        swapVolumeUsd: '0',
+        yearlyYield: '0',
+        liquidityNetInflowUsd: '0',
+        liquidityVolumeUsd: '0',
+      },
+      totalStats90d: {
+        feesUsd: '0',
+        swapVolumeUsd: '0',
+        yearlyYield: '0',
+        liquidityNetInflowUsd: '0',
+        liquidityVolumeUsd: '0',
+      },
+      totalValueLockedUsd: '1000',
+      totalValueLockedToken0: '1',
+      totalValueLockedToken0Usd: '500',
+      totalValueLockedToken1: '500',
+      totalValueLockedToken1Usd: '500',
+    };
+
+    it('should NOT convert tokens when parseWrappedToNative is NOT called', () => {
+      const result = LiquidityPoolsIndexerResponseAdapter.responseToLiquidityPoolList([rawPool as any]);
+      expect(result[0].tokens[0].address).toBe('0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2');
+      expect(result[0].tokens[0].symbol).toBe('WETH');
+    });
+
+    it('should convert wrapped native to native when parseWrappedToNative is called', () => {
+      const pools = LiquidityPoolsIndexerResponseAdapter.responseToLiquidityPoolList([rawPool as any]);
+      const result = LiquidityPoolsIndexerResponseAdapter.parseWrappedToNative(pools);
+
+      expect(result[0].tokens[0].address).toBe(ZERO_ETHEREUM_ADDRESS);
+      expect(result[0].tokens[0].symbol).toBe('ETH');
+      expect(result[0].tokens[0].name).toBe('Ether');
+    });
+
+    it('should NOT convert other tokens', () => {
+      const pools = LiquidityPoolsIndexerResponseAdapter.responseToLiquidityPoolList([rawPool as any]);
+      const result = LiquidityPoolsIndexerResponseAdapter.parseWrappedToNative(pools);
+
+      expect(result[0].tokens[1].address).toBe('0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48');
+      expect(result[0].tokens[1].symbol).toBe('USDC');
+    });
+
+    it('should convert tokens in balance field when parseWrappedToNative is called', () => {
+      const pools = LiquidityPoolsIndexerResponseAdapter.responseToLiquidityPoolList([rawPool as any]);
+      const result = LiquidityPoolsIndexerResponseAdapter.parseWrappedToNative(pools);
+
+      expect(result[0].balance.tokens[0].token.address).toBe(ZERO_ETHEREUM_ADDRESS);
+      expect(result[0].balance.tokens[0].token.symbol).toBe('ETH');
+      expect(result[0].balance.tokens[1].token.address).toBe('0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48');
     });
   });
 });

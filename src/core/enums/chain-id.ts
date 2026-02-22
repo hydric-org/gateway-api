@@ -1,3 +1,5 @@
+import { NativeToken, NativeTokenMetadata, NativeTokenUtils } from './native-token';
+
 export enum ChainId {
   ETHEREUM = 1,
   MONAD = 143,
@@ -35,5 +37,15 @@ export abstract class ChainIdUtils {
     [ChainId.HYPER_EVM]: '0x5555555555555555555555555555555555555555',
     [ChainId.MONAD]: '0x3bd359C1119dA7Da1D913D1C4D2B7c461115433A',
     [ChainId.PLASMA]: '0x6100E367285b01F48D07953803A2d8dCA5D19873',
+  };
+
+  static nativeTokenParams: Record<ChainId, NativeTokenMetadata> = {
+    [ChainId.ETHEREUM]: NativeTokenUtils.getMetadata(NativeToken.ETH),
+    [ChainId.SCROLL]: NativeTokenUtils.getMetadata(NativeToken.ETH),
+    [ChainId.BASE]: NativeTokenUtils.getMetadata(NativeToken.ETH),
+    [ChainId.UNICHAIN]: NativeTokenUtils.getMetadata(NativeToken.ETH),
+    [ChainId.HYPER_EVM]: NativeTokenUtils.getMetadata(NativeToken.HYPE),
+    [ChainId.MONAD]: NativeTokenUtils.getMetadata(NativeToken.MON),
+    [ChainId.PLASMA]: NativeTokenUtils.getMetadata(NativeToken.XPL),
   };
 }

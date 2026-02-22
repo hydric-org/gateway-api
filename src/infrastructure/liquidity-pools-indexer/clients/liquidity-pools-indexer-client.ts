@@ -1,5 +1,6 @@
 import { TOKEN_LOGO, ZERO_ETHEREUM_ADDRESS } from '@core/constants';
 import { ChainId, ChainIdUtils } from '@core/enums/chain-id';
+import { ParseWrappedToNative } from '@core/enums/parse-wrapped-to-native.enum';
 import { LiquidityPoolNotFoundError } from '@core/errors/liquidity-pool-not-found.error';
 import { TokenNotFoundError } from '@core/errors/token-not-found-error';
 import { IBlockchainAddress } from '@core/interfaces/blockchain-address.interface';
@@ -12,6 +13,7 @@ import { ILiquidityPoolsIndexerTokenForMultichainAggregation } from '@core/inter
 import { ISingleChainTokenInfo } from '@core/interfaces/token/single-chain-token-info.interface';
 import { ITokenFilter } from '@core/interfaces/token/token-filter.interface';
 import { ITokenOrder } from '@core/interfaces/token/token-order.interface';
+import { TokenUtils } from '@core/token/token-utils';
 import { GraphQLClients } from '@infrastructure/graphql/graphql-clients';
 import { LiquidityPoolsIndexerRequestAdapter } from '@infrastructure/liquidity-pools-indexer/adapters/liquidity-pools-indexer-request-adapter';
 import { Injectable } from '@nestjs/common';
@@ -118,7 +120,7 @@ export class LiquidityPoolsIndexerClient {
       variables: {
         tokenFilter: {
           id: {
-            _eq: `${chainId}-${tokenAddress}`.toLowerCase(),
+            _eq: TokenUtils.buildTokenId(chainId, tokenAddress),
           },
         },
       },
@@ -145,12 +147,12 @@ export class LiquidityPoolsIndexerClient {
   }
 
   async getTokenPrice(chainId: ChainId, tokenAddress: string): Promise<number> {
-    const tokenIds = [`${chainId}-${tokenAddress.toLowerCase()}`];
+    const tokenIds = [TokenUtils.buildTokenId(chainId, tokenAddress)];
 
     if (tokenAddress === ZERO_ETHEREUM_ADDRESS) {
       const wrappedAddress = ChainIdUtils.wrappedNativeAddress[chainId];
 
-      tokenIds.push(`${chainId}-${wrappedAddress.toLowerCase()}`);
+      tokenIds.push(TokenUtils.buildTokenId(chainId, wrappedAddress));
     }
 
     const response: LiquidityPoolsIndexerGetTokenPriceQuery =
@@ -173,7 +175,7 @@ export class LiquidityPoolsIndexerClient {
       });
     }
 
-    const requestedId = `${chainId}-${tokenAddress.toLowerCase()}`;
+    const requestedId = TokenUtils.buildTokenId(chainId, tokenAddress);
     const foundToken = response.SingleChainToken.find((t) => t.id === requestedId) || response.SingleChainToken[0];
 
     return Number(foundToken.trackedUsdPrice);
@@ -187,7 +189,7 @@ export class LiquidityPoolsIndexerClient {
       document: LiquidityPoolsIndexerGetPoolsDocument,
       variables: {
         poolsFilter: {
-          id: { _eq: `${chainId}-${poolAddress.toLowerCase()}` },
+          id: { _eq: TokenUtils.buildTokenId(chainId, poolAddress) },
         },
       },
     });
@@ -209,9 +211,34 @@ export class LiquidityPoolsIndexerClient {
     skip: number;
     orderBy: ILiquidityPoolOrder;
     filters: ILiquidityPoolFilter;
+    parseWrappedToNative: ParseWrappedToNative;
+    useWrappedForNative: boolean;
   }): Promise<ILiquidityPool[]> {
-    const lowercasedTokensAIds = params.tokensA.map((addr) => `${addr.chainId}-${addr.address.toLowerCase()}`);
-    const lowercasedTokensBIds = params.tokensB.map((addr) => `${addr.chainId}-${addr.address.toLowerCase()}`);
+    const tokensAIdsSet = new Set<string>();
+    const tokensBIdsSet = new Set<string>();
+
+    for (const tokenAddress of params.tokensA) {
+      tokensAIdsSet.add(TokenUtils.buildTokenId(tokenAddress.chainId, tokenAddress.address));
+
+      if (params.useWrappedForNative && tokenAddress.address === ZERO_ETHEREUM_ADDRESS) {
+        tokensAIdsSet.add(
+          TokenUtils.buildTokenId(tokenAddress.chainId, ChainIdUtils.wrappedNativeAddress[tokenAddress.chainId]),
+        );
+      }
+    }
+
+    for (const tokenAddress of params.tokensB) {
+      tokensBIdsSet.add(TokenUtils.buildTokenId(tokenAddress.chainId, tokenAddress.address));
+
+      if (params.useWrappedForNative && tokenAddress.address === ZERO_ETHEREUM_ADDRESS) {
+        tokensBIdsSet.add(
+          TokenUtils.buildTokenId(tokenAddress.chainId, ChainIdUtils.wrappedNativeAddress[tokenAddress.chainId]),
+        );
+      }
+    }
+
+    const tokensAIdsArray = Array.from(tokensAIdsSet);
+    const tokensBIdsArray = Array.from(tokensBIdsSet);
 
     const pools = await this.graphQLClients.liquidityPoolsIndexerClient.request<
       LiquidityPoolsIndexerGetPoolsQuery,
@@ -237,19 +264,34 @@ export class LiquidityPoolsIndexerClient {
 
           _or: [
             {
-              ...(lowercasedTokensAIds.length > 0 && { token0_id: { _in: lowercasedTokensAIds } }),
-              ...(lowercasedTokensBIds.length > 0 && { token1_id: { _in: lowercasedTokensBIds } }),
+              ...(tokensAIdsArray.length > 0 && { token0_id: { _in: tokensAIdsArray } }),
+              ...(tokensBIdsArray.length > 0 && { token1_id: { _in: tokensBIdsArray } }),
             },
             {
-              ...(lowercasedTokensBIds.length > 0 && { token0_id: { _in: lowercasedTokensBIds } }),
-              ...(lowercasedTokensAIds.length > 0 && { token1_id: { _in: lowercasedTokensAIds } }),
+              ...(tokensBIdsArray.length > 0 && { token0_id: { _in: tokensBIdsArray } }),
+              ...(tokensAIdsArray.length > 0 && { token1_id: { _in: tokensAIdsArray } }),
             },
           ],
         },
       },
     });
 
-    return LiquidityPoolsIndexerResponseAdapter.responseToLiquidityPoolList(pools.Pool);
+    const poolsList = LiquidityPoolsIndexerResponseAdapter.responseToLiquidityPoolList(pools.Pool);
+
+    switch (params.parseWrappedToNative) {
+      case ParseWrappedToNative.NEVER:
+        return poolsList;
+      case ParseWrappedToNative.ALWAYS:
+        return LiquidityPoolsIndexerResponseAdapter.parseWrappedToNative(poolsList);
+      case ParseWrappedToNative.AUTO: {
+        return poolsList.map((pool) => {
+          const nativeTokenKey = TokenUtils.buildTokenId(pool.chainId, ZERO_ETHEREUM_ADDRESS);
+          const hasNativeSearch = tokensAIdsSet.has(nativeTokenKey) || tokensBIdsSet.has(nativeTokenKey);
+
+          return hasNativeSearch ? LiquidityPoolsIndexerResponseAdapter.parseWrappedToNative([pool])[0] : pool;
+        });
+      }
+    }
   }
 
   private _buildTokenFilter(params: {
@@ -277,7 +319,7 @@ export class LiquidityPoolsIndexerClient {
       conditions.push({
         id: {
           _nin: ChainIdUtils.values().map((chainId) =>
-            LiquidityPoolsIndexerRequestAdapter.buildEntityId(chainId, ChainIdUtils.wrappedNativeAddress[chainId]),
+            TokenUtils.buildTokenId(chainId, ChainIdUtils.wrappedNativeAddress[chainId]),
           ),
         },
       });

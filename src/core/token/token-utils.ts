@@ -1,3 +1,4 @@
+import { ChainId } from '@core/enums/chain-id';
 import { OrderDirection } from '@core/enums/order-direction';
 import { TokenOrderField } from '@core/enums/token/token-order-field';
 import { ITokenOrder } from '@core/interfaces/token/token-order.interface';
@@ -6,6 +7,7 @@ export const TokenUtils = {
   areTokensTheSame,
   sumTotalValuePooledUsd,
   sortTokenList,
+  buildTokenId,
 };
 
 function sumTotalValuePooledUsd(tokens: { trackedTotalValuePooledUsd: number }[]): number {
@@ -76,4 +78,8 @@ function sortTokenList(tokens: { totalValuePooledUsd: number }[], order: ITokenO
 
     return order.direction === OrderDirection.ASC ? comparison : -comparison;
   });
+}
+
+function buildTokenId(chainId: ChainId, address: string): string {
+  return `${chainId}-${address.toLowerCase()}`;
 }

@@ -29,6 +29,8 @@ export class PoolsService {
       limit: params.searchConfig.limit,
       skip: passedCursor.skip,
       orderBy: params.searchConfig.orderBy,
+      parseWrappedToNative: params.searchConfig.parseWrappedToNative,
+      useWrappedForNative: params.searchConfig.useWrappedForNative,
     });
 
     const nextCursor: string | null =

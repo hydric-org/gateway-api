@@ -1,4 +1,5 @@
 import { TOKEN_LOGO, ZERO_ETHEREUM_ADDRESS } from '@core/constants';
+import { ChainIdUtils } from '@core/enums/chain-id';
 import { LiquidityPoolType } from '@core/enums/liquidity-pool/liquidity-pool-type';
 import { ILiquidityPool } from '@core/interfaces/liquidity-pool/liquidity-pool.interface';
 import { IAlgebraLiquidityPoolMetadata } from '@core/interfaces/liquidity-pool/metadata/algebra-liquidity-pool-metadata.interface';
@@ -24,6 +25,7 @@ export const LiquidityPoolsIndexerResponseAdapter = {
   responseToSingleChainTokenList,
   responseToLiquidityPoolList,
   liquidityPoolsIndexerTokensToMultichainTokenList,
+  parseWrappedToNative,
 };
 
 function responseToTokenForMultichainList(
@@ -86,6 +88,43 @@ function liquidityPoolsIndexerTokensToMultichainTokenList(
     liquidityPoolsIndexerTokens,
     params.order,
   );
+}
+
+function parseWrappedToNative(pools: ILiquidityPool[]): ILiquidityPool[] {
+  return pools.map((pool) => {
+    const wrappedNativeAddress = ChainIdUtils.wrappedNativeAddress[pool.chainId];
+    const needsParse = pool.tokens.some((token) => token.address.lowercasedEquals(wrappedNativeAddress));
+    if (!needsParse) return pool;
+
+    const nativeMetadata = ChainIdUtils.nativeTokenParams[pool.chainId];
+
+    const parseToken = (token: ISingleChainTokenMetadata): ISingleChainTokenMetadata => {
+      if (token.address.lowercasedEquals(wrappedNativeAddress)) {
+        return {
+          ...token,
+          address: ZERO_ETHEREUM_ADDRESS,
+          name: nativeMetadata.name,
+          symbol: nativeMetadata.symbol,
+          decimals: nativeMetadata.decimals,
+          logoUrl: nativeMetadata.logoUrl,
+        };
+      }
+
+      return token;
+    };
+
+    return {
+      ...pool,
+      tokens: pool.tokens.map((token) => parseToken(token)),
+      balance: {
+        ...pool.balance,
+        tokens: pool.balance.tokens.map((tokenBalance) => ({
+          ...tokenBalance,
+          token: parseToken(tokenBalance.token),
+        })),
+      },
+    };
+  });
 }
 
 function _groupTokensBySymbolAndPriceStrategy(
