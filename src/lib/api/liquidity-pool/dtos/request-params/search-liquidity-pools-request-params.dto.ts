@@ -1,9 +1,11 @@
 import { ChainId } from '@core/enums/chain-id';
 import { BlockchainAddress } from '@lib/api/address/blockchain-address.dto';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { ArrayNotEmpty, IsArray, IsDefined, IsOptional, ValidateNested } from 'class-validator';
+import { IsArray, IsOptional, ValidateNested } from 'class-validator';
 import { IsBlockchainAddress } from '../../../address/validators/is-blockchain-address.validator';
+import { HasTokensOrBaskets } from '../../validators/has-tokens-or-baskets.validator';
+import { BlockchainBasket } from '../blockchain-basket.dto';
 import { LiquidityPoolSearchConfig } from '../liquiditity-pool-search-config.dto';
 import { SearchLiquidityPoolsFilter } from '../search-liquidity-pools-filter.dto';
 
@@ -15,13 +17,14 @@ const LIQUIDITY_POOL_FILTER_DEFAULT_EXAMPLE: SearchLiquidityPoolsFilter = {
   poolTypes: [],
 };
 
+@HasTokensOrBaskets()
 export class SearchLiquidityPoolsRequestParams {
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: `
 Primary set of token addresses. The search engine returns pools containing at least one of these tokens.
 
-- **Single Token Search:** Provide 'tokensA' and omit 'tokensB'.
-- **Pair Search:** Used in conjunction with 'tokensB'.
+- **Single Token Search:** Provide 'tokensA' and omit 'tokensB' (or alternatively use 'basketsA').
+- **Pair Search:** Used in conjunction with 'tokensB' or 'basketsB'.
 - **Note:** Token ordering does not affect search results.
     `,
     example: [
@@ -32,18 +35,33 @@ Primary set of token addresses. The search engine returns pools containing at le
     type: [BlockchainAddress],
   })
   @IsArray()
-  @ArrayNotEmpty()
-  @IsDefined()
+  @IsOptional()
   @Type(() => BlockchainAddress)
   @IsBlockchainAddress({ each: true })
-  readonly tokensA!: BlockchainAddress[];
+  readonly tokensA: BlockchainAddress[] = [];
+
+  @ApiPropertyOptional({
+    description: `
+Primary set of token baskets. The search engine automatically resolves these baskets into tokens server-side.
+Returns pools containing at least one token from any of the provided baskets.
+
+- **Behaviour:** This joins with tokensA, so if you pass tokensA and basketsA, the search engine will return pools containing at least one token from tokensA OR at least one token from basketsA.
+- **Note:** Either 'tokensA' or 'basketsA' must be provided.
+    `,
+    type: [BlockchainBasket],
+  })
+  @IsArray()
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => BlockchainBasket)
+  readonly basketsA: BlockchainBasket[] = [];
 
   @ApiPropertyOptional({
     description: `
 Secondary set of token identifiers used to narrow the search to specific pairs.
 
-- **Relationship:** Returns pools containing (one token from 'tokensA') AND (one token from 'tokensB').
-- **Broad Search:** If omitted, the search returns any pool containing a token from 'tokensA'.
+- **Relationship:** Returns pools containing (one token from 'tokensA'/'basketsA') AND (one token from 'tokensB'/'basketsB').
+- **Broad Search:** If omitted, the search returns any pool containing a token from 'tokensA'/'basketsA'.
 - **Note:** Evaluation is order-independent.
     `,
     example: [
@@ -57,6 +75,20 @@ Secondary set of token identifiers used to narrow the search to specific pairs.
   @Type(() => BlockchainAddress)
   @IsBlockchainAddress({ each: true })
   readonly tokensB: BlockchainAddress[] = [];
+
+  @ApiPropertyOptional({
+    description: `
+Secondary set of token baskets used to narrow the search to specific pairs. This cannot be used alone, needs either tokensA or basketsA.
+
+- **Relationship:** Returns pools that contain at least one token from 'tokensA'/'basketsA' AND at least one token from 'tokensB'/'basketsB'.
+    `,
+    type: [BlockchainBasket],
+  })
+  @IsArray()
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => BlockchainBasket)
+  readonly basketsB: BlockchainBasket[] = [];
 
   @ApiPropertyOptional({
     description: 'Filters based on pool attributes like TVL and protocol types.',

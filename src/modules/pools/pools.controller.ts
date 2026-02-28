@@ -33,6 +33,8 @@ export class PoolsController {
     const result = await this.poolsService.searchPools({
       tokensA: requestBody.tokensA,
       tokensB: requestBody.tokensB,
+      basketsA: requestBody.basketsA,
+      basketsB: requestBody.basketsB,
       searchFilters: requestBody.filters,
       searchConfig: requestBody.config,
     });
